@@ -1,0 +1,66 @@
+import type { Metadata, Viewport } from "next";
+import { Fraunces, Nunito_Sans } from "next/font/google";
+import "./globals.css";
+import { Boot } from "@/components/Boot";
+import { Nav } from "@/components/Nav";
+
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  variable: "--font-fraunces",
+  axes: ["SOFT", "WONK", "opsz"],
+});
+
+const nunito = Nunito_Sans({
+  subsets: ["latin"],
+  variable: "--font-nunito",
+});
+
+export const metadata: Metadata = {
+  title: "Gongfu — tea steep timer",
+  description:
+    "A quiet timer for gongfu tea. Steep by steep, tea by tea.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    title: "Gongfu",
+    statusBarStyle: "default",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f6f1e7" },
+    { media: "(prefers-color-scheme: dark)", color: "#1c1813" },
+  ],
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
+
+const THEME_SCRIPT = `
+try {
+  var s = JSON.parse(localStorage.getItem("gongfu.settings") || "{}");
+  var t = s.theme || "system";
+  var dark = t === "dark" || (t === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
+  if (dark) document.documentElement.classList.add("dark");
+} catch (e) {}
+`;
+
+export default function RootLayout({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      </head>
+      <body className={`${fraunces.variable} ${nunito.variable}`}>
+        <Boot />
+        <div className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col px-4 pb-24 pt-4 sm:px-6 sm:pt-8 md:pb-8 md:pt-10">
+          <main className="flex-1">{children}</main>
+        </div>
+        <Nav />
+      </body>
+    </html>
+  );
+}
