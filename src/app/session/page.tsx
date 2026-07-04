@@ -109,27 +109,28 @@ function SessionPageInner() {
     }, 500);
   }, [session.tea, steepIndex]);
 
-  // Display tick + expiry check. Timestamp math keeps this accurate even if
-  // frames are throttled in a background tab.
+  // Display tick + expiry check. A plain interval, not requestAnimationFrame —
+  // mobile Safari aggressively throttles rAF during idle foreground time (no
+  // touch/scroll), only "waking" it on interaction, which froze the countdown
+  // ring and liquid until something else forced a re-render. setInterval
+  // doesn't get throttled the same way. Timestamp math (not tick count) keeps
+  // the actual time accurate regardless of tick cadence.
   useEffect(() => {
     if (!running) return;
-    let raf = 0;
-    const loop = () => {
+    const tick = () => {
       setNow(Date.now());
-      if (isExpired(useSession.getState().timer)) {
-        fireAlarm();
-        return;
-      }
-      raf = requestAnimationFrame(loop);
+      if (isExpired(useSession.getState().timer)) fireAlarm();
     };
-    raf = requestAnimationFrame(loop);
-    // Backup for throttled tabs: fire right at the deadline.
+    tick();
+    const interval = setInterval(tick, 200);
+    // Backup in case the interval itself gets throttled: fire right at the
+    // deadline regardless.
     const left = remainingMs(timer);
     const backup = setTimeout(() => {
       if (isExpired(useSession.getState().timer)) fireAlarm();
     }, left + 50);
     return () => {
-      cancelAnimationFrame(raf);
+      clearInterval(interval);
       clearTimeout(backup);
     };
   }, [running, timer, fireAlarm]);
@@ -170,13 +171,10 @@ function SessionPageInner() {
     <div className="flex min-h-[calc(100dvh-6rem)] flex-col">
       <header className="mb-2 flex items-start justify-between gap-3">
         <button
-          onClick={() => {
-            session.end();
-            leaveSession(router);
-          }}
+          onClick={() => leaveSession(router)}
           className="rounded-full border border-line bg-surface px-3.5 py-1.5 text-xs font-semibold text-muted transition-colors hover:text-ink"
         >
-          {t.end}
+          {t.back}
         </button>
         <div className="text-right">
           <h1 className="font-display text-xl font-medium leading-tight">

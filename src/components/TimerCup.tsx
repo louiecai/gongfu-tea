@@ -33,8 +33,8 @@ export function TimerCup({
   children?: React.ReactNode;
 }) {
   const p = Math.min(1, Math.max(0, progress));
-  // Liquid surface: from just above the cup bottom to near the rim.
-  const surfaceY = 110 + LIQUID_R - 8 - p * (2 * LIQUID_R - 20);
+  // Liquid surface: from just above the cup bottom to fully at the rim.
+  const surfaceY = 110 + LIQUID_R - 8 - p * (2 * LIQUID_R - 8);
   const ringOffset = CIRC * p;
 
   return (

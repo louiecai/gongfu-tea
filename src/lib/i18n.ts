@@ -29,7 +29,7 @@ const EN = {
     `${steeps} steeps · first ${first} · ${temp}°C`,
 
   // session
-  end: "← End",
+  back: "← Back",
   steepOf: (n: number, total: number) => `Steep ${n} of ${total}`,
   steeping: "steeping…",
   paused: "paused",
@@ -201,7 +201,7 @@ const ZH: typeof EN = {
   noMatch: (q) => `没有找到「${q}」。换个名字试试，或者自己创建一款。`,
   cardMeta: (steeps, first, temp) => `${steeps} 泡 · 首泡 ${first} · ${temp}°C`,
 
-  end: "← 结束",
+  back: "← 返回",
   steepOf: (n, total) => `第 ${n} 泡 · 共 ${total} 泡`,
   steeping: "冲泡中…",
   paused: "已暂停",
