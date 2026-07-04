@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useLog } from "@/store/log";
 import { useProfiles, findTea } from "@/store/profiles";
-import { useSession } from "@/store/session";
+import { useActiveSessions } from "@/store/activeSessions";
 import { dateLocale, displayTeaName, type Lang } from "@/lib/i18n";
 import { formatMs } from "@/lib/timer";
 import { useT } from "@/store/useT";
@@ -22,8 +22,7 @@ export default function LogPage() {
   const sessions = useLog((s) => s.sessions);
   const hydrated = useLog((s) => s.hydrated);
   const custom = useProfiles((s) => s.custom);
-  const activeLogId = useSession((s) => s.logId);
-  const activeFinished = useSession((s) => s.finished);
+  const activeSessions = useActiveSessions((s) => s.sessions);
   const { t, lang } = useT();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [note, setNote] = useState("");
@@ -145,7 +144,7 @@ export default function LogPage() {
                     </ul>
                   )}
                 </div>
-                {activeLogId === s.id && !activeFinished && (
+                {activeSessions.some((a) => a.logId === s.id) && (
                   <Link
                     href={`/session?tea=${s.teaId}`}
                     className="shrink-0 rounded-full px-3 py-1.5 text-xs font-bold text-white"

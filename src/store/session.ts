@@ -11,11 +11,10 @@ import {
 } from "@/lib/timer";
 import { leafGrams } from "@/lib/brew";
 import { unlockAudio } from "@/lib/audio";
-import { activeSessionRepo } from "@/lib/repo";
+import { useActiveSessions } from "./activeSessions";
 import { useLog } from "./log";
 import { useStash } from "./stash";
 import { useSettings } from "./settings";
-import { findTea, useProfiles } from "./profiles";
 
 interface SessionStore {
   tea: TeaProfile | null;
@@ -33,8 +32,6 @@ interface SessionStore {
   /** When each pour started and how long it actually ran. */
   steeps: SteepRecord[];
 
-  /** Restore a session left running when the app was last closed. */
-  hydrate: () => void;
   begin: (tea: TeaProfile, strength: number) => void;
   startSteep: (gramsOverride?: number) => void;
   pause: () => void;
@@ -66,30 +63,31 @@ const EMPTY = {
 export const useSession = create<SessionStore>((set, get) => ({
   ...EMPTY,
 
-  hydrate: () => {
-    const saved = activeSessionRepo.load();
-    if (!saved) return;
-    const tea = findTea(saved.teaId, useProfiles.getState().custom);
-    if (!tea) {
-      // The tea behind this session was deleted — nothing to resume into.
-      activeSessionRepo.save(null);
+  begin: (tea, strength) => {
+    // Switching away from a different, unfinished tea loses nothing — the
+    // subscriber below keeps useActiveSessions current on every change.
+    //
+    // Resume this tea's own session if one's still unfinished, rather than
+    // starting over.
+    const existing = useActiveSessions
+      .getState()
+      .sessions.find((s) => s.teaId === tea.id);
+    if (existing) {
+      set({
+        tea,
+        steepDurations: existing.steepDurations,
+        steepIndex: existing.steepIndex,
+        timer: existing.timer,
+        steepsCompleted: existing.steepsCompleted,
+        finished: false,
+        logId: existing.logId,
+        justFinishedSteep: existing.justFinishedSteep,
+        totalBrewMs: existing.totalBrewMs,
+        steeps: existing.steeps,
+      });
       return;
     }
-    set({
-      tea,
-      steepDurations: saved.steepDurations,
-      steepIndex: saved.steepIndex,
-      timer: saved.timer,
-      steepsCompleted: saved.steepsCompleted,
-      finished: false,
-      logId: saved.logId,
-      justFinishedSteep: saved.justFinishedSteep,
-      totalBrewMs: saved.totalBrewMs,
-      steeps: saved.steeps,
-    });
-  },
 
-  begin: (tea, strength) => {
     const steepDurations = tea.steepsSec.map((s) => scaledSteepMs(s, strength));
     const logId = `brew-${Date.now().toString(36)}`;
     useLog.getState().add({
@@ -211,19 +209,25 @@ export const useSession = create<SessionStore>((set, get) => ({
   },
 
   clearAlarm: () => set({ justFinishedSteep: null }),
-  end: () => set({ ...EMPTY }),
+  end: () => {
+    const { logId } = get();
+    if (logId) useActiveSessions.getState().remove(logId);
+    set({ ...EMPTY });
+  },
 }));
 
-// Persist the live session after every change, so a reload or closed tab can
-// resume exactly where it left off. A finished (or ended) session has
-// nothing left to resume, so it clears the record instead.
+// Keep useActiveSessions in sync with whichever session is currently open,
+// so a reload or closed tab can resume it — and any other unfinished
+// session — later. A finished session has nothing left to resume, so it
+// drops out of the list instead.
 if (typeof window !== "undefined") {
   useSession.subscribe((state) => {
-    if (!state.tea || !state.logId || state.finished) {
-      activeSessionRepo.save(null);
+    if (!state.tea || !state.logId) return;
+    if (state.finished) {
+      useActiveSessions.getState().remove(state.logId);
       return;
     }
-    activeSessionRepo.save({
+    useActiveSessions.getState().upsert({
       logId: state.logId,
       teaId: state.tea.id,
       steepIndex: state.steepIndex,

@@ -31,6 +31,7 @@ export function Nav() {
             <li key={tab.href}>
               <Link
                 href={tab.href}
+                scroll={false}
                 aria-current={active ? "page" : undefined}
                 className={`flex flex-col items-center gap-0.5 px-5 py-2.5 text-[11px] font-semibold tracking-wide transition-colors md:flex-row md:gap-2 md:text-xs ${
                   active ? "text-ink" : "text-muted hover:text-ink"

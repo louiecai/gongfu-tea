@@ -52,6 +52,7 @@ export const stashRepo: Repo<StashItem[]> = new LocalStorageRepo(
 export const settingsRepo: Repo<Settings> = new LocalStorageRepo(
   `${PREFIX}settings`,
 );
-export const activeSessionRepo: Repo<ActiveSession | null> = new LocalStorageRepo(
-  `${PREFIX}activeSession`,
+/** One entry per unfinished brew — lets several sessions stay resumable at once. */
+export const activeSessionsRepo: Repo<ActiveSession[]> = new LocalStorageRepo(
+  `${PREFIX}activeSessions`,
 );

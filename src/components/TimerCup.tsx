@@ -33,8 +33,11 @@ export function TimerCup({
   children?: React.ReactNode;
 }) {
   const p = Math.min(1, Math.max(0, progress));
-  // Liquid surface: from just above the cup bottom to fully at the rim.
-  const surfaceY = 110 + LIQUID_R - 8 - p * (2 * LIQUID_R - 8);
+  // Liquid surface: from just above the cup bottom to fully at the rim. The
+  // wave path (see WAVE_D) dips as low as +12 from its own reference point,
+  // so the travel distance overshoots the rim by that much — otherwise the
+  // wave's troughs leave a visible gap at 100% even though its crests reach.
+  const surfaceY = 110 + LIQUID_R - 8 - p * (2 * LIQUID_R + 8);
   const ringOffset = CIRC * p;
 
   return (
