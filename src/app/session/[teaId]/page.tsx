@@ -13,6 +13,8 @@ import { playChime } from "@/lib/audio";
 import { notifySteepDone, vibrate } from "@/lib/alerts";
 import { TimerCup } from "@/components/TimerCup";
 import { SteepDots } from "@/components/SteepDots";
+import { STRINGS, teaNames } from "@/lib/i18n";
+import { useT } from "@/store/useT";
 
 function useWakeLock(active: boolean) {
   useEffect(() => {
@@ -48,6 +50,7 @@ export default function SessionPage() {
   const profilesHydrated = useProfiles((s) => s.hydrated);
   const settings = useSettings();
   const session = useSession();
+  const { t, lang } = useT();
   const tea = findTea(teaId, custom);
 
   const [now, setNow] = useState(() => Date.now());
@@ -73,7 +76,12 @@ export default function SessionPage() {
     const s = useSettings.getState();
     if (s.sound) playChime();
     if (s.notifications && session.tea) {
-      notifySteepDone(session.tea.name, steepIndex + 1);
+      const strings = STRINGS[s.language];
+      const names = teaNames(session.tea, s.language);
+      notifySteepDone(
+        strings.steepDoneTitle(names.primary, steepIndex + 1),
+        strings.steepDoneBody,
+      );
     }
     if (s.vibration) vibrate();
     useSession.getState().completeSteep();
@@ -112,9 +120,9 @@ export default function SessionPage() {
     if (!profilesHydrated) return null;
     return (
       <div className="pt-20 text-center">
-        <p className="text-muted">This tea isn’t on the shelf.</p>
+        <p className="text-muted">{t.teaNotFound}</p>
         <Link href="/" className="mt-3 inline-block font-semibold underline">
-          Back to teas
+          {t.backToTeas}
         </Link>
       </div>
     );
@@ -138,14 +146,14 @@ export default function SessionPage() {
           }}
           className="rounded-full border border-line bg-surface px-3.5 py-1.5 text-xs font-semibold text-muted transition-colors hover:text-ink"
         >
-          ← End
+          {t.end}
         </button>
         <div className="text-right">
           <h1 className="font-display text-xl font-medium leading-tight">
-            {tea.name}
+            {teaNames(tea, lang).primary}
           </h1>
-          {tea.chineseName && (
-            <p className="text-xs text-muted">{tea.chineseName}</p>
+          {teaNames(tea, lang).secondary && (
+            <p className="text-xs text-muted">{teaNames(tea, lang).secondary}</p>
           )}
         </div>
       </header>
@@ -159,7 +167,9 @@ export default function SessionPage() {
         </span>
         {settings.strength !== 1 && (
           <span className="rounded-full border border-line px-2.5 py-1">
-            strength ×{settings.strength.toFixed(2).replace(/0+$/, "").replace(/\.$/, "")}
+            {t.strengthChip(
+              settings.strength.toFixed(2).replace(/0+$/, "").replace(/\.$/, ""),
+            )}
           </span>
         )}
       </div>
@@ -176,7 +186,7 @@ export default function SessionPage() {
             className="flex flex-1 flex-col"
           >
             <p className="mb-3 text-center text-xs font-semibold uppercase tracking-[0.2em] text-muted">
-              Steep {steepIndex + 1} of {totalSteeps}
+              {t.steepOf(steepIndex + 1, totalSteeps)}
             </p>
 
             <TimerCup
@@ -189,14 +199,14 @@ export default function SessionPage() {
               </span>
               <span className="mt-1 text-xs text-muted">
                 {doneWaiting
-                  ? "poured — ready for the next?"
+                  ? t.pouredReady
                   : running
-                    ? "steeping…"
+                    ? t.steeping
                     : timer.status === "paused"
-                      ? "paused"
+                      ? t.paused
                       : session.justFinishedSteep
-                        ? "pour, then start when ready"
-                        : "tap start when the water’s in"}
+                        ? t.pourThenStart
+                        : t.tapStart}
               </span>
             </TimerCup>
 
@@ -225,7 +235,7 @@ export default function SessionPage() {
                     className="h-14 flex-1 max-w-56 rounded-full text-base font-bold text-white shadow-lg transition-transform active:scale-95"
                     style={{ background: color, boxShadow: `0 8px 24px -8px ${color}` }}
                   >
-                    Next steep →
+                    {t.nextSteep}
                   </button>
                 ) : running ? (
                   <button
@@ -233,7 +243,7 @@ export default function SessionPage() {
                     className="h-14 flex-1 max-w-56 rounded-full border-2 text-base font-bold transition-transform active:scale-95"
                     style={{ borderColor: color, color }}
                   >
-                    Pause
+                    {t.pause}
                   </button>
                 ) : (
                   <button
@@ -245,7 +255,7 @@ export default function SessionPage() {
                     className="h-14 flex-1 max-w-56 rounded-full text-base font-bold text-white shadow-lg transition-transform active:scale-95"
                     style={{ background: color, boxShadow: `0 8px 24px -8px ${color}` }}
                   >
-                    {timer.status === "paused" ? "Resume" : "Start steep"}
+                    {timer.status === "paused" ? t.resume : t.startSteep}
                   </button>
                 )}
 
@@ -263,7 +273,7 @@ export default function SessionPage() {
                   onClick={session.skipSteep}
                   className="text-xs font-semibold text-muted underline-offset-2 hover:underline"
                 >
-                  Skip this steep
+                  {t.skipSteep}
                 </button>
               </div>
             </div>
@@ -277,6 +287,7 @@ export default function SessionPage() {
 function FinishedView({ color }: { color: string }) {
   const session = useSession();
   const router = useRouter();
+  const { t } = useT();
   const [rating, setRating] = useState(0);
   const [note, setNote] = useState("");
   const [saved, setSaved] = useState(false);
@@ -304,11 +315,10 @@ function FinishedView({ color }: { color: string }) {
         🍵
       </span>
       <h2 className="font-display mt-5 text-2xl font-medium">
-        That’s the last steep
+        {t.lastSteepTitle}
       </h2>
       <p className="mt-1 text-sm text-muted">
-        {session.steepsCompleted} of {session.steepDurations.length} steeps
-        poured. How was it?
+        {t.lastSteepBody(session.steepsCompleted, session.steepDurations.length)}
       </p>
 
       <div className="mt-5 flex gap-1.5" role="radiogroup" aria-label="Rating">
@@ -330,7 +340,7 @@ function FinishedView({ color }: { color: string }) {
       <textarea
         value={note}
         onChange={(e) => setNote(e.target.value)}
-        placeholder="Tasting note — aroma, body, how many steeps it held…"
+        placeholder={t.notePlaceholder}
         rows={3}
         className="mt-4 w-full max-w-sm rounded-2xl border border-line bg-surface p-3 text-sm placeholder:text-muted focus:border-muted focus:outline-none"
       />
@@ -342,7 +352,7 @@ function FinishedView({ color }: { color: string }) {
           className="rounded-full px-6 py-3 text-sm font-bold text-white transition-transform active:scale-95 disabled:opacity-60"
           style={{ background: color }}
         >
-          {saved ? "Saved ✓" : "Save to log"}
+          {saved ? t.saved : t.saveToLog}
         </button>
         <button
           onClick={() => {
@@ -351,7 +361,7 @@ function FinishedView({ color }: { color: string }) {
           }}
           className="rounded-full border border-line bg-surface px-6 py-3 text-sm font-semibold text-muted hover:text-ink"
         >
-          Done
+          {t.done}
         </button>
       </div>
     </motion.div>

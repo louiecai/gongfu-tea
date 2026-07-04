@@ -8,23 +8,16 @@ export async function requestNotificationPermission(): Promise<boolean> {
   return result === "granted";
 }
 
-export function notifySteepDone(teaName: string, steep: number): void {
+export function notifySteepDone(title: string, body: string): void {
   if (typeof window === "undefined" || !("Notification" in window)) return;
   if (Notification.permission !== "granted") return;
+  const options = { body, icon: "/icon-192.png", tag: "gongfu-steep" };
   try {
-    new Notification(`${teaName} — steep ${steep} done`, {
-      body: "Time to pour 🫖",
-      icon: "/icon-192.png",
-      tag: "gongfu-steep",
-    });
+    new Notification(title, options);
   } catch {
     // Some platforms (Android) only allow notifications via the SW registration.
     void navigator.serviceWorker?.ready.then((reg) =>
-      reg.showNotification(`${teaName} — steep ${steep} done`, {
-        body: "Time to pour 🫖",
-        icon: "/icon-192.png",
-        tag: "gongfu-steep",
-      }),
+      reg.showNotification(title, options),
     );
   }
 }

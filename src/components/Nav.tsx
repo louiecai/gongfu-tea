@@ -2,16 +2,17 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
-const TABS = [
-  { href: "/", label: "Teas", glyph: "茶" },
-  { href: "/log", label: "Log", glyph: "记" },
-  { href: "/stash", label: "Stash", glyph: "藏" },
-  { href: "/settings", label: "Settings", glyph: "调" },
-];
+import { useT } from "@/store/useT";
 
 export function Nav() {
   const pathname = usePathname();
+  const { t } = useT();
+  const TABS = [
+    { href: "/", label: t.navTeas, glyph: "茶" },
+    { href: "/log", label: t.navLog, glyph: "记" },
+    { href: "/stash", label: t.navStash, glyph: "藏" },
+    { href: "/settings", label: t.navSettings, glyph: "调" },
+  ];
   // The session screen is a focused, full-attention view — hide the tabs.
   if (pathname.startsWith("/session/")) return null;
 

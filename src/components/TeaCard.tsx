@@ -5,8 +5,12 @@ import { motion } from "framer-motion";
 import type { TeaProfile } from "@/lib/types";
 import { TeaIcon } from "./TeaIcon";
 import { formatSeconds } from "@/lib/timer";
+import { teaNames } from "@/lib/i18n";
+import { useT } from "@/store/useT";
 
 export function TeaCard({ tea, index }: { tea: TeaProfile; index: number }) {
+  const { t, lang } = useT();
+  const names = teaNames(tea, lang);
   return (
     <motion.li
       initial={{ opacity: 0, y: 10 }}
@@ -29,17 +33,20 @@ export function TeaCard({ tea, index }: { tea: TeaProfile; index: number }) {
         <span className="min-w-0 flex-1">
           <span className="flex items-baseline gap-2">
             <span className="font-display truncate text-[15px] font-medium">
-              {tea.name}
+              {names.primary}
             </span>
-            {tea.chineseName && (
+            {names.secondary && (
               <span className="shrink-0 text-xs text-muted">
-                {tea.chineseName}
+                {names.secondary}
               </span>
             )}
           </span>
           <span className="mt-0.5 block text-xs text-muted">
-            {tea.steepsSec.length} steeps · first {formatSeconds(tea.steepsSec[0])} ·{" "}
-            {tea.tempC}°C
+            {t.cardMeta(
+              tea.steepsSec.length,
+              formatSeconds(tea.steepsSec[0]),
+              tea.tempC,
+            )}
           </span>
         </span>
         {/* Tasting-cup dot: a sip of the liquor color. */}

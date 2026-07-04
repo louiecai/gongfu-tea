@@ -4,8 +4,11 @@ import { useState } from "react";
 import { useStash } from "@/store/stash";
 import { useProfiles } from "@/store/profiles";
 import { PRESET_TEAS } from "@/lib/teas";
+import { teaNames } from "@/lib/i18n";
+import { useT } from "@/store/useT";
 
 export default function StashPage() {
+  const { t, lang } = useT();
   const items = useStash((s) => s.items);
   const hydrated = useStash((s) => s.hydrated);
   const custom = useProfiles((s) => s.custom);
@@ -38,17 +41,17 @@ export default function StashPage() {
       <header className="mb-6 flex items-end justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
-            藏 · tea stash
+            {t.stashEyebrow}
           </p>
           <h1 className="font-display mt-1 text-3xl font-medium">
-            What’s in the jar
+            {t.stashTitle}
           </h1>
         </div>
         <button
           onClick={() => setAdding(!adding)}
           className="rounded-full border border-line bg-surface px-4 py-2.5 text-sm font-semibold hover:border-muted"
         >
-          {adding ? "Close" : "＋ Add tea"}
+          {adding ? t.close : t.addTea}
         </button>
       </header>
 
@@ -60,16 +63,16 @@ export default function StashPage() {
             aria-label="Tea"
             className="w-full rounded-xl border border-line bg-bg px-3.5 py-2.5 text-sm focus:border-muted focus:outline-none"
           >
-            <option value="">Choose a tea…</option>
-            {unstashed.map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.name}
+            <option value="">{t.chooseTea}</option>
+            {unstashed.map((tea) => (
+              <option key={tea.id} value={tea.id}>
+                {teaNames(tea, lang).primary}
               </option>
             ))}
           </select>
           <div className="grid grid-cols-2 gap-3">
             <label className="text-xs font-semibold text-muted">
-              Grams on hand
+              {t.gramsOnHand}
               <input
                 type="number"
                 min={1}
@@ -79,7 +82,7 @@ export default function StashPage() {
               />
             </label>
             <label className="text-xs font-semibold text-muted">
-              Grams per session
+              {t.gramsPerSession}
               <input
                 type="number"
                 min={1}
@@ -95,17 +98,14 @@ export default function StashPage() {
             disabled={!teaId}
             className="rounded-full bg-ink px-5 py-2.5 text-sm font-bold text-bg disabled:opacity-40"
           >
-            Add to stash
+            {t.addToStash}
           </button>
         </div>
       )}
 
       {hydrated && items.length === 0 && !adding && (
         <div className="rounded-2xl border border-dashed border-line p-8 text-center">
-          <p className="text-sm text-muted">
-            Track the teas you own. Each brew session subtracts its leaf
-            automatically, so you’ll know when a jar runs low.
-          </p>
+          <p className="text-sm text-muted">{t.stashEmpty}</p>
         </div>
       )}
 
@@ -131,9 +131,8 @@ export default function StashPage() {
                   {item.teaName}
                 </p>
                 <p className={`text-xs ${low ? "font-semibold text-amber-700 dark:text-amber-500" : "text-muted"}`}>
-                  {item.gramsRemaining} g left · ~{sessionsLeft} session
-                  {sessionsLeft === 1 ? "" : "s"}
-                  {low ? " — running low" : ""}
+                  {t.stashMeta(item.gramsRemaining, sessionsLeft)}
+                  {low ? t.runningLow : ""}
                 </p>
               </div>
               <div className="flex shrink-0 items-center gap-1.5">
@@ -152,7 +151,7 @@ export default function StashPage() {
                   onClick={() => useStash.getState().remove(item.teaId)}
                   className="rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-muted hover:text-red-700"
                 >
-                  Remove
+                  {t.remove}
                 </button>
               </div>
             </li>

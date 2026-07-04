@@ -6,6 +6,8 @@ import { PRESET_TEAS } from "@/lib/teas";
 import { CATEGORY_LABELS, type TeaCategory, type TeaProfile } from "@/lib/types";
 import { useProfiles } from "@/store/profiles";
 import { TeaCard } from "@/components/TeaCard";
+import { categoryLabel } from "@/lib/i18n";
+import { useT } from "@/store/useT";
 
 const CATEGORY_ORDER: TeaCategory[] = [
   "green",
@@ -22,15 +24,17 @@ const CATEGORY_ORDER: TeaCategory[] = [
 
 export default function HomePage() {
   const custom = useProfiles((s) => s.custom);
+  const { t, lang } = useT();
   const [query, setQuery] = useState("");
 
   const groups = useMemo(() => {
     const q = query.trim().toLowerCase();
-    const matches = (t: TeaProfile) =>
+    const matches = (tea: TeaProfile) =>
       !q ||
-      t.name.toLowerCase().includes(q) ||
-      (t.chineseName ?? "").includes(q) ||
-      CATEGORY_LABELS[t.category].toLowerCase().includes(q);
+      tea.name.toLowerCase().includes(q) ||
+      (tea.chineseName ?? "").includes(q) ||
+      CATEGORY_LABELS[tea.category].toLowerCase().includes(q) ||
+      categoryLabel(tea.category, lang).includes(q);
 
     const byCategory = CATEGORY_ORDER.map((cat) => ({
       cat,
@@ -38,16 +42,16 @@ export default function HomePage() {
     })).filter((g) => g.teas.length > 0);
 
     return { byCategory, customTeas: custom.filter(matches) };
-  }, [query, custom]);
+  }, [query, custom, lang]);
 
   return (
     <div>
       <header className="mb-6">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
-          工夫茶 · gongfu cha
+          {t.homeEyebrow}
         </p>
         <h1 className="font-display mt-1 text-3xl font-medium">
-          What are we steeping?
+          {t.homeTitle}
         </h1>
       </header>
 
@@ -56,8 +60,8 @@ export default function HomePage() {
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search teas…"
-          aria-label="Search teas"
+          placeholder={t.searchPlaceholder}
+          aria-label={t.searchPlaceholder}
           className="w-full rounded-full border border-line bg-surface px-4 py-2.5 text-sm placeholder:text-muted focus:border-muted focus:outline-none"
         />
         <Link
@@ -65,7 +69,7 @@ export default function HomePage() {
           className="flex shrink-0 items-center gap-1.5 rounded-full border border-line bg-surface px-4 py-2.5 text-sm font-semibold text-ink transition-colors hover:border-muted"
         >
           <span aria-hidden className="text-base leading-none">＋</span>
-          New tea
+          {t.newTea}
         </Link>
       </div>
 
@@ -73,13 +77,13 @@ export default function HomePage() {
         <section className="mb-7">
           <div className="mb-2.5 flex items-baseline justify-between">
             <h2 className="text-xs font-semibold uppercase tracking-[0.15em] text-muted">
-              Your teas
+              {t.yourTeas}
             </h2>
             <Link
               href="/profiles"
               className="text-xs font-semibold text-muted hover:text-ink"
             >
-              Manage
+              {t.manage}
             </Link>
           </div>
           <ul className="grid gap-2.5 sm:grid-cols-2">
@@ -93,7 +97,7 @@ export default function HomePage() {
       {groups.byCategory.map(({ cat, teas }) => (
         <section key={cat} className="mb-7">
           <h2 className="mb-2.5 text-xs font-semibold uppercase tracking-[0.15em] text-muted">
-            {CATEGORY_LABELS[cat]}
+            {categoryLabel(cat, lang)}
           </h2>
           <ul className="grid gap-2.5 sm:grid-cols-2">
             {teas.map((tea, i) => (
@@ -105,8 +109,7 @@ export default function HomePage() {
 
       {groups.byCategory.length === 0 && groups.customTeas.length === 0 && (
         <p className="mt-16 text-center text-sm text-muted">
-          No tea matches “{query}”. Try another name, or create it as a new
-          tea.
+          {t.noMatch(query)}
         </p>
       )}
     </div>

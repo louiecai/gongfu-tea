@@ -4,23 +4,25 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useProfiles } from "@/store/profiles";
 import { ProfileEditor } from "@/components/ProfileEditor";
+import { useT } from "@/store/useT";
 
 export default function EditProfilePage() {
   const { id } = useParams<{ id: string }>();
   const custom = useProfiles((s) => s.custom);
   const hydrated = useProfiles((s) => s.hydrated);
-  const tea = custom.find((t) => t.id === id);
+  const { t } = useT();
+  const tea = custom.find((x) => x.id === id);
 
   if (!hydrated) return null;
   if (!tea) {
     return (
       <div className="pt-20 text-center">
-        <p className="text-muted">This tea isn’t on your shelf.</p>
+        <p className="text-muted">{t.notOnShelf}</p>
         <Link
           href="/profiles"
           className="mt-3 inline-block font-semibold underline"
         >
-          Back to your teas
+          {t.backToShelf}
         </Link>
       </div>
     );
@@ -30,7 +32,7 @@ export default function EditProfilePage() {
     <div>
       <header className="mb-6">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
-          Edit tea
+          {t.editTeaEyebrow}
         </p>
         <h1 className="font-display mt-1 text-3xl font-medium">{tea.name}</h1>
       </header>

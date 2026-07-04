@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import type { TeaCategory, TeaIconKey, TeaProfile } from "@/lib/types";
 import { CATEGORY_LABELS } from "@/lib/types";
 import { useProfiles } from "@/store/profiles";
+import { categoryLabel } from "@/lib/i18n";
+import { useT } from "@/store/useT";
 import { TeaIcon } from "./TeaIcon";
 
 const ICONS: TeaIconKey[] = [
@@ -42,6 +44,7 @@ function parseSteeps(text: string): number[] {
 
 export function ProfileEditor({ initial }: { initial?: TeaProfile }) {
   const router = useRouter();
+  const { t, lang } = useT();
   const [name, setName] = useState(initial?.name ?? "");
   const [chineseName, setChineseName] = useState(initial?.chineseName ?? "");
   const [category, setCategory] = useState<TeaCategory>(
@@ -61,11 +64,11 @@ export function ProfileEditor({ initial }: { initial?: TeaProfile }) {
 
   const save = () => {
     if (!name.trim()) {
-      setError("Give the tea a name.");
+      setError(t.errName);
       return;
     }
     if (steeps.length === 0) {
-      setError("Add at least one steep time, in seconds — e.g. 15, 20, 30.");
+      setError(t.errSteeps);
       return;
     }
     const profile: TeaProfile = {
@@ -94,19 +97,19 @@ export function ProfileEditor({ initial }: { initial?: TeaProfile }) {
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label htmlFor="tea-name" className={label}>
-            Name
+            {t.fName}
           </label>
           <input
             id="tea-name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Grandpa’s Tieguanyin"
+            placeholder={t.fNamePlaceholder}
             className={field}
           />
         </div>
         <div>
           <label htmlFor="tea-cn" className={label}>
-            Chinese name <span className="font-normal">(optional)</span>
+            {t.fChineseName} <span className="font-normal">{t.fOptional}</span>
           </label>
           <input
             id="tea-cn"
@@ -121,7 +124,7 @@ export function ProfileEditor({ initial }: { initial?: TeaProfile }) {
       <div className="grid gap-4 sm:grid-cols-3">
         <div>
           <label htmlFor="tea-cat" className={label}>
-            Type
+            {t.fType}
           </label>
           <select
             id="tea-cat"
@@ -129,16 +132,16 @@ export function ProfileEditor({ initial }: { initial?: TeaProfile }) {
             onChange={(e) => setCategory(e.target.value as TeaCategory)}
             className={field}
           >
-            {Object.entries(CATEGORY_LABELS).map(([value, text]) => (
+            {(Object.keys(CATEGORY_LABELS) as TeaCategory[]).map((value) => (
               <option key={value} value={value}>
-                {text}
+                {categoryLabel(value, lang)}
               </option>
             ))}
           </select>
         </div>
         <div>
           <label htmlFor="tea-temp" className={label}>
-            Water °C
+            {t.fTemp}
           </label>
           <input
             id="tea-temp"
@@ -152,7 +155,7 @@ export function ProfileEditor({ initial }: { initial?: TeaProfile }) {
         </div>
         <div>
           <label htmlFor="tea-ratio" className={label}>
-            g / 100 ml
+            {t.fRatio}
           </label>
           <input
             id="tea-ratio"
@@ -169,7 +172,7 @@ export function ProfileEditor({ initial }: { initial?: TeaProfile }) {
 
       <div>
         <label htmlFor="tea-steeps" className={label}>
-          Steep times, seconds
+          {t.fSteeps}
         </label>
         <input
           id="tea-steeps"
@@ -181,13 +184,14 @@ export function ProfileEditor({ initial }: { initial?: TeaProfile }) {
         />
         {steeps.length > 0 && (
           <p className="mt-1.5 text-xs text-muted">
-            {steeps.length} steeps: {steeps.map((s) => `${s}s`).join(" → ")}
+            {t.steepsPreview(steeps.length)}
+            {steeps.map((s) => `${s}s`).join(" → ")}
           </p>
         )}
       </div>
 
       <div>
-        <span className={label}>Liquor color</span>
+        <span className={label}>{t.fColor}</span>
         <div className="flex flex-wrap items-center gap-2">
           {SUGGESTED_COLORS.map((c) => (
             <button
@@ -212,7 +216,7 @@ export function ProfileEditor({ initial }: { initial?: TeaProfile }) {
       </div>
 
       <div>
-        <span className={label}>Leaf shape</span>
+        <span className={label}>{t.fIcon}</span>
         <div className="flex flex-wrap gap-2">
           {ICONS.map((key) => (
             <button
@@ -241,7 +245,7 @@ export function ProfileEditor({ initial }: { initial?: TeaProfile }) {
           onChange={(e) => setAutoAdvance(e.target.checked)}
           className="h-4 w-4 accent-current"
         />
-        Move to the next steep automatically after each pour
+        {t.fAutoAdvance}
       </label>
 
       {error && <p className="text-sm font-semibold text-red-600">{error}</p>}
@@ -252,13 +256,13 @@ export function ProfileEditor({ initial }: { initial?: TeaProfile }) {
           className="rounded-full px-6 py-3 text-sm font-bold text-white transition-transform active:scale-95"
           style={{ background: color }}
         >
-          Save tea
+          {t.saveTea}
         </button>
         <button
           onClick={() => router.back()}
           className="rounded-full border border-line bg-surface px-6 py-3 text-sm font-semibold text-muted hover:text-ink"
         >
-          Cancel
+          {t.cancel}
         </button>
       </div>
     </div>

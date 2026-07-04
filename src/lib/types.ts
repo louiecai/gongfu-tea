@@ -68,6 +68,7 @@ export interface Settings {
   /** Multiplier applied to every steep duration (0.7–1.4). */
   strength: number;
   theme: "system" | "light" | "dark";
+  language: "en" | "zh";
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -77,6 +78,7 @@ export const DEFAULT_SETTINGS: Settings = {
   keepScreenOn: true,
   strength: 1,
   theme: "system",
+  language: "en",
 };
 
 export const CATEGORY_LABELS: Record<TeaCategory, string> = {

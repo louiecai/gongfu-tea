@@ -3,9 +3,11 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useLog } from "@/store/log";
+import { dateLocale, type Lang } from "@/lib/i18n";
+import { useT } from "@/store/useT";
 
-function formatDate(ts: number): string {
-  return new Date(ts).toLocaleDateString(undefined, {
+function formatDate(ts: number, lang: Lang): string {
+  return new Date(ts).toLocaleDateString(dateLocale(lang), {
     month: "short",
     day: "numeric",
     hour: "numeric",
@@ -16,6 +18,7 @@ function formatDate(ts: number): string {
 export default function LogPage() {
   const sessions = useLog((s) => s.sessions);
   const hydrated = useLog((s) => s.hydrated);
+  const { t, lang } = useT();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [note, setNote] = useState("");
   const [rating, setRating] = useState(0);
@@ -41,24 +44,21 @@ export default function LogPage() {
     <div>
       <header className="mb-6">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
-          记 · brew log
+          {t.logEyebrow}
         </p>
         <h1 className="font-display mt-1 text-3xl font-medium">
-          Sessions past
+          {t.logTitle}
         </h1>
       </header>
 
       {hydrated && sessions.length === 0 && (
         <div className="rounded-2xl border border-dashed border-line p-8 text-center">
-          <p className="text-sm text-muted">
-            No brews yet. Your sessions land here automatically — with room
-            for a rating and a tasting note.
-          </p>
+          <p className="text-sm text-muted">{t.logEmpty}</p>
           <Link
             href="/"
             className="mt-4 inline-block rounded-full bg-ink px-5 py-2.5 text-sm font-bold text-bg"
           >
-            Pick a tea
+            {t.pickTea}
           </Link>
         </div>
       )}
@@ -80,9 +80,9 @@ export default function LogPage() {
                   {s.teaName}
                 </p>
                 <p className="text-xs text-muted">
-                  {formatDate(s.startedAt)} · {s.steepsCompleted}/
-                  {s.totalSteeps} steeps
-                  {s.gramsUsed ? ` · ${s.gramsUsed} g` : ""}
+                  {formatDate(s.startedAt, lang)} ·{" "}
+                  {t.logMeta(s.steepsCompleted, s.totalSteeps)}
+                  {s.gramsUsed ? ` · ${t.grams(s.gramsUsed)}` : ""}
                 </p>
               </div>
               {s.rating ? (
@@ -99,7 +99,7 @@ export default function LogPage() {
                 }
                 className="shrink-0 rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-muted hover:text-ink"
               >
-                {editingId === s.id ? "Close" : s.note ? "Edit note" : "Add note"}
+                {editingId === s.id ? t.close : s.note ? t.editNote : t.addNote}
               </button>
             </div>
 
@@ -128,7 +128,7 @@ export default function LogPage() {
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
                   rows={2}
-                  placeholder="Tasting note…"
+                  placeholder={t.shortNotePlaceholder}
                   className="w-full rounded-xl border border-line bg-bg p-3 text-sm placeholder:text-muted focus:border-muted focus:outline-none"
                 />
                 <div className="flex gap-2">
@@ -136,7 +136,7 @@ export default function LogPage() {
                     onClick={saveEdit}
                     className="rounded-full bg-ink px-4 py-2 text-xs font-bold text-bg"
                   >
-                    Save
+                    {t.save}
                   </button>
                   <button
                     onClick={() => {
@@ -145,7 +145,7 @@ export default function LogPage() {
                     }}
                     className="rounded-full border border-line px-4 py-2 text-xs font-semibold text-muted hover:text-red-700"
                   >
-                    Delete session
+                    {t.deleteSession}
                   </button>
                 </div>
               </div>

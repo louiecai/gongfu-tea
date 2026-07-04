@@ -12,7 +12,14 @@ import { useStash } from "@/store/stash";
  */
 export function Boot() {
   const theme = useSettings((s) => s.theme);
+  const language = useSettings((s) => s.language);
   const hydrated = useSettings((s) => s.hydrated);
+
+  useEffect(() => {
+    if (hydrated) {
+      document.documentElement.lang = language === "zh" ? "zh-CN" : "en";
+    }
+  }, [language, hydrated]);
 
   useEffect(() => {
     useSettings.getState().hydrate();

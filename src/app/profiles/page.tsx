@@ -5,10 +5,13 @@ import Link from "next/link";
 import { useProfiles } from "@/store/profiles";
 import { encodeProfile } from "@/lib/share";
 import { TeaIcon } from "@/components/TeaIcon";
+import { teaNames } from "@/lib/i18n";
+import { useT } from "@/store/useT";
 
 export default function ProfilesPage() {
   const custom = useProfiles((s) => s.custom);
   const hydrated = useProfiles((s) => s.hydrated);
+  const { t, lang } = useT();
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
 
@@ -34,29 +37,28 @@ export default function ProfilesPage() {
       <header className="mb-6 flex items-end justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
-            Your teas
+            {t.shelfEyebrow}
           </p>
-          <h1 className="font-display mt-1 text-3xl font-medium">Tea shelf</h1>
+          <h1 className="font-display mt-1 text-3xl font-medium">
+            {t.shelfTitle}
+          </h1>
         </div>
         <Link
           href="/profiles/new"
           className="rounded-full border border-line bg-surface px-4 py-2.5 text-sm font-semibold hover:border-muted"
         >
-          ＋ New tea
+          ＋ {t.newTea}
         </Link>
       </header>
 
       {hydrated && custom.length === 0 && (
         <div className="rounded-2xl border border-dashed border-line p-8 text-center">
-          <p className="text-sm text-muted">
-            No custom teas yet. Create one to set your own steep times, color,
-            and leaf shape — then share it as a link.
-          </p>
+          <p className="text-sm text-muted">{t.shelfEmpty}</p>
           <Link
             href="/profiles/new"
             className="mt-4 inline-block rounded-full bg-ink px-5 py-2.5 text-sm font-bold text-bg"
           >
-            Create your first tea
+            {t.createFirst}
           </Link>
         </div>
       )}
@@ -78,15 +80,15 @@ export default function ProfilesPage() {
             </span>
             <div className="min-w-0 flex-1">
               <p className="font-display truncate text-[15px] font-medium">
-                {tea.name}{" "}
-                {tea.chineseName && (
+                {teaNames(tea, lang).primary}{" "}
+                {teaNames(tea, lang).secondary && (
                   <span className="text-xs font-normal text-muted">
-                    {tea.chineseName}
+                    {teaNames(tea, lang).secondary}
                   </span>
                 )}
               </p>
               <p className="text-xs text-muted">
-                {tea.steepsSec.length} steeps · {tea.tempC}°C
+                {t.profileMeta(tea.steepsSec.length, tea.tempC)}
               </p>
             </div>
             <div className="flex shrink-0 gap-1.5 text-xs font-semibold">
@@ -95,26 +97,26 @@ export default function ProfilesPage() {
                 className="rounded-full px-3 py-2 text-white"
                 style={{ background: tea.liquorColor }}
               >
-                Brew
+                {t.brew}
               </Link>
               <button
                 onClick={() => share(tea.id)}
                 className="rounded-full border border-line px-3 py-2 text-muted hover:text-ink"
               >
-                {copiedId === tea.id ? "Copied ✓" : "Share"}
+                {copiedId === tea.id ? t.copied : t.share}
               </button>
               <Link
                 href={`/profiles/${tea.id}`}
                 className="rounded-full border border-line px-3 py-2 text-muted hover:text-ink"
               >
-                Edit
+                {t.edit}
               </Link>
               {confirmingId === tea.id ? (
                 <button
                   onClick={() => useProfiles.getState().remove(tea.id)}
                   className="rounded-full bg-red-700 px-3 py-2 text-white"
                 >
-                  Sure?
+                  {t.sure}
                 </button>
               ) : (
                 <button
@@ -124,7 +126,7 @@ export default function ProfilesPage() {
                   }}
                   className="rounded-full border border-line px-3 py-2 text-muted hover:text-red-700"
                 >
-                  Delete
+                  {t.del}
                 </button>
               )}
             </div>
