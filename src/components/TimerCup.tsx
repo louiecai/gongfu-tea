@@ -104,6 +104,11 @@ export function TimerCup({
         <>
           <span
             aria-hidden
+            className="steep-glow pointer-events-none absolute inset-[-10%] rounded-full"
+            style={{ background: `radial-gradient(circle, ${color}4d, transparent 70%)` }}
+          />
+          <span
+            aria-hidden
             className="steep-ripple absolute inset-[6%] rounded-full border-2"
             style={{ borderColor: color }}
           />

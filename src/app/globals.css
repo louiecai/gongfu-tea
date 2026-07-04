@@ -86,10 +86,27 @@ body {
   animation: steep-ripple 1.6s ease-out infinite;
 }
 
+/* Soft glow behind the cup while a steep just finished. */
+@keyframes steep-glow {
+  0%, 100% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.08);
+  }
+}
+
+.steep-glow {
+  animation: steep-glow 1.8s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .wave-drift,
   .wave-drift-slow,
-  .steep-ripple {
+  .steep-ripple,
+  .steep-glow {
     animation: none;
   }
 }
@@ -98,4 +115,20 @@ body {
   outline: 2px solid var(--muted);
   outline-offset: 2px;
   border-radius: 4px;
+}
+
+/* Buttons don't get a pointer cursor by default — add the affordance back,
+   plus a light tactile press for every clickable control. */
+button:not(:disabled) {
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+button:not(:disabled):active {
+  transform: scale(0.96);
+}
+
+label:has(> input[type="checkbox"]),
+label:has(> input[type="file"]) {
+  cursor: pointer;
 }

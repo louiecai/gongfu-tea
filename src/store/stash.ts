@@ -8,8 +8,12 @@ interface StashStore {
   hydrate: () => void;
   save: (item: StashItem) => void;
   remove: (teaId: string) => void;
-  /** Called when a brew session starts; returns grams used (0 if not stashed). */
-  consumeForSession: (teaId: string) => number;
+  /**
+   * Called when a brew session starts with the leaf grams the vessel needs
+   * (from the tea's ratio); returns grams actually used (0 if not stashed,
+   * clamped to what's left).
+   */
+  consumeForSession: (teaId: string, grams: number) => number;
 }
 
 export const useStash = create<StashStore>((set, get) => ({
@@ -33,10 +37,10 @@ export const useStash = create<StashStore>((set, get) => ({
     stashRepo.save(items);
   },
 
-  consumeForSession: (teaId) => {
+  consumeForSession: (teaId, grams) => {
     const item = get().items.find((i) => i.teaId === teaId);
     if (!item) return 0;
-    const used = Math.min(item.gramsRemaining, item.gramsPerSession);
+    const used = Math.min(item.gramsRemaining, grams);
     const items = get().items.map((i) =>
       i.teaId === teaId
         ? { ...i, gramsRemaining: Math.max(0, i.gramsRemaining - used) }

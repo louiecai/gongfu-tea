@@ -7,19 +7,44 @@ import { TeaIcon } from "./TeaIcon";
 import { formatSeconds } from "@/lib/timer";
 import { teaNames } from "@/lib/i18n";
 import { useT } from "@/store/useT";
+import { useSettings } from "@/store/settings";
 
 export function TeaCard({ tea, index }: { tea: TeaProfile; index: number }) {
   const { t, lang } = useT();
   const names = teaNames(tea, lang);
+  const isFavorite = useSettings((s) => s.favorites.includes(tea.id));
+
+  const toggleFavorite = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const { favorites } = useSettings.getState();
+    useSettings.getState().update({
+      favorites: isFavorite
+        ? favorites.filter((id) => id !== tea.id)
+        : [...favorites, tea.id],
+    });
+  };
+
   return (
     <motion.li
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: Math.min(index * 0.03, 0.4), duration: 0.35 }}
+      className="relative"
     >
+      <button
+        type="button"
+        onClick={toggleFavorite}
+        aria-pressed={isFavorite}
+        aria-label={isFavorite ? t.unfavorite : t.favorite}
+        className={`absolute right-2.5 top-2.5 z-10 text-base leading-none transition-transform hover:scale-125 active:scale-95 ${
+          isFavorite ? "" : "opacity-30 grayscale"
+        }`}
+      >
+        ★
+      </button>
       <Link
         href={`/session/${tea.id}`}
-        className="group flex items-center gap-3.5 rounded-2xl border border-line bg-surface p-3.5 transition-all hover:-translate-y-0.5 hover:shadow-md hover:shadow-[var(--lift)]"
+        className="group flex items-center gap-3.5 rounded-2xl border border-line bg-surface p-3.5 transition-all hover:-translate-y-0.5 hover:shadow-md hover:shadow-[var(--lift)] active:scale-[.98]"
       >
         <span
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full"

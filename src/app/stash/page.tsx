@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { useStash } from "@/store/stash";
-import { useProfiles } from "@/store/profiles";
+import { useProfiles, findTea } from "@/store/profiles";
+import { useSettings } from "@/store/settings";
 import { PRESET_TEAS } from "@/lib/teas";
-import { teaNames } from "@/lib/i18n";
+import { leafGrams } from "@/lib/brew";
+import { displayTeaName, teaNames } from "@/lib/i18n";
 import { useT } from "@/store/useT";
 
 export default function StashPage() {
@@ -12,10 +14,10 @@ export default function StashPage() {
   const items = useStash((s) => s.items);
   const hydrated = useStash((s) => s.hydrated);
   const custom = useProfiles((s) => s.custom);
+  const vesselMl = useSettings((s) => s.vesselMl);
   const [adding, setAdding] = useState(false);
   const [teaId, setTeaId] = useState("");
   const [grams, setGrams] = useState(50);
-  const [perSession, setPerSession] = useState(5);
 
   const allTeas = [...custom, ...PRESET_TEAS];
   const unstashed = allTeas.filter(
@@ -30,7 +32,6 @@ export default function StashPage() {
       teaName: tea.name,
       liquorColor: tea.liquorColor,
       gramsRemaining: grams,
-      gramsPerSession: perSession,
     });
     setAdding(false);
     setTeaId("");
@@ -70,29 +71,16 @@ export default function StashPage() {
               </option>
             ))}
           </select>
-          <div className="grid grid-cols-2 gap-3">
-            <label className="text-xs font-semibold text-muted">
-              {t.gramsOnHand}
-              <input
-                type="number"
-                min={1}
-                value={grams}
-                onChange={(e) => setGrams(Number(e.target.value))}
-                className="mt-1.5 w-full rounded-xl border border-line bg-bg px-3.5 py-2.5 text-sm text-ink focus:border-muted focus:outline-none"
-              />
-            </label>
-            <label className="text-xs font-semibold text-muted">
-              {t.gramsPerSession}
-              <input
-                type="number"
-                min={1}
-                step={0.5}
-                value={perSession}
-                onChange={(e) => setPerSession(Number(e.target.value))}
-                className="mt-1.5 w-full rounded-xl border border-line bg-bg px-3.5 py-2.5 text-sm text-ink focus:border-muted focus:outline-none"
-              />
-            </label>
-          </div>
+          <label className="block text-xs font-semibold text-muted">
+            {t.gramsOnHand}
+            <input
+              type="number"
+              min={1}
+              value={grams}
+              onChange={(e) => setGrams(Number(e.target.value))}
+              className="mt-1.5 w-full rounded-xl border border-line bg-bg px-3.5 py-2.5 text-sm text-ink focus:border-muted focus:outline-none"
+            />
+          </label>
           <button
             onClick={add}
             disabled={!teaId}
@@ -111,10 +99,10 @@ export default function StashPage() {
 
       <ul className="space-y-2.5">
         {items.map((item) => {
+          const tea = findTea(item.teaId, custom);
+          const perSession = tea ? leafGrams(tea.ratioGramsPer100ml, vesselMl) : 0;
           const sessionsLeft =
-            item.gramsPerSession > 0
-              ? Math.floor(item.gramsRemaining / item.gramsPerSession)
-              : 0;
+            perSession > 0 ? Math.floor(item.gramsRemaining / perSession) : 0;
           const low = sessionsLeft <= 3;
           return (
             <li
@@ -128,7 +116,7 @@ export default function StashPage() {
               />
               <div className="min-w-0 flex-1">
                 <p className="font-display truncate text-[15px] font-medium">
-                  {item.teaName}
+                  {displayTeaName(item.teaName, tea, lang)}
                 </p>
                 <p className={`text-xs ${low ? "font-semibold text-amber-700 dark:text-amber-500" : "text-muted"}`}>
                   {t.stashMeta(item.gramsRemaining, sessionsLeft)}

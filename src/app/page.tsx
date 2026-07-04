@@ -4,7 +4,9 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { PRESET_TEAS } from "@/lib/teas";
 import { CATEGORY_LABELS, type TeaCategory, type TeaProfile } from "@/lib/types";
-import { useProfiles } from "@/store/profiles";
+import { useProfiles, findTea } from "@/store/profiles";
+import { useSettings } from "@/store/settings";
+import { useLog } from "@/store/log";
 import { TeaCard } from "@/components/TeaCard";
 import { categoryLabel } from "@/lib/i18n";
 import { useT } from "@/store/useT";
@@ -24,8 +26,31 @@ const CATEGORY_ORDER: TeaCategory[] = [
 
 export default function HomePage() {
   const custom = useProfiles((s) => s.custom);
+  const favoriteIds = useSettings((s) => s.favorites);
+  const sessions = useLog((s) => s.sessions);
   const { t, lang } = useT();
   const [query, setQuery] = useState("");
+
+  const favoriteTeas = useMemo(
+    () =>
+      favoriteIds
+        .map((id) => findTea(id, custom))
+        .filter((tea): tea is TeaProfile => !!tea),
+    [favoriteIds, custom],
+  );
+
+  const recentTeas = useMemo(() => {
+    const seen = new Set<string>();
+    const result: TeaProfile[] = [];
+    for (const s of sessions) {
+      if (seen.has(s.teaId) || favoriteIds.includes(s.teaId)) continue;
+      seen.add(s.teaId);
+      const tea = findTea(s.teaId, custom);
+      if (tea) result.push(tea);
+      if (result.length >= 6) break;
+    }
+    return result;
+  }, [sessions, custom, favoriteIds]);
 
   const groups = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -72,6 +97,32 @@ export default function HomePage() {
           {t.newTea}
         </Link>
       </div>
+
+      {!query.trim() && favoriteTeas.length > 0 && (
+        <section className="mb-7">
+          <h2 className="mb-2.5 text-xs font-semibold uppercase tracking-[0.15em] text-muted">
+            {t.favoritesTitle}
+          </h2>
+          <ul className="grid gap-2.5 sm:grid-cols-2">
+            {favoriteTeas.map((tea, i) => (
+              <TeaCard key={tea.id} tea={tea} index={i} />
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {!query.trim() && recentTeas.length > 0 && (
+        <section className="mb-7">
+          <h2 className="mb-2.5 text-xs font-semibold uppercase tracking-[0.15em] text-muted">
+            {t.recentlyBrewed}
+          </h2>
+          <ul className="grid gap-2.5 sm:grid-cols-2">
+            {recentTeas.map((tea, i) => (
+              <TeaCard key={tea.id} tea={tea} index={i} />
+            ))}
+          </ul>
+        </section>
+      )}
 
       {groups.customTeas.length > 0 && (
         <section className="mb-7">

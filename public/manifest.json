@@ -1,7 +1,7 @@
 {
-  "name": "Gongfu — tea steep timer",
-  "short_name": "Gongfu",
-  "description": "A quiet timer for gongfu tea. Steep by steep, tea by tea.",
+  "name": "一盏茶 · A Cup's Time",
+  "short_name": "一盏茶",
+  "description": "A cup's time — a quiet gongfu tea timer, steep by steep.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#f6f1e7",

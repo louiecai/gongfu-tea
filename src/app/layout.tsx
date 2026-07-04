@@ -16,13 +16,13 @@ const nunito = Nunito_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Gongfu — tea steep timer",
+  title: "一盏茶 · A Cup's Time",
   description:
-    "A quiet timer for gongfu tea. Steep by steep, tea by tea.",
+    "A cup's time — a quiet gongfu tea timer, steep by steep.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
-    title: "Gongfu",
+    title: "一盏茶",
     statusBarStyle: "default",
   },
 };

@@ -50,6 +50,11 @@ export interface BrewSession {
   rating?: number;
   note?: string;
   gramsUsed?: number;
+  tempC?: number;
+  /** Cumulative time actually spent steeping, in ms. */
+  totalBrewMs?: number;
+  favorite?: boolean;
+  tags?: string[];
 }
 
 export interface StashItem {
@@ -57,7 +62,8 @@ export interface StashItem {
   teaName: string;
   liquorColor: string;
   gramsRemaining: number;
-  gramsPerSession: number;
+  /** @deprecated grams/session is now derived from the tea's ratio + vessel size. */
+  gramsPerSession?: number;
 }
 
 export interface Settings {
@@ -69,6 +75,9 @@ export interface Settings {
   strength: number;
   theme: "system" | "light" | "dark";
   language: "en" | "zh";
+  /** Water volume per brew, in ml — drives leaf grams via each tea's ratio. */
+  vesselMl: number;
+  favorites: string[];
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -79,6 +88,8 @@ export const DEFAULT_SETTINGS: Settings = {
   strength: 1,
   theme: "system",
   language: "en",
+  vesselMl: 100,
+  favorites: [],
 };
 
 export const CATEGORY_LABELS: Record<TeaCategory, string> = {

@@ -11,11 +11,15 @@ const EN = {
   navSettings: "Settings",
 
   // home
-  homeEyebrow: "工夫茶 · gongfu cha",
+  homeEyebrow: "一盏茶 · a cup's time",
   homeTitle: "What are we steeping?",
   searchPlaceholder: "Search teas…",
   newTea: "New tea",
   yourTeas: "Your teas",
+  favoritesTitle: "Favorites",
+  recentlyBrewed: "Recently brewed",
+  favorite: "Add to favorites",
+  unfavorite: "Remove from favorites",
   manage: "Manage",
   noMatch: (q: string) =>
     `No tea matches “${q}”. Try another name, or create it as a new tea.`,
@@ -36,6 +40,11 @@ const EN = {
   nextSteep: "Next steep →",
   skipSteep: "Skip this steep",
   strengthChip: (x: string) => `strength ×${x}`,
+  vesselLabel: "Vessel",
+  decreaseVessel: "Smaller vessel",
+  increaseVessel: "Larger vessel",
+  sessionStats: (steeps: number, totalMl: number, time: string) =>
+    `${steeps} poured · ${totalMl} ml water · ${time} brewed`,
   lastSteepTitle: "That’s the last steep",
   lastSteepBody: (done: number, total: number) =>
     `${done} of ${total} steeps poured. How was it?`,
@@ -97,6 +106,12 @@ const EN = {
   save: "Save",
   deleteSession: "Delete session",
   shortNotePlaceholder: "Tasting note…",
+  totalBrewed: (time: string) => `${time} brewed`,
+  gramsUsedLabel: "Grams used",
+  steepsCompletedLabel: "Steeps completed",
+  favoriteLabel: "Favorite",
+  tagsLabel: "Tags",
+  tagsPlaceholder: "morning, cold day…",
 
   // stash
   stashEyebrow: "藏 · tea stash",
@@ -104,7 +119,6 @@ const EN = {
   addTea: "＋ Add tea",
   chooseTea: "Choose a tea…",
   gramsOnHand: "Grams on hand",
-  gramsPerSession: "Grams per session",
   addToStash: "Add to stash",
   stashEmpty:
     "Track the teas you own. Each brew session subtracts its leaf automatically, so you’ll know when a jar runs low.",
@@ -162,11 +176,15 @@ const ZH: typeof EN = {
   navStash: "茶仓",
   navSettings: "设置",
 
-  homeEyebrow: "工夫茶 · gongfu cha",
+  homeEyebrow: "一盏茶 · a cup's time",
   homeTitle: "今天泡什么茶？",
   searchPlaceholder: "搜索茶叶…",
   newTea: "添加茶",
   yourTeas: "我的茶",
+  favoritesTitle: "收藏",
+  recentlyBrewed: "最近冲泡",
+  favorite: "加入收藏",
+  unfavorite: "移出收藏",
   manage: "管理",
   noMatch: (q) => `没有找到「${q}」。换个名字试试，或者自己创建一款。`,
   cardMeta: (steeps, first, temp) => `${steeps} 泡 · 首泡 ${first} · ${temp}°C`,
@@ -184,6 +202,11 @@ const ZH: typeof EN = {
   nextSteep: "下一泡 →",
   skipSteep: "跳过这一泡",
   strengthChip: (x) => `浓度 ×${x}`,
+  vesselLabel: "容量",
+  decreaseVessel: "减少容量",
+  increaseVessel: "增加容量",
+  sessionStats: (steeps, totalMl, time) =>
+    `已出汤 ${steeps} 次 · 共 ${totalMl} 毫升水 · 冲泡 ${time}`,
   lastSteepTitle: "最后一泡结束了",
   lastSteepBody: (done, total) => `共泡了 ${done}/${total} 泡。味道如何？`,
   notePlaceholder: "品茶笔记——香气、滋味、耐泡度…",
@@ -240,13 +263,18 @@ const ZH: typeof EN = {
   save: "保存",
   deleteSession: "删除记录",
   shortNotePlaceholder: "品茶笔记…",
+  totalBrewed: (time) => `冲泡 ${time}`,
+  gramsUsedLabel: "用茶量（克）",
+  steepsCompletedLabel: "已泡次数",
+  favoriteLabel: "收藏",
+  tagsLabel: "标签",
+  tagsPlaceholder: "早晨，冷天…",
 
   stashEyebrow: "藏 · 茶仓",
   stashTitle: "罐子里还有什么",
   addTea: "＋ 添加茶",
   chooseTea: "选择茶叶…",
   gramsOnHand: "现有克数",
-  gramsPerSession: "每次用量（克）",
   addToStash: "放入茶仓",
   stashEmpty: "记录你手上的茶。每泡一次自动扣掉用量，快喝完时提醒你。",
   stashMeta: (g, sessions) => `剩 ${g} 克 · 约 ${sessions} 次`,
@@ -325,4 +353,18 @@ export function teaNames(
 
 export function dateLocale(lang: Lang): string | undefined {
   return lang === "zh" ? "zh-CN" : undefined;
+}
+
+/**
+ * Log/stash entries store an English name snapshot at creation time (so the
+ * entry still reads sensibly if the tea is later deleted). When the tea still
+ * exists, re-derive the name live so it flips with the language toggle;
+ * otherwise fall back to the snapshot.
+ */
+export function displayTeaName(
+  storedName: string,
+  tea: Pick<TeaProfile, "name" | "chineseName"> | undefined,
+  lang: Lang,
+): string {
+  return tea ? teaNames(tea, lang).primary : storedName;
 }

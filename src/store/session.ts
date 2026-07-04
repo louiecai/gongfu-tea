@@ -9,9 +9,11 @@ import {
   startTimer,
   type TimerState,
 } from "@/lib/timer";
+import { leafGrams } from "@/lib/brew";
 import { unlockAudio } from "@/lib/audio";
 import { useLog } from "./log";
 import { useStash } from "./stash";
+import { useSettings } from "./settings";
 
 interface SessionStore {
   tea: TeaProfile | null;
@@ -24,6 +26,8 @@ interface SessionStore {
   logId: string | null;
   /** 1-based number of the steep that just chimed; consumed by the alarm UI. */
   justFinishedSteep: number | null;
+  /** Cumulative ms actually spent steeping this session (nudges included). */
+  totalBrewMs: number;
 
   begin: (tea: TeaProfile, strength: number) => void;
   startSteep: () => void;
@@ -49,6 +53,7 @@ const EMPTY = {
   finished: false,
   logId: null,
   justFinishedSteep: null,
+  totalBrewMs: 0,
 };
 
 export const useSession = create<SessionStore>((set, get) => ({
@@ -56,7 +61,6 @@ export const useSession = create<SessionStore>((set, get) => ({
 
   begin: (tea, strength) => {
     const steepDurations = tea.steepsSec.map((s) => scaledSteepMs(s, strength));
-    const gramsUsed = useStash.getState().consumeForSession(tea.id);
     const logId = `brew-${Date.now().toString(36)}`;
     useLog.getState().add({
       id: logId,
@@ -66,7 +70,8 @@ export const useSession = create<SessionStore>((set, get) => ({
       startedAt: Date.now(),
       steepsCompleted: 0,
       totalSteeps: tea.steepsSec.length,
-      gramsUsed: gramsUsed || undefined,
+      tempC: tea.tempC,
+      totalBrewMs: 0,
     });
     set({
       ...EMPTY,
@@ -79,6 +84,16 @@ export const useSession = create<SessionStore>((set, get) => ({
 
   startSteep: () => {
     unlockAudio();
+    const { steepIndex, tea, logId } = get();
+    // First steep only: capture the leaf grams for whatever vessel size is
+    // dialed in right now (the user may have just adjusted it), then deplete
+    // the stash once for the whole session.
+    if (steepIndex === 0 && tea) {
+      const vesselMl = useSettings.getState().vesselMl;
+      const grams = leafGrams(tea.ratioGramsPer100ml, vesselMl);
+      useStash.getState().consumeForSession(tea.id, grams);
+      if (logId) useLog.getState().update(logId, { gramsUsed: grams });
+    }
     set({ timer: startTimer(get().timer), justFinishedSteep: null });
   },
 
@@ -87,12 +102,15 @@ export const useSession = create<SessionStore>((set, get) => ({
   nudge: (deltaSec) => set({ timer: nudgeTimer(get().timer, deltaSec * 1000) }),
 
   completeSteep: () => {
-    const { tea, steepIndex, steepDurations, steepsCompleted, logId } = get();
+    const { tea, steepIndex, steepDurations, steepsCompleted, logId, timer } =
+      get();
     if (!tea) return;
     const completed = steepsCompleted + 1;
+    const totalBrewMs = get().totalBrewMs + timer.durationMs;
     if (logId) {
-      useLog.getState().update(logId, { steepsCompleted: completed });
+      useLog.getState().update(logId, { steepsCompleted: completed, totalBrewMs });
     }
+    set({ totalBrewMs });
     const isLast = steepIndex >= steepDurations.length - 1;
     if (isLast) {
       set({

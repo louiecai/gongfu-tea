@@ -9,6 +9,7 @@ import { useSession } from "@/store/session";
 import { useSettings } from "@/store/settings";
 import { useLog } from "@/store/log";
 import { formatMs, isExpired, remainingMs } from "@/lib/timer";
+import { leafGrams } from "@/lib/brew";
 import { playChime } from "@/lib/audio";
 import { notifySteepDone, vibrate } from "@/lib/alerts";
 import { TimerCup } from "@/components/TimerCup";
@@ -135,6 +136,14 @@ export default function SessionPage() {
   const doneWaiting = timer.status === "done" && !finished;
   const color = tea.liquorColor;
   const totalSteeps = steepDurations.length;
+  const grams = leafGrams(tea.ratioGramsPer100ml, settings.vesselMl);
+  // Grams are fixed for the log the moment the first steep starts, so lock
+  // the stepper once brewing is underway to avoid a display/log mismatch.
+  const vesselLocked = steepIndex > 0 || timer.status !== "idle";
+  const adjustVessel = (deltaMl: number) =>
+    useSettings
+      .getState()
+      .update({ vesselMl: Math.min(500, Math.max(20, settings.vesselMl + deltaMl)) });
 
   return (
     <div className="flex min-h-[calc(100dvh-6rem)] flex-col">
@@ -158,12 +167,33 @@ export default function SessionPage() {
         </div>
       </header>
 
-      <div className="mb-4 flex justify-center gap-2 text-[11px] font-semibold text-muted">
+      <div className="mb-4 flex flex-wrap items-center justify-center gap-2 text-[11px] font-semibold text-muted">
         <span className="rounded-full border border-line px-2.5 py-1">
           {tea.tempC}°C
         </span>
         <span className="rounded-full border border-line px-2.5 py-1">
-          {tea.ratioGramsPer100ml} g / 100 ml
+          {grams} g
+        </span>
+        <span className="flex items-center gap-0.5 rounded-full border border-line py-1 pl-1 pr-1.5">
+          <button
+            type="button"
+            onClick={() => adjustVessel(-10)}
+            disabled={vesselLocked}
+            aria-label={t.decreaseVessel}
+            className="flex h-5 w-5 items-center justify-center rounded-full disabled:opacity-30"
+          >
+            −
+          </button>
+          <span className="min-w-[3.5ch] text-center">{settings.vesselMl} ml</span>
+          <button
+            type="button"
+            onClick={() => adjustVessel(10)}
+            disabled={vesselLocked}
+            aria-label={t.increaseVessel}
+            className="flex h-5 w-5 items-center justify-center rounded-full disabled:opacity-30"
+          >
+            +
+          </button>
         </span>
         {settings.strength !== 1 && (
           <span className="rounded-full border border-line px-2.5 py-1">
@@ -185,9 +215,18 @@ export default function SessionPage() {
             exit={{ opacity: 0, scale: 0.97 }}
             className="flex flex-1 flex-col"
           >
-            <p className="mb-3 text-center text-xs font-semibold uppercase tracking-[0.2em] text-muted">
-              {t.steepOf(steepIndex + 1, totalSteeps)}
-            </p>
+            <AnimatePresence mode="wait">
+              <motion.p
+                key={steepIndex}
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 4 }}
+                transition={{ duration: 0.25 }}
+                className="mb-3 text-center text-xs font-semibold uppercase tracking-[0.2em] text-muted"
+              >
+                {t.steepOf(steepIndex + 1, totalSteeps)}
+              </motion.p>
+            </AnimatePresence>
 
             <TimerCup
               progress={doneWaiting ? 1 : elapsed}
@@ -210,7 +249,7 @@ export default function SessionPage() {
               </span>
             </TimerCup>
 
-            <div className="mt-4 mb-6">
+            <div className="mt-4 mb-2">
               <SteepDots
                 total={totalSteeps}
                 current={steepIndex}
@@ -218,6 +257,16 @@ export default function SessionPage() {
                 color={color}
               />
             </div>
+
+            {steepsCompleted > 0 && (
+              <p className="mb-4 text-center text-[11px] text-muted">
+                {t.sessionStats(
+                  steepsCompleted,
+                  steepsCompleted * settings.vesselMl,
+                  formatMs(session.totalBrewMs),
+                )}
+              </p>
+            )}
 
             <div className="mt-auto space-y-3 pb-2">
               <div className="flex items-center justify-center gap-3">
