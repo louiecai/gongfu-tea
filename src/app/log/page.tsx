@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { AnimatePresence, motion, type PanInfo } from "framer-motion";
 import { useLog } from "@/store/log";
 import { useProfiles, findTea } from "@/store/profiles";
 import { useActiveSessions } from "@/store/activeSessions";
@@ -61,6 +62,14 @@ export default function LogPage() {
   const toggleFavorite = (id: string, current: boolean | undefined) =>
     useLog.getState().update(id, { favorite: !current });
 
+  const SWIPE_THRESHOLD = -80;
+  const onSwipeEnd = (id: string, info: PanInfo) => {
+    if (info.offset.x < SWIPE_THRESHOLD) {
+      useLog.getState().remove(id);
+      if (editingId === id) setEditingId(null);
+    }
+  };
+
   return (
     <div>
       <header className="mb-6">
@@ -85,13 +94,30 @@ export default function LogPage() {
       )}
 
       <ul className="space-y-2.5">
-        {sessions.map((s) => {
-          const tea = findTea(s.teaId, custom);
-          return (
-            <li
-              key={s.id}
-              className="rounded-2xl border border-line bg-surface p-4"
-            >
+        <AnimatePresence initial={false}>
+          {sessions.map((s) => {
+            const tea = findTea(s.teaId, custom);
+            return (
+              <motion.li
+                key={s.id}
+                layout
+                exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+                transition={{ duration: 0.2 }}
+                className="relative overflow-hidden rounded-2xl"
+              >
+                <div className="absolute inset-0 flex items-center justify-end bg-red-700 pr-6 text-sm font-bold text-white">
+                  {t.remove}
+                </div>
+                <motion.div
+                  data-log-id={s.id}
+                  drag={editingId === s.id ? false : "x"}
+                  dragDirectionLock
+                  dragConstraints={{ left: -96, right: 0 }}
+                  dragElastic={{ left: 0.15, right: 0 }}
+                  dragSnapToOrigin
+                  onDragEnd={(_, info) => onSwipeEnd(s.id, info)}
+                  className="relative rounded-2xl border border-line bg-surface p-4"
+                >
               <div className="flex items-center gap-3">
                 <span
                   aria-hidden
@@ -260,9 +286,11 @@ export default function LogPage() {
                   </div>
                 </div>
               )}
-            </li>
-          );
-        })}
+                </motion.div>
+              </motion.li>
+            );
+          })}
+        </AnimatePresence>
       </ul>
     </div>
   );
