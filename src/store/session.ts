@@ -36,7 +36,7 @@ interface SessionStore {
   /** Restore a session left running when the app was last closed. */
   hydrate: () => void;
   begin: (tea: TeaProfile, strength: number) => void;
-  startSteep: () => void;
+  startSteep: (gramsOverride?: number) => void;
   pause: () => void;
   resume: () => void;
   nudge: (deltaSec: number) => void;
@@ -112,15 +112,16 @@ export const useSession = create<SessionStore>((set, get) => ({
     });
   },
 
-  startSteep: () => {
+  startSteep: (gramsOverride) => {
     unlockAudio();
     const { steepIndex, tea, logId, steeps } = get();
-    // First steep only: capture the leaf grams for whatever vessel size is
-    // dialed in right now (the user may have just adjusted it), then deplete
-    // the stash once for the whole session.
+    // First steep only: capture the leaf grams (from the page's grams
+    // stepper, or derived from ratio+vessel if not given), then deplete the
+    // stash once for the whole session.
     if (steepIndex === 0 && tea) {
       const vesselMl = useSettings.getState().vesselMl;
-      const grams = leafGrams(tea.ratioGramsPer100ml, vesselMl);
+      const grams =
+        gramsOverride ?? leafGrams(tea.ratioGramsPer100ml, vesselMl);
       useStash.getState().consumeForSession(tea.id, grams);
       if (logId) useLog.getState().update(logId, { gramsUsed: grams });
     }

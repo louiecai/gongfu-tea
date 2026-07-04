@@ -21,6 +21,7 @@ const EN = {
   favorite: "Add to favorites",
   unfavorite: "Remove from favorites",
   continueBrewing: "Continue brewing",
+  viewDetails: "View details",
   manage: "Manage",
   noMatch: (q: string) =>
     `No tea matches “${q}”. Try another name, or create it as a new tea.`,
@@ -44,6 +45,8 @@ const EN = {
   vesselLabel: "Vessel",
   decreaseVessel: "Smaller vessel",
   increaseVessel: "Larger vessel",
+  decreaseGrams: "Less leaf",
+  increaseGrams: "More leaf",
   sessionStats: (steeps: number, totalMl: number, time: string) =>
     `${steeps} poured · ${totalMl} ml water · ${time} brewed`,
   lastSteepTitle: "That’s the last steep",
@@ -74,6 +77,8 @@ const EN = {
   editTeaEyebrow: "Edit tea",
   notOnShelf: "This tea isn’t on your shelf.",
   backToShelf: "Back to your teas",
+  detailsEyebrow: "Tea details",
+  cloneAndCustomize: "Clone & customize",
 
   // editor
   fName: "Name",
@@ -116,6 +121,7 @@ const EN = {
   steepsToggle: "steeps",
   steepRow: (n: number, time: string, duration: string) =>
     `Steep ${n} — ${time} · ${duration}`,
+  resumeSession: "Resume",
 
   // stash
   stashEyebrow: "藏 · tea stash",
@@ -190,6 +196,7 @@ const ZH: typeof EN = {
   favorite: "加入收藏",
   unfavorite: "移出收藏",
   continueBrewing: "继续冲泡",
+  viewDetails: "查看详情",
   manage: "管理",
   noMatch: (q) => `没有找到「${q}」。换个名字试试，或者自己创建一款。`,
   cardMeta: (steeps, first, temp) => `${steeps} 泡 · 首泡 ${first} · ${temp}°C`,
@@ -210,6 +217,8 @@ const ZH: typeof EN = {
   vesselLabel: "容量",
   decreaseVessel: "减少容量",
   increaseVessel: "增加容量",
+  decreaseGrams: "减少茶叶",
+  increaseGrams: "增加茶叶",
   sessionStats: (steeps, totalMl, time) =>
     `已出汤 ${steeps} 次 · 共 ${totalMl} 毫升水 · 冲泡 ${time}`,
   lastSteepTitle: "最后一泡结束了",
@@ -238,6 +247,8 @@ const ZH: typeof EN = {
   editTeaEyebrow: "编辑茶",
   notOnShelf: "你的茶架上没有这款茶。",
   backToShelf: "返回我的茶",
+  detailsEyebrow: "茶叶详情",
+  cloneAndCustomize: "复制并自定义",
 
   fName: "名称",
   fNamePlaceholder: "爷爷的铁观音",
@@ -276,6 +287,7 @@ const ZH: typeof EN = {
   tagsPlaceholder: "早晨，冷天…",
   steepsToggle: "泡数",
   steepRow: (n, time, duration) => `第 ${n} 泡 — ${time} · ${duration}`,
+  resumeSession: "继续",
 
   stashEyebrow: "藏 · 茶仓",
   stashTitle: "罐子里还有什么",

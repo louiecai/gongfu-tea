@@ -1,10 +1,17 @@
 "use client";
 
+import { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import { findTea, useProfiles } from "@/store/profiles";
 import { ProfileEditor } from "@/components/ProfileEditor";
 import { useT } from "@/store/useT";
 
-export default function NewProfilePage() {
+function NewProfilePageInner() {
+  const cloneId = useSearchParams().get("clone") ?? "";
+  const custom = useProfiles((s) => s.custom);
   const { t } = useT();
+  const cloneFrom = cloneId ? findTea(cloneId, custom) : undefined;
+
   return (
     <div>
       <header className="mb-6">
@@ -15,7 +22,15 @@ export default function NewProfilePage() {
           {t.newTeaTitle}
         </h1>
       </header>
-      <ProfileEditor />
+      <ProfileEditor cloneFrom={cloneFrom} />
     </div>
+  );
+}
+
+export default function NewProfilePage() {
+  return (
+    <Suspense fallback={null}>
+      <NewProfilePageInner />
+    </Suspense>
   );
 }

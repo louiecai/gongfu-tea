@@ -17,6 +17,17 @@ import { SteepDots } from "@/components/SteepDots";
 import { STRINGS, teaNames } from "@/lib/i18n";
 import { useT } from "@/store/useT";
 
+// Prefer a real back-navigation so the browser/Next restores wherever the
+// user scrolled to (a fresh push always lands at the top). Only push a new
+// entry when there's nothing to go back to, e.g. a direct deep link.
+function leaveSession(router: ReturnType<typeof useRouter>) {
+  if (typeof window !== "undefined" && window.history.length > 1) {
+    router.back();
+  } else {
+    router.push("/");
+  }
+}
+
 function useWakeLock(active: boolean) {
   useEffect(() => {
     if (!active || !("wakeLock" in navigator)) return;
@@ -56,6 +67,12 @@ function SessionPageInner() {
 
   const [now, setNow] = useState(() => Date.now());
   const firedRef = useRef(false);
+  // A direct override for leaf grams, independent of the vessel-derived
+  // default. Resets whenever the tea changes so a new session starts fresh.
+  const [gramsOverride, setGramsOverride] = useState<number | null>(null);
+  useEffect(() => {
+    setGramsOverride(null);
+  }, [tea?.id]);
 
   // Start (or resume) a session for this tea.
   useEffect(() => {
@@ -136,14 +153,18 @@ function SessionPageInner() {
   const doneWaiting = timer.status === "done" && !finished;
   const color = tea.liquorColor;
   const totalSteeps = steepDurations.length;
-  const grams = leafGrams(tea.ratioGramsPer100ml, settings.vesselMl);
-  // Grams are fixed for the log the moment the first steep starts, so lock
-  // the stepper once brewing is underway to avoid a display/log mismatch.
+  const grams =
+    gramsOverride ?? leafGrams(tea.ratioGramsPer100ml, settings.vesselMl);
+  // Grams and vessel are fixed for the log the moment the first steep
+  // starts, so lock both steppers once brewing is underway to avoid a
+  // display/log mismatch.
   const vesselLocked = steepIndex > 0 || timer.status !== "idle";
   const adjustVessel = (deltaMl: number) =>
     useSettings
       .getState()
       .update({ vesselMl: Math.min(500, Math.max(20, settings.vesselMl + deltaMl)) });
+  const adjustGrams = (delta: number) =>
+    setGramsOverride(Math.min(30, Math.max(0.5, Math.round((grams + delta) * 10) / 10)));
 
   return (
     <div className="flex min-h-[calc(100dvh-6rem)] flex-col">
@@ -151,7 +172,7 @@ function SessionPageInner() {
         <button
           onClick={() => {
             session.end();
-            router.push("/");
+            leaveSession(router);
           }}
           className="rounded-full border border-line bg-surface px-3.5 py-1.5 text-xs font-semibold text-muted transition-colors hover:text-ink"
         >
@@ -171,8 +192,26 @@ function SessionPageInner() {
         <span className="rounded-full border border-line px-2.5 py-1">
           {tea.tempC}°C
         </span>
-        <span className="rounded-full border border-line px-2.5 py-1">
-          {grams} g
+        <span className="flex items-center gap-0.5 rounded-full border border-line py-1 pl-1 pr-1.5">
+          <button
+            type="button"
+            onClick={() => adjustGrams(-0.5)}
+            disabled={vesselLocked}
+            aria-label={t.decreaseGrams}
+            className="flex h-5 w-5 items-center justify-center rounded-full disabled:opacity-30"
+          >
+            −
+          </button>
+          <span className="min-w-[3ch] text-center">{grams} g</span>
+          <button
+            type="button"
+            onClick={() => adjustGrams(0.5)}
+            disabled={vesselLocked}
+            aria-label={t.increaseGrams}
+            className="flex h-5 w-5 items-center justify-center rounded-full disabled:opacity-30"
+          >
+            +
+          </button>
         </span>
         <span className="flex items-center gap-0.5 rounded-full border border-line py-1 pl-1 pr-1.5">
           <button
@@ -215,18 +254,9 @@ function SessionPageInner() {
             exit={{ opacity: 0, scale: 0.97 }}
             className="flex flex-1 flex-col"
           >
-            <AnimatePresence mode="wait">
-              <motion.p
-                key={steepIndex}
-                initial={{ opacity: 0, y: -4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 4 }}
-                transition={{ duration: 0.25 }}
-                className="mb-3 text-center text-xs font-semibold uppercase tracking-[0.2em] text-muted"
-              >
-                {t.steepOf(steepIndex + 1, totalSteeps)}
-              </motion.p>
-            </AnimatePresence>
+            <p className="mb-3 text-center text-xs font-semibold uppercase tracking-[0.2em] text-muted">
+              {t.steepOf(steepIndex + 1, totalSteeps)}
+            </p>
 
             <TimerCup
               progress={doneWaiting ? 1 : elapsed}
@@ -300,7 +330,7 @@ function SessionPageInner() {
                     onClick={
                       timer.status === "paused"
                         ? session.resume
-                        : session.startSteep
+                        : () => session.startSteep(grams)
                     }
                     className="h-14 flex-1 max-w-56 rounded-full text-base font-bold text-white shadow-lg transition-transform active:scale-95"
                     style={{ background: color, boxShadow: `0 8px 24px -8px ${color}` }}
@@ -407,7 +437,7 @@ function FinishedView({ color }: { color: string }) {
         <button
           onClick={() => {
             session.end();
-            router.push("/");
+            leaveSession(router);
           }}
           className="rounded-full border border-line bg-surface px-6 py-3 text-sm font-semibold text-muted hover:text-ink"
         >

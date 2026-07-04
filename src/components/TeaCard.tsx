@@ -31,17 +31,26 @@ export function TeaCard({ tea, index }: { tea: TeaProfile; index: number }) {
       transition={{ delay: Math.min(index * 0.03, 0.4), duration: 0.35 }}
       className="relative"
     >
-      <button
-        type="button"
-        onClick={toggleFavorite}
-        aria-pressed={isFavorite}
-        aria-label={isFavorite ? t.unfavorite : t.favorite}
-        className={`absolute right-2.5 top-2.5 z-10 text-base leading-none transition-transform hover:scale-125 active:scale-95 ${
-          isFavorite ? "" : "opacity-30 grayscale"
-        }`}
-      >
-        ★
-      </button>
+      <span className="absolute right-2.5 top-2.5 z-10 flex items-center gap-2.5">
+        <Link
+          href={`/tea?id=${tea.id}`}
+          aria-label={t.viewDetails}
+          className="text-sm leading-none text-muted opacity-70 transition-transform hover:scale-125 hover:text-ink"
+        >
+          ⓘ
+        </Link>
+        <button
+          type="button"
+          onClick={toggleFavorite}
+          aria-pressed={isFavorite}
+          aria-label={isFavorite ? t.unfavorite : t.favorite}
+          className={`text-base leading-none transition-transform hover:scale-125 active:scale-95 ${
+            isFavorite ? "" : "opacity-30 grayscale"
+          }`}
+        >
+          ★
+        </button>
+      </span>
       <Link
         href={`/session?tea=${tea.id}`}
         className="group flex items-center gap-3.5 rounded-2xl border border-line bg-surface p-3.5 transition-all hover:-translate-y-0.5 hover:shadow-md hover:shadow-[var(--lift)] active:scale-[.98]"

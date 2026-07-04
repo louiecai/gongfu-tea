@@ -42,22 +42,31 @@ function parseSteeps(text: string): number[] {
     .map((n) => Math.round(n));
 }
 
-export function ProfileEditor({ initial }: { initial?: TeaProfile }) {
+export function ProfileEditor({
+  initial,
+  cloneFrom,
+}: {
+  initial?: TeaProfile;
+  cloneFrom?: TeaProfile;
+}) {
   const router = useRouter();
   const { t, lang } = useT();
-  const [name, setName] = useState(initial?.name ?? "");
-  const [chineseName, setChineseName] = useState(initial?.chineseName ?? "");
+  const seed = initial ?? cloneFrom;
+  const [name, setName] = useState(
+    initial ? initial.name : cloneFrom ? `${cloneFrom.name} (copy)` : "",
+  );
+  const [chineseName, setChineseName] = useState(seed?.chineseName ?? "");
   const [category, setCategory] = useState<TeaCategory>(
-    initial?.category ?? "oolong-light",
+    seed?.category ?? "oolong-light",
   );
-  const [color, setColor] = useState(initial?.liquorColor ?? "#c8a25e");
-  const [icon, setIcon] = useState<TeaIconKey>(initial?.icon ?? "leaf");
-  const [tempC, setTempC] = useState(initial?.tempC ?? 95);
-  const [ratio, setRatio] = useState(initial?.ratioGramsPer100ml ?? 5);
+  const [color, setColor] = useState(seed?.liquorColor ?? "#c8a25e");
+  const [icon, setIcon] = useState<TeaIconKey>(seed?.icon ?? "leaf");
+  const [tempC, setTempC] = useState(seed?.tempC ?? 95);
+  const [ratio, setRatio] = useState(seed?.ratioGramsPer100ml ?? 5);
   const [steepsText, setSteepsText] = useState(
-    initial?.steepsSec.join(", ") ?? "15, 20, 30, 45, 60, 90",
+    seed?.steepsSec.join(", ") ?? "15, 20, 30, 45, 60, 90",
   );
-  const [autoAdvance, setAutoAdvance] = useState(initial?.autoAdvance ?? true);
+  const [autoAdvance, setAutoAdvance] = useState(seed?.autoAdvance ?? true);
   const [error, setError] = useState<string | null>(null);
 
   const steeps = parseSteeps(steepsText);
