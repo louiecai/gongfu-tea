@@ -1,3 +1,5 @@
+import type { TimerState } from "./timer";
+
 export type TeaCategory =
   | "green"
   | "white"
@@ -39,6 +41,13 @@ export interface TeaProfile {
   custom?: boolean;
 }
 
+/** One pour: when it started and how long it actually ran. */
+export interface SteepRecord {
+  steepIndex: number;
+  startedAt: number;
+  durationMs: number;
+}
+
 export interface BrewSession {
   id: string;
   teaId: string;
@@ -55,6 +64,24 @@ export interface BrewSession {
   totalBrewMs?: number;
   favorite?: boolean;
   tags?: string[];
+  steeps?: SteepRecord[];
+}
+
+/**
+ * Snapshot of a live, unfinished brew session — persisted so quitting the
+ * app (reload, closed tab) doesn't lose your place. Keyed by `logId`, the
+ * same id as the `BrewSession` log row it's building up.
+ */
+export interface ActiveSession {
+  logId: string;
+  teaId: string;
+  steepIndex: number;
+  steepDurations: number[];
+  steepsCompleted: number;
+  totalBrewMs: number;
+  timer: TimerState;
+  justFinishedSteep: number | null;
+  steeps: SteepRecord[];
 }
 
 export interface StashItem {

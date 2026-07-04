@@ -43,7 +43,7 @@ export function TeaCard({ tea, index }: { tea: TeaProfile; index: number }) {
         ★
       </button>
       <Link
-        href={`/session/${tea.id}`}
+        href={`/session?tea=${tea.id}`}
         className="group flex items-center gap-3.5 rounded-2xl border border-line bg-surface p-3.5 transition-all hover:-translate-y-0.5 hover:shadow-md hover:shadow-[var(--lift)] active:scale-[.98]"
       >
         <span

@@ -1,4 +1,10 @@
-import type { BrewSession, Settings, StashItem, TeaProfile } from "./types";
+import type {
+  ActiveSession,
+  BrewSession,
+  Settings,
+  StashItem,
+  TeaProfile,
+} from "./types";
 
 /**
  * Persistence boundary. Everything below the stores goes through a Repo so a
@@ -45,4 +51,7 @@ export const stashRepo: Repo<StashItem[]> = new LocalStorageRepo(
 );
 export const settingsRepo: Repo<Settings> = new LocalStorageRepo(
   `${PREFIX}settings`,
+);
+export const activeSessionRepo: Repo<ActiveSession | null> = new LocalStorageRepo(
+  `${PREFIX}activeSession`,
 );

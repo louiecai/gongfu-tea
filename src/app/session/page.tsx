@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { findTea, useProfiles } from "@/store/profiles";
 import { useSession } from "@/store/session";
@@ -43,8 +43,8 @@ function useWakeLock(active: boolean) {
   }, [active]);
 }
 
-export default function SessionPage() {
-  const { teaId } = useParams<{ teaId: string }>();
+function SessionPageInner() {
+  const teaId = useSearchParams().get("tea") ?? "";
   const router = useRouter();
 
   const custom = useProfiles((s) => s.custom);
@@ -415,5 +415,13 @@ function FinishedView({ color }: { color: string }) {
         </button>
       </div>
     </motion.div>
+  );
+}
+
+export default function SessionPage() {
+  return (
+    <Suspense fallback={null}>
+      <SessionPageInner />
+    </Suspense>
   );
 }

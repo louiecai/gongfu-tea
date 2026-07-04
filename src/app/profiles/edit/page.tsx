@@ -1,13 +1,14 @@
 "use client";
 
+import { Suspense } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useProfiles } from "@/store/profiles";
 import { ProfileEditor } from "@/components/ProfileEditor";
 import { useT } from "@/store/useT";
 
-export default function EditProfilePage() {
-  const { id } = useParams<{ id: string }>();
+function EditProfilePageInner() {
+  const id = useSearchParams().get("id") ?? "";
   const custom = useProfiles((s) => s.custom);
   const hydrated = useProfiles((s) => s.hydrated);
   const { t } = useT();
@@ -38,5 +39,13 @@ export default function EditProfilePage() {
       </header>
       <ProfileEditor initial={tea} />
     </div>
+  );
+}
+
+export default function EditProfilePage() {
+  return (
+    <Suspense fallback={null}>
+      <EditProfilePageInner />
+    </Suspense>
   );
 }

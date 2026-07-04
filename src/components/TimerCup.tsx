@@ -125,7 +125,7 @@ export function TimerCup({
       )}
 
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <div className="rounded-2xl bg-surface/85 px-5 py-2.5 text-center backdrop-blur-sm">
+        <div className="flex flex-col items-center rounded-2xl bg-surface/70 px-5 py-2.5 text-center backdrop-blur-sm">
           {children}
         </div>
       </div>

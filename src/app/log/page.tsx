@@ -28,6 +28,7 @@ export default function LogPage() {
   const [gramsUsed, setGramsUsed] = useState(0);
   const [steepsCompleted, setSteepsCompleted] = useState(0);
   const [tags, setTags] = useState("");
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const startEdit = (id: string) => {
     const s = sessions.find((x) => x.id === id);
@@ -111,6 +112,35 @@ export default function LogPage() {
                     {s.gramsUsed ? ` · ${t.grams(s.gramsUsed)}` : ""}
                     {s.totalBrewMs ? ` · ${t.totalBrewed(formatMs(s.totalBrewMs))}` : ""}
                   </p>
+                  {s.steeps && s.steeps.length > 0 && (
+                    <button
+                      onClick={() =>
+                        setExpandedId(expandedId === s.id ? null : s.id)
+                      }
+                      className="mt-1 text-[11px] font-semibold text-muted hover:text-ink"
+                    >
+                      {expandedId === s.id ? "▴" : "▾"} {t.steepsToggle}
+                    </button>
+                  )}
+                  {expandedId === s.id && s.steeps && (
+                    <ul
+                      className="mt-1.5 space-y-0.5 border-l-2 pl-3 text-xs text-muted"
+                      style={{ borderColor: s.liquorColor }}
+                    >
+                      {s.steeps.map((rec) => (
+                        <li key={rec.steepIndex}>
+                          {t.steepRow(
+                            rec.steepIndex + 1,
+                            new Date(rec.startedAt).toLocaleTimeString(
+                              dateLocale(lang),
+                              { hour: "numeric", minute: "2-digit" },
+                            ),
+                            formatMs(rec.durationMs),
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
                 <button
                   onClick={() => toggleFavorite(s.id, s.favorite)}

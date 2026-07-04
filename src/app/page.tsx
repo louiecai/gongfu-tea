@@ -7,8 +7,9 @@ import { CATEGORY_LABELS, type TeaCategory, type TeaProfile } from "@/lib/types"
 import { useProfiles, findTea } from "@/store/profiles";
 import { useSettings } from "@/store/settings";
 import { useLog } from "@/store/log";
+import { useSession } from "@/store/session";
 import { TeaCard } from "@/components/TeaCard";
-import { categoryLabel } from "@/lib/i18n";
+import { categoryLabel, teaNames } from "@/lib/i18n";
 import { useT } from "@/store/useT";
 
 const CATEGORY_ORDER: TeaCategory[] = [
@@ -28,6 +29,10 @@ export default function HomePage() {
   const custom = useProfiles((s) => s.custom);
   const favoriteIds = useSettings((s) => s.favorites);
   const sessions = useLog((s) => s.sessions);
+  const activeTea = useSession((s) => s.tea);
+  const activeFinished = useSession((s) => s.finished);
+  const activeSteepIndex = useSession((s) => s.steepIndex);
+  const activeTotalSteeps = useSession((s) => s.steepDurations.length);
   const { t, lang } = useT();
   const [query, setQuery] = useState("");
 
@@ -97,6 +102,29 @@ export default function HomePage() {
           {t.newTea}
         </Link>
       </div>
+
+      {!query.trim() && activeTea && !activeFinished && (
+        <Link
+          href={`/session?tea=${activeTea.id}`}
+          className="mb-7 flex items-center gap-3.5 rounded-2xl border border-line bg-surface p-3.5 transition-all hover:-translate-y-0.5 hover:shadow-md hover:shadow-[var(--lift)] active:scale-[.98]"
+          style={{ borderColor: activeTea.liquorColor }}
+        >
+          <span
+            aria-hidden
+            className="steep-glow h-3 w-3 shrink-0 rounded-full"
+            style={{ background: activeTea.liquorColor }}
+          />
+          <span className="min-w-0 flex-1">
+            <span className="block text-xs font-semibold uppercase tracking-[0.15em] text-muted">
+              {t.continueBrewing}
+            </span>
+            <span className="font-display block truncate text-[15px] font-medium">
+              {teaNames(activeTea, lang).primary} ·{" "}
+              {t.steepOf(activeSteepIndex + 1, activeTotalSteeps)}
+            </span>
+          </span>
+        </Link>
+      )}
 
       {!query.trim() && favoriteTeas.length > 0 && (
         <section className="mb-7">

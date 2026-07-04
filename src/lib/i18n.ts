@@ -20,6 +20,7 @@ const EN = {
   recentlyBrewed: "Recently brewed",
   favorite: "Add to favorites",
   unfavorite: "Remove from favorites",
+  continueBrewing: "Continue brewing",
   manage: "Manage",
   noMatch: (q: string) =>
     `No tea matches “${q}”. Try another name, or create it as a new tea.`,
@@ -112,6 +113,9 @@ const EN = {
   favoriteLabel: "Favorite",
   tagsLabel: "Tags",
   tagsPlaceholder: "morning, cold day…",
+  steepsToggle: "steeps",
+  steepRow: (n: number, time: string, duration: string) =>
+    `Steep ${n} — ${time} · ${duration}`,
 
   // stash
   stashEyebrow: "藏 · tea stash",
@@ -185,6 +189,7 @@ const ZH: typeof EN = {
   recentlyBrewed: "最近冲泡",
   favorite: "加入收藏",
   unfavorite: "移出收藏",
+  continueBrewing: "继续冲泡",
   manage: "管理",
   noMatch: (q) => `没有找到「${q}」。换个名字试试，或者自己创建一款。`,
   cardMeta: (steeps, first, temp) => `${steeps} 泡 · 首泡 ${first} · ${temp}°C`,
@@ -269,6 +274,8 @@ const ZH: typeof EN = {
   favoriteLabel: "收藏",
   tagsLabel: "标签",
   tagsPlaceholder: "早晨，冷天…",
+  steepsToggle: "泡数",
+  steepRow: (n, time, duration) => `第 ${n} 泡 — ${time} · ${duration}`,
 
   stashEyebrow: "藏 · 茶仓",
   stashTitle: "罐子里还有什么",

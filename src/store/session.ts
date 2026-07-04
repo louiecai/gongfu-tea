@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { TeaProfile } from "@/lib/types";
+import type { SteepRecord, TeaProfile } from "@/lib/types";
 import {
   finishTimer,
   idleTimer,
@@ -11,9 +11,11 @@ import {
 } from "@/lib/timer";
 import { leafGrams } from "@/lib/brew";
 import { unlockAudio } from "@/lib/audio";
+import { activeSessionRepo } from "@/lib/repo";
 import { useLog } from "./log";
 import { useStash } from "./stash";
 import { useSettings } from "./settings";
+import { findTea, useProfiles } from "./profiles";
 
 interface SessionStore {
   tea: TeaProfile | null;
@@ -28,7 +30,11 @@ interface SessionStore {
   justFinishedSteep: number | null;
   /** Cumulative ms actually spent steeping this session (nudges included). */
   totalBrewMs: number;
+  /** When each pour started and how long it actually ran. */
+  steeps: SteepRecord[];
 
+  /** Restore a session left running when the app was last closed. */
+  hydrate: () => void;
   begin: (tea: TeaProfile, strength: number) => void;
   startSteep: () => void;
   pause: () => void;
@@ -54,10 +60,34 @@ const EMPTY = {
   logId: null,
   justFinishedSteep: null,
   totalBrewMs: 0,
+  steeps: [] as SteepRecord[],
 };
 
 export const useSession = create<SessionStore>((set, get) => ({
   ...EMPTY,
+
+  hydrate: () => {
+    const saved = activeSessionRepo.load();
+    if (!saved) return;
+    const tea = findTea(saved.teaId, useProfiles.getState().custom);
+    if (!tea) {
+      // The tea behind this session was deleted — nothing to resume into.
+      activeSessionRepo.save(null);
+      return;
+    }
+    set({
+      tea,
+      steepDurations: saved.steepDurations,
+      steepIndex: saved.steepIndex,
+      timer: saved.timer,
+      steepsCompleted: saved.steepsCompleted,
+      finished: false,
+      logId: saved.logId,
+      justFinishedSteep: saved.justFinishedSteep,
+      totalBrewMs: saved.totalBrewMs,
+      steeps: saved.steeps,
+    });
+  },
 
   begin: (tea, strength) => {
     const steepDurations = tea.steepsSec.map((s) => scaledSteepMs(s, strength));
@@ -84,7 +114,7 @@ export const useSession = create<SessionStore>((set, get) => ({
 
   startSteep: () => {
     unlockAudio();
-    const { steepIndex, tea, logId } = get();
+    const { steepIndex, tea, logId, steeps } = get();
     // First steep only: capture the leaf grams for whatever vessel size is
     // dialed in right now (the user may have just adjusted it), then deplete
     // the stash once for the whole session.
@@ -94,7 +124,11 @@ export const useSession = create<SessionStore>((set, get) => ({
       useStash.getState().consumeForSession(tea.id, grams);
       if (logId) useLog.getState().update(logId, { gramsUsed: grams });
     }
-    set({ timer: startTimer(get().timer), justFinishedSteep: null });
+    set({
+      timer: startTimer(get().timer),
+      justFinishedSteep: null,
+      steeps: [...steeps, { steepIndex, startedAt: Date.now(), durationMs: 0 }],
+    });
   },
 
   pause: () => set({ timer: pauseTimer(get().timer) }),
@@ -102,15 +136,29 @@ export const useSession = create<SessionStore>((set, get) => ({
   nudge: (deltaSec) => set({ timer: nudgeTimer(get().timer, deltaSec * 1000) }),
 
   completeSteep: () => {
-    const { tea, steepIndex, steepDurations, steepsCompleted, logId, timer } =
-      get();
+    const {
+      tea,
+      steepIndex,
+      steepDurations,
+      steepsCompleted,
+      logId,
+      timer,
+      steeps,
+    } = get();
     if (!tea) return;
     const completed = steepsCompleted + 1;
     const totalBrewMs = get().totalBrewMs + timer.durationMs;
+    const updatedSteeps = steeps.map((s, i) =>
+      i === steeps.length - 1 ? { ...s, durationMs: timer.durationMs } : s,
+    );
     if (logId) {
-      useLog.getState().update(logId, { steepsCompleted: completed, totalBrewMs });
+      useLog.getState().update(logId, {
+        steepsCompleted: completed,
+        totalBrewMs,
+        steeps: updatedSteeps,
+      });
     }
-    set({ totalBrewMs });
+    set({ totalBrewMs, steeps: updatedSteeps });
     const isLast = steepIndex >= steepDurations.length - 1;
     if (isLast) {
       set({
@@ -164,3 +212,26 @@ export const useSession = create<SessionStore>((set, get) => ({
   clearAlarm: () => set({ justFinishedSteep: null }),
   end: () => set({ ...EMPTY }),
 }));
+
+// Persist the live session after every change, so a reload or closed tab can
+// resume exactly where it left off. A finished (or ended) session has
+// nothing left to resume, so it clears the record instead.
+if (typeof window !== "undefined") {
+  useSession.subscribe((state) => {
+    if (!state.tea || !state.logId || state.finished) {
+      activeSessionRepo.save(null);
+      return;
+    }
+    activeSessionRepo.save({
+      logId: state.logId,
+      teaId: state.tea.id,
+      steepIndex: state.steepIndex,
+      steepDurations: state.steepDurations,
+      steepsCompleted: state.steepsCompleted,
+      totalBrewMs: state.totalBrewMs,
+      timer: state.timer,
+      justFinishedSteep: state.justFinishedSteep,
+      steeps: state.steeps,
+    });
+  });
+}

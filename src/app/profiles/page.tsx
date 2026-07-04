@@ -93,7 +93,7 @@ export default function ProfilesPage() {
             </div>
             <div className="flex shrink-0 gap-1.5 text-xs font-semibold">
               <Link
-                href={`/session/${tea.id}`}
+                href={`/session?tea=${tea.id}`}
                 className="rounded-full px-3 py-2 text-white"
                 style={{ background: tea.liquorColor }}
               >
@@ -106,7 +106,7 @@ export default function ProfilesPage() {
                 {copiedId === tea.id ? t.copied : t.share}
               </button>
               <Link
-                href={`/profiles/${tea.id}`}
+                href={`/profiles/edit?id=${tea.id}`}
                 className="rounded-full border border-line px-3 py-2 text-muted hover:text-ink"
               >
                 {t.edit}

@@ -14,7 +14,7 @@ export function Nav() {
     { href: "/settings", label: t.navSettings, glyph: "调" },
   ];
   // The session screen is a focused, full-attention view — hide the tabs.
-  if (pathname.startsWith("/session/")) return null;
+  if (pathname === "/session") return null;
 
   return (
     <nav

@@ -5,6 +5,7 @@ import { useSettings } from "@/store/settings";
 import { useProfiles } from "@/store/profiles";
 import { useLog } from "@/store/log";
 import { useStash } from "@/store/stash";
+import { useSession } from "@/store/session";
 
 /**
  * Client bootstrap: hydrate stores from localStorage, keep the theme class
@@ -26,6 +27,8 @@ export function Boot() {
     useProfiles.getState().hydrate();
     useLog.getState().hydrate();
     useStash.getState().hydrate();
+    // Depends on profiles being hydrated first (looks up the resumed tea).
+    useSession.getState().hydrate();
   }, []);
 
   useEffect(() => {
