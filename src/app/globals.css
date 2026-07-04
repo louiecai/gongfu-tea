@@ -32,6 +32,7 @@
 
 html {
   background: var(--bg);
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -102,11 +103,26 @@ body {
   animation: steep-glow 1.8s ease-in-out infinite;
 }
 
+/* Soft "come tap me" breathing on the countdown ring while idle. */
+@keyframes ring-idle-pulse {
+  0%, 100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.ring-idle-pulse {
+  animation: ring-idle-pulse 2.4s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .wave-drift,
   .wave-drift-slow,
   .steep-ripple,
-  .steep-glow {
+  .steep-glow,
+  .ring-idle-pulse {
     animation: none;
   }
 }
@@ -131,4 +147,14 @@ button:not(:disabled):active {
 label:has(> input[type="checkbox"]),
 label:has(> input[type="file"]) {
   cursor: pointer;
+}
+
+/* Most navigation happens by tapping a card/link, not a button — give those
+   the same tactile press so the app doesn't feel inert on a touch screen. */
+a {
+  transition: transform 0.15s ease;
+}
+
+a:active {
+  transform: scale(0.98);
 }

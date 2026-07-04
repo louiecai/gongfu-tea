@@ -232,6 +232,7 @@ export default function SessionPage() {
               progress={doneWaiting ? 1 : elapsed}
               color={color}
               ripple={doneWaiting || session.justFinishedSteep !== null}
+              idle={timer.status === "idle"}
             >
               <span className="font-display tabular text-5xl font-medium">
                 {doneWaiting ? "0:00" : formatMs(leftMs)}

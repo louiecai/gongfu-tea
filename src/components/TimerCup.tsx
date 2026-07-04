@@ -20,6 +20,7 @@ export function TimerCup({
   progress,
   color,
   ripple,
+  idle,
   children,
 }: {
   /** 0 → empty cup, 1 → full (elapsed fraction of the steep). */
@@ -27,6 +28,8 @@ export function TimerCup({
   color: string;
   /** Pulse rings outward (steep just finished). */
   ripple?: boolean;
+  /** Waiting for the first tap — gives the ring a gentle "come start me" pulse. */
+  idle?: boolean;
   children?: React.ReactNode;
 }) {
   const p = Math.min(1, Math.max(0, progress));
@@ -63,6 +66,7 @@ export function TimerCup({
           strokeDasharray={CIRC}
           strokeDashoffset={ringOffset}
           transform="rotate(-90 110 110)"
+          className={idle ? "ring-idle-pulse" : undefined}
           style={{ transition: "stroke-dashoffset 0.3s linear" }}
         />
 
@@ -121,7 +125,9 @@ export function TimerCup({
       )}
 
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        {children}
+        <div className="rounded-2xl bg-surface/85 px-5 py-2.5 text-center backdrop-blur-sm">
+          {children}
+        </div>
       </div>
     </div>
   );
