@@ -1,0 +1,5178 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+The content has been processed where line numbers have been added.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Line numbers have been added to the beginning of each line
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+.github/
+  workflows/
+    nextjs.yml
+docs/
+  PLAN.md
+public/
+  .nojekyll
+  CNAME
+  manifest.json
+  sw.js
+src/
+  app/
+    import/
+      page.tsx
+    log/
+      page.tsx
+    profiles/
+      edit/
+        page.tsx
+      new/
+        page.tsx
+      page.tsx
+    session/
+      page.tsx
+    settings/
+      page.tsx
+    stash/
+      page.tsx
+    tea/
+      page.tsx
+    globals.css
+    layout.tsx
+    page.tsx
+  components/
+    Boot.tsx
+    Nav.tsx
+    ProfileEditor.tsx
+    ScrollRestoration.tsx
+    SteepDots.tsx
+    TeaCard.tsx
+    TeaIcon.tsx
+    TimerCup.tsx
+  lib/
+    alerts.ts
+    audio.ts
+    brew.test.ts
+    brew.ts
+    i18n.test.ts
+    i18n.ts
+    repo.ts
+    share.ts
+    teas.ts
+    timer.test.ts
+    timer.ts
+    types.ts
+  store/
+    activeSessions.ts
+    log.ts
+    profiles.ts
+    session.ts
+    settings.ts
+    stash.ts
+    useT.ts
+.gitignore
+next.config.ts
+package.json
+postcss.config.mjs
+tsconfig.json
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path=".github/workflows/nextjs.yml">
+ 1: # Sample workflow for building and deploying a Next.js site to GitHub Pages
+ 2: #
+ 3: # To get started with Next.js see: https://nextjs.org/docs/getting-started
+ 4: #
+ 5: name: Deploy Next.js site to Pages
+ 6: 
+ 7: on:
+ 8:   # Runs on pushes targeting the default branch
+ 9:   push:
+10:     branches: ["main"]
+11: 
+12:   # Allows you to run this workflow manually from the Actions tab
+13:   workflow_dispatch:
+14: 
+15: # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+16: permissions:
+17:   contents: read
+18:   pages: write
+19:   id-token: write
+20: 
+21: # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+22: # However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+23: concurrency:
+24:   group: "pages"
+25:   cancel-in-progress: false
+26: 
+27: jobs:
+28:   # Build job
+29:   build:
+30:     runs-on: ubuntu-latest
+31:     steps:
+32:       - name: Checkout
+33:         uses: actions/checkout@v4
+34:       - name: Detect package manager
+35:         id: detect-package-manager
+36:         run: |
+37:           if [ -f "${{ github.workspace }}/yarn.lock" ]; then
+38:             echo "manager=yarn" >> $GITHUB_OUTPUT
+39:             echo "command=install" >> $GITHUB_OUTPUT
+40:             echo "runner=yarn" >> $GITHUB_OUTPUT
+41:             exit 0
+42:           elif [ -f "${{ github.workspace }}/package.json" ]; then
+43:             echo "manager=npm" >> $GITHUB_OUTPUT
+44:             echo "command=ci" >> $GITHUB_OUTPUT
+45:             echo "runner=npx --no-install" >> $GITHUB_OUTPUT
+46:             exit 0
+47:           else
+48:             echo "Unable to determine package manager"
+49:             exit 1
+50:           fi
+51:       - name: Setup Node
+52:         uses: actions/setup-node@v4
+53:         with:
+54:           node-version: "20"
+55:           cache: ${{ steps.detect-package-manager.outputs.manager }}
+56:       - name: Setup Pages
+57:         uses: actions/configure-pages@v5
+58:         with:
+59:           # Automatically inject basePath in your Next.js configuration file and disable
+60:           # server side image optimization (https://nextjs.org/docs/api-reference/next/image#unoptimized).
+61:           #
+62:           # You may remove this line if you want to manage the configuration yourself.
+63:           static_site_generator: next
+64:       - name: Restore cache
+65:         uses: actions/cache@v4
+66:         with:
+67:           path: |
+68:             .next/cache
+69:           # Generate a new cache whenever packages or source files change.
+70:           key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
+71:           # If source files changed but packages didn't, rebuild from a prior cache.
+72:           restore-keys: |
+73:             ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-
+74:       - name: Install dependencies
+75:         run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
+76:       - name: Build with Next.js
+77:         run: ${{ steps.detect-package-manager.outputs.runner }} next build
+78:       - name: Upload artifact
+79:         uses: actions/upload-pages-artifact@v3
+80:         with:
+81:           path: ./out
+82: 
+83:   # Deployment job
+84:   deploy:
+85:     environment:
+86:       name: github-pages
+87:       url: ${{ steps.deployment.outputs.page_url }}
+88:     runs-on: ubuntu-latest
+89:     needs: build
+90:     steps:
+91:       - name: Deploy to GitHub Pages
+92:         id: deployment
+93:         uses: actions/deploy-pages@v5
+</file>
+
+<file path="docs/PLAN.md">
+  1: # Gongfu Tea Timer — Design & Implementation Plan
+  2: 
+  3: ## Context
+  4: 
+  5: Louie wants a website that is a collection of gongfu-cha (kung fu tea) steep timers. Each tea has a multi-steep schedule; the app tracks which steep you're on, times each steep, alerts on finish, and advances to the next steep (waiting for a tap to start it, matching the real pour-and-drink rhythm). It ships with a rich named-tea preset library plus custom profiles, in a minimal, wholesome, animated UI colored by tea liquor, working on mobile and desktop as an installable PWA.
+  6: 
+  7: New greenfield project. Location: `/home/louie/Documents/gongfu-tea-timer` (name changeable).
+  8: 
+  9: ## Decisions (confirmed with user)
+ 10: 
+ 11: - **Stack**: Next.js (App Router) + TypeScript + Tailwind + Zustand + Framer Motion + Serwist (PWA)
+ 12: - **Persistence**: localStorage now, behind a repository interface so a backend (optional login/sync) can bolt on later
+ 13: - **Alerts on steep end**: sound chime + browser notification + vibration (mobile) + visual — all toggleable in Settings
+ 14: - **Auto-advance**: steep N ends → alert → app advances to steep N+1 ready → user taps Start when pouring again. Per-profile toggle to disable advancing (stay on steep until manually advanced).
+ 15: - **Presets**: big named-tea library (~24 teas: Longjing, Bi Luo Chun, Huangshan Maofeng, Anji Bai Cha, Silver Needle, White Peony, Shou Mei, Junshan Yinzhen, Tieguanyin, Gaoshan, Dancong, Da Hong Pao, Rou Gui, Shui Xian, Dong Ding, Jin Jun Mei, Keemun, Dianhong, Lapsang, Sheng Pu-erh (young/aged), Shou Pu-erh, Liu Bao, Chrysanthemum/herbal)
+ 16: - **PWA**: installable, offline-capable
+ 17: - **v1 extras (all approved)**: brew log + tasting notes; strength preference (global lighter/stronger scaler) + ±5s mid-steep nudge; tea stash tracker (grams remaining, decrement per session); share custom profile via URL-encoded link
+ 18: - **Included by default**: dark mode, water temp + leaf/water ratio shown on session screen, profile JSON export/import
+ 19: 
+ 20: ## Architecture
+ 21: 
+ 22: ```
+ 23: src/
+ 24:   app/                    # Next.js App Router
+ 25:     page.tsx              # Home: tea grid
+ 26:     session/[teaId]/page.tsx  # Timer session
+ 27:     profiles/             # custom profile list + editor
+ 28:     log/page.tsx          # brew log
+ 29:     stash/page.tsx        # tea stash
+ 30:     settings/page.tsx
+ 31:     import/page.tsx       # ?p=<encoded> shared-profile landing
+ 32:   lib/
+ 33:     teas.ts               # preset library (typed data)
+ 34:     types.ts              # TeaProfile, SteepSchedule, BrewSession, StashItem…
+ 35:     timer.ts              # timestamp-based timer engine
+ 36:     repo/                 # repository interface + localStorage impl
+ 37:     audio.ts              # Web Audio chime (unlocked on first Start tap)
+ 38:     alerts.ts             # notification + vibration helpers
+ 39:     share.ts              # profile <-> URL codec (base64url JSON)
+ 40:   store/                  # Zustand stores: session, settings, profiles, log, stash
+ 41:   components/             # TimerRing, SteepDots, TeaCard, TeaIcon, editors…
+ 42: ```
+ 43: 
+ 44: ### Key technical points
+ 45: 
+ 46: - **Timer engine**: timestamp-based (`endsAt = Date.now() + remainingMs`), display via `requestAnimationFrame`; never decrement a counter on interval — survives tab throttling/sleep. Pause stores `remainingMs`. Steep-end detection compares against `Date.now()` on each frame + a backup `setTimeout`.
+ 47: - **Strength scaler**: multiplier (e.g. 0.8×–1.3×) applied to schedule at session start; ±5s nudge adjusts current steep only.
+ 48: - **Repository interface**: `ProfileRepo`, `LogRepo`, `StashRepo`, `SettingsRepo` with a `LocalStorageRepo` implementation. Backend later = new impl, zero UI change.
+ 49: - **Wake Lock API**: keep screen on while a steep runs (feature-detected).
+ 50: - **Audio autoplay**: `AudioContext` created/resumed inside the Start button handler — always allowed.
+ 51: - **Notifications**: permission requested only when user flips the toggle in Settings.
+ 52: - **PWA**: Serwist service worker, manifest with icons, offline precache of app shell + tea data (all local, no external requests at runtime).
+ 53: 
+ 54: ## Data model (core)
+ 55: 
+ 56: ```ts
+ 57: type TeaCategory = 'green'|'white'|'yellow'|'oolong-light'|'oolong-dark'|'black'|'puer-sheng'|'puer-shou'|'heicha'|'herbal';
+ 58: 
+ 59: interface TeaProfile {
+ 60:   id: string; name: string; chineseName?: string;
+ 61:   category: TeaCategory;
+ 62:   liquorColor: string;        // hex, drives ring/animations
+ 63:   icon: string;               // key into TeaIcon SVG set
+ 64:   tempC: number; ratioGramsPer100ml: number;
+ 65:   steepsSec: number[];        // e.g. [10,15,20,25,35,45,60,90]
+ 66:   autoAdvance: boolean;       // default true
+ 67:   custom?: boolean;
+ 68: }
+ 69: 
+ 70: interface BrewSession { id; teaId; startedAt; steepsCompleted; rating?; note?; gramsUsed?; }
+ 71: interface StashItem   { teaId|customId; gramsRemaining; gramsPerSession; }
+ 72: ```
+ 73: 
+ 74: ## UI / design direction
+ 75: 
+ 76: Minimal, warm, wholesome. Soft cream/charcoal backgrounds (light + dark), generous whitespace, rounded cards, one accent = the selected tea's liquor color. Big central circular timer ring that drains and "fills with tea" (gradient of liquorColor). Steep position shown as a row of dots (done / current / upcoming). Custom inline SVG icons per category (leaf, bud, gaiwan, rolled pearl, pressed cake, flower). Framer Motion page/card transitions; gentle glow pulse on steep completion. Use the `frontend-design` skill during implementation for the visual pass.
+ 77: 
+ 78: ## Implementation steps
+ 79: 
+ 80: 1. **Scaffold**: `create-next-app` (TS, Tailwind, App Router) in `gongfu-tea-timer/`; add zustand, framer-motion, serwist. `git init`.
+ 81: 2. **Types + tea library**: `types.ts`, `teas.ts` with ~24 curated presets (schedules per category norms, liquor colors, icons).
+ 82: 3. **Repo layer + stores**: localStorage repos, Zustand stores, hydration-safe (Next SSR ⇒ read localStorage only client-side).
+ 83: 4. **Timer engine + session screen**: TimerRing, SteepDots, start/pause/skip/±5s, auto-advance flow, wake lock.
+ 84: 5. **Alerts**: chime (Web Audio, small synthesized gong — no asset needed), notification, vibration, settings toggles.
+ 85: 6. **Home grid + tea cards + icons**: category-grouped grid, search/filter.
+ 86: 7. **Custom profiles**: editor (name, category, color, temp, ratio, steep list editor), export/import JSON, share-link codec + import page.
+ 87: 8. **Brew log**: auto-record session on finish/abandon, rating + note editor, list view.
+ 88: 9. **Stash**: stash list, grams decrement on session start (uses profile ratio), low-stash hint.
+ 89: 10. **Settings + strength slider**, dark mode (system + manual toggle).
+ 90: 11. **PWA**: manifest, icons, Serwist config, offline test.
+ 91: 12. **Visual polish pass** with `frontend-design` skill; responsive check mobile + desktop.
+ 92: 
+ 93: ## Verification
+ 94: 
+ 95: - `npm run build` clean; `npm run dev` and drive with Playwright MCP: pick tea → start steep → let finish → verify auto-advance waits for tap; test pause, ±5s, skip.
+ 96: - Verify timer accuracy after backgrounding tab (timestamp math).
+ 97: - Test chime fires after user-gesture unlock; notification permission flow; settings toggles persist.
+ 98: - Create custom profile → export → share link → open import page → profile imported.
+ 99: - Brew log entry created with rating/note; stash grams decrement.
+100: - Lighthouse PWA installability check; offline reload works.
+101: - Mobile viewport (390px) + desktop layouts via Playwright screenshots.
+102: 
+103: ## Out of scope (later)
+104: 
+105: Backend accounts/sync (repo interface ready), i18n, ambient sounds.
+</file>
+
+<file path="public/.nojekyll">
+1: 
+</file>
+
+<file path="public/CNAME">
+1: tea.louiecai.com
+</file>
+
+<file path="public/manifest.json">
+ 1: {
+ 2:   "name": "一盏茶 · A Cup's Time",
+ 3:   "short_name": "一盏茶",
+ 4:   "description": "A cup's time — a quiet gongfu tea timer, steep by steep.",
+ 5:   "start_url": "/",
+ 6:   "display": "standalone",
+ 7:   "background_color": "#f6f1e7",
+ 8:   "theme_color": "#f6f1e7",
+ 9:   "icons": [
+10:     {
+11:       "src": "/icon-192.png",
+12:       "sizes": "192x192",
+13:       "type": "image/png",
+14:       "purpose": "any"
+15:     },
+16:     {
+17:       "src": "/icon-512.png",
+18:       "sizes": "512x512",
+19:       "type": "image/png",
+20:       "purpose": "any"
+21:     },
+22:     {
+23:       "src": "/icon-512.png",
+24:       "sizes": "512x512",
+25:       "type": "image/png",
+26:       "purpose": "maskable"
+27:     }
+28:   ]
+29: }
+</file>
+
+<file path="public/sw.js">
+ 1: /*
+ 2:  * App-shell service worker. Network-first for navigations (so deploys show
+ 3:  * up), cache-first for hashed static assets, and an offline fallback of the
+ 4:  * last good shell. All data lives in localStorage, so offline the app is
+ 5:  * fully functional once the shell is cached.
+ 6:  */
+ 7: const CACHE = "gongfu-v1";
+ 8: const SHELL = ["/", "/manifest.json", "/icon-192.png", "/icon-512.png"];
+ 9: 
+10: self.addEventListener("install", (event) => {
+11:   event.waitUntil(
+12:     caches
+13:       .open(CACHE)
+14:       .then((cache) => cache.addAll(SHELL))
+15:       .then(() => self.skipWaiting()),
+16:   );
+17: });
+18: 
+19: self.addEventListener("activate", (event) => {
+20:   event.waitUntil(
+21:     caches
+22:       .keys()
+23:       .then((keys) =>
+24:         Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))),
+25:       )
+26:       .then(() => self.clients.claim()),
+27:   );
+28: });
+29: 
+30: self.addEventListener("fetch", (event) => {
+31:   const { request } = event;
+32:   if (request.method !== "GET") return;
+33:   const url = new URL(request.url);
+34:   if (url.origin !== self.location.origin) return;
+35: 
+36:   if (request.mode === "navigate") {
+37:     event.respondWith(
+38:       fetch(request)
+39:         .then((response) => {
+40:           const copy = response.clone();
+41:           caches.open(CACHE).then((cache) => cache.put("/", copy));
+42:           return response;
+43:         })
+44:         .catch(() => caches.match("/")),
+45:     );
+46:     return;
+47:   }
+48: 
+49:   event.respondWith(
+50:     caches.match(request).then(
+51:       (cached) =>
+52:         cached ||
+53:         fetch(request).then((response) => {
+54:           if (response.ok && url.pathname.startsWith("/_next/static/")) {
+55:             const copy = response.clone();
+56:             caches.open(CACHE).then((cache) => cache.put(request, copy));
+57:           }
+58:           return response;
+59:         }),
+60:     ),
+61:   );
+62: });
+</file>
+
+<file path="src/app/import/page.tsx">
+ 1: "use client";
+ 2: 
+ 3: import { Suspense, useMemo, useState } from "react";
+ 4: import Link from "next/link";
+ 5: import { useRouter, useSearchParams } from "next/navigation";
+ 6: import { decodeProfile } from "@/lib/share";
+ 7: import { useProfiles } from "@/store/profiles";
+ 8: import { TeaIcon } from "@/components/TeaIcon";
+ 9: import { formatSeconds } from "@/lib/timer";
+10: import { categoryLabel, teaNames } from "@/lib/i18n";
+11: import { useT } from "@/store/useT";
+12: 
+13: function ImportInner() {
+14:   const params = useSearchParams();
+15:   const router = useRouter();
+16:   const encoded = params.get("p") ?? "";
+17:   const tea = useMemo(() => decodeProfile(encoded), [encoded]);
+18:   const [imported, setImported] = useState(false);
+19:   const { t, lang } = useT();
+20: 
+21:   if (!tea) {
+22:     return (
+23:       <div className="pt-20 text-center">
+24:         <p className="text-muted">{t.badLink}</p>
+25:         <Link href="/" className="mt-3 inline-block font-semibold underline">
+26:           {t.backToTeas}
+27:         </Link>
+28:       </div>
+29:     );
+30:   }
+31: 
+32:   const accept = () => {
+33:     useProfiles.getState().save(tea);
+34:     setImported(true);
+35:     setTimeout(() => router.push("/"), 900);
+36:   };
+37: 
+38:   return (
+39:     <div className="mx-auto max-w-sm pt-10 text-center">
+40:       <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
+41:         {t.importEyebrow}
+42:       </p>
+43:       <span
+44:         className="mx-auto mt-6 flex h-20 w-20 items-center justify-center rounded-full"
+45:         style={{
+46:           color: tea.liquorColor,
+47:           background: `color-mix(in srgb, ${tea.liquorColor} 16%, transparent)`,
+48:         }}
+49:       >
+50:         <TeaIcon icon={tea.icon} className="h-10 w-10" />
+51:       </span>
+52:       <h1 className="font-display mt-4 text-3xl font-medium">
+53:         {teaNames(tea, lang).primary}
+54:       </h1>
+55:       {teaNames(tea, lang).secondary && (
+56:         <p className="mt-1 text-muted">{teaNames(tea, lang).secondary}</p>
+57:       )}
+58:       <p className="mt-3 text-sm text-muted">
+59:         {categoryLabel(tea.category, lang)} · {tea.tempC}°C ·{" "}
+60:         {tea.ratioGramsPer100ml} g/100 ml
+61:       </p>
+62:       <p className="mt-1.5 text-sm text-muted">
+63:         {t.importMeta(tea.steepsSec.length)}
+64:         {tea.steepsSec.map((s) => formatSeconds(s)).join(" → ")}
+65:       </p>
+66:       <div className="mt-7 flex justify-center gap-3">
+67:         <button
+68:           onClick={accept}
+69:           disabled={imported}
+70:           className="rounded-full px-6 py-3 text-sm font-bold text-white transition-transform active:scale-95"
+71:           style={{ background: tea.liquorColor }}
+72:         >
+73:           {imported ? t.added : t.addToShelf}
+74:         </button>
+75:         <Link
+76:           href="/"
+77:           className="rounded-full border border-line bg-surface px-6 py-3 text-sm font-semibold text-muted hover:text-ink"
+78:         >
+79:           {t.noThanks}
+80:         </Link>
+81:       </div>
+82:     </div>
+83:   );
+84: }
+85: 
+86: export default function ImportPage() {
+87:   return (
+88:     <Suspense fallback={null}>
+89:       <ImportInner />
+90:     </Suspense>
+91:   );
+92: }
+</file>
+
+<file path="src/app/log/page.tsx">
+  1: "use client";
+  2: 
+  3: import { useState } from "react";
+  4: import Link from "next/link";
+  5: import { AnimatePresence, motion, type PanInfo } from "framer-motion";
+  6: import { useLog } from "@/store/log";
+  7: import { useProfiles, findTea } from "@/store/profiles";
+  8: import { useActiveSessions } from "@/store/activeSessions";
+  9: import { dateLocale, displayTeaName, type Lang } from "@/lib/i18n";
+ 10: import { formatMs } from "@/lib/timer";
+ 11: import { useT } from "@/store/useT";
+ 12: 
+ 13: function formatDate(ts: number, lang: Lang): string {
+ 14:   return new Date(ts).toLocaleDateString(dateLocale(lang), {
+ 15:     month: "short",
+ 16:     day: "numeric",
+ 17:     hour: "numeric",
+ 18:     minute: "2-digit",
+ 19:   });
+ 20: }
+ 21: 
+ 22: export default function LogPage() {
+ 23:   const sessions = useLog((s) => s.sessions);
+ 24:   const hydrated = useLog((s) => s.hydrated);
+ 25:   const custom = useProfiles((s) => s.custom);
+ 26:   const activeSessions = useActiveSessions((s) => s.sessions);
+ 27:   const { t, lang } = useT();
+ 28:   const [editingId, setEditingId] = useState<string | null>(null);
+ 29:   const [note, setNote] = useState("");
+ 30:   const [rating, setRating] = useState(0);
+ 31:   const [gramsUsed, setGramsUsed] = useState(0);
+ 32:   const [steepsCompleted, setSteepsCompleted] = useState(0);
+ 33:   const [tags, setTags] = useState("");
+ 34:   const [expandedId, setExpandedId] = useState<string | null>(null);
+ 35: 
+ 36:   const startEdit = (id: string) => {
+ 37:     const s = sessions.find((x) => x.id === id);
+ 38:     setEditingId(id);
+ 39:     setNote(s?.note ?? "");
+ 40:     setRating(s?.rating ?? 0);
+ 41:     setGramsUsed(s?.gramsUsed ?? 0);
+ 42:     setSteepsCompleted(s?.steepsCompleted ?? 0);
+ 43:     setTags((s?.tags ?? []).join(", "));
+ 44:   };
+ 45: 
+ 46:   const saveEdit = () => {
+ 47:     if (editingId) {
+ 48:       useLog.getState().update(editingId, {
+ 49:         note: note.trim() || undefined,
+ 50:         rating: rating || undefined,
+ 51:         gramsUsed: gramsUsed || undefined,
+ 52:         steepsCompleted,
+ 53:         tags: tags
+ 54:           .split(",")
+ 55:           .map((tag) => tag.trim())
+ 56:           .filter(Boolean),
+ 57:       });
+ 58:     }
+ 59:     setEditingId(null);
+ 60:   };
+ 61: 
+ 62:   const toggleFavorite = (id: string, current: boolean | undefined) =>
+ 63:     useLog.getState().update(id, { favorite: !current });
+ 64: 
+ 65:   const SWIPE_THRESHOLD = -80;
+ 66:   const onSwipeEnd = (id: string, info: PanInfo) => {
+ 67:     if (info.offset.x < SWIPE_THRESHOLD) {
+ 68:       useLog.getState().remove(id);
+ 69:       if (editingId === id) setEditingId(null);
+ 70:     }
+ 71:   };
+ 72: 
+ 73:   return (
+ 74:     <div>
+ 75:       <header className="mb-6">
+ 76:         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
+ 77:           {t.logEyebrow}
+ 78:         </p>
+ 79:         <h1 className="font-display mt-1 text-3xl font-medium">
+ 80:           {t.logTitle}
+ 81:         </h1>
+ 82:       </header>
+ 83: 
+ 84:       {hydrated && sessions.length === 0 && (
+ 85:         <div className="rounded-2xl border border-dashed border-line p-8 text-center">
+ 86:           <p className="text-sm text-muted">{t.logEmpty}</p>
+ 87:           <Link
+ 88:             href="/"
+ 89:             className="mt-4 inline-block rounded-full bg-ink px-5 py-2.5 text-sm font-bold text-bg"
+ 90:           >
+ 91:             {t.pickTea}
+ 92:           </Link>
+ 93:         </div>
+ 94:       )}
+ 95: 
+ 96:       <ul className="space-y-2.5">
+ 97:         <AnimatePresence initial={false}>
+ 98:           {sessions.map((s) => {
+ 99:             const tea = findTea(s.teaId, custom);
+100:             return (
+101:               <motion.li
+102:                 key={s.id}
+103:                 layout
+104:                 exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+105:                 transition={{ duration: 0.2 }}
+106:                 className="relative overflow-hidden rounded-2xl"
+107:               >
+108:                 <div className="absolute inset-0 flex items-center justify-end bg-red-700 pr-6 text-sm font-bold text-white">
+109:                   {t.remove}
+110:                 </div>
+111:                 <motion.div
+112:                   data-log-id={s.id}
+113:                   drag={editingId === s.id ? false : "x"}
+114:                   dragDirectionLock
+115:                   dragConstraints={{ left: -96, right: 0 }}
+116:                   dragElastic={{ left: 0.15, right: 0 }}
+117:                   dragSnapToOrigin
+118:                   onDragEnd={(_, info) => onSwipeEnd(s.id, info)}
+119:                   className="relative rounded-2xl border border-line bg-surface p-4"
+120:                 >
+121:               <div className="flex items-center gap-3">
+122:                 <span
+123:                   aria-hidden
+124:                   className="h-3 w-3 shrink-0 rounded-full"
+125:                   style={{ background: s.liquorColor }}
+126:                 />
+127:                 <div className="min-w-0 flex-1">
+128:                   <p className="font-display truncate text-[15px] font-medium">
+129:                     {displayTeaName(s.teaName, tea, lang)}
+130:                     {s.tags && s.tags.length > 0 && (
+131:                       <span className="ml-2 text-xs font-normal text-muted">
+132:                         {s.tags.map((tag) => `#${tag}`).join(" ")}
+133:                       </span>
+134:                     )}
+135:                   </p>
+136:                   <p className="text-xs text-muted">
+137:                     {formatDate(s.startedAt, lang)} ·{" "}
+138:                     {t.logMeta(s.steepsCompleted, s.totalSteeps)}
+139:                     {s.tempC ? ` · ${s.tempC}°C` : ""}
+140:                     {s.gramsUsed ? ` · ${t.grams(s.gramsUsed)}` : ""}
+141:                     {s.totalBrewMs ? ` · ${t.totalBrewed(formatMs(s.totalBrewMs))}` : ""}
+142:                   </p>
+143:                   {s.steeps && s.steeps.length > 0 && (
+144:                     <button
+145:                       onClick={() =>
+146:                         setExpandedId(expandedId === s.id ? null : s.id)
+147:                       }
+148:                       className="mt-1 text-[11px] font-semibold text-muted hover:text-ink"
+149:                     >
+150:                       {expandedId === s.id ? "▴" : "▾"} {t.steepsToggle}
+151:                     </button>
+152:                   )}
+153:                   {expandedId === s.id && s.steeps && (
+154:                     <ul
+155:                       className="mt-1.5 space-y-0.5 border-l-2 pl-3 text-xs text-muted"
+156:                       style={{ borderColor: s.liquorColor }}
+157:                     >
+158:                       {s.steeps.map((rec) => (
+159:                         <li key={rec.steepIndex}>
+160:                           {t.steepRow(
+161:                             rec.steepIndex + 1,
+162:                             new Date(rec.startedAt).toLocaleTimeString(
+163:                               dateLocale(lang),
+164:                               { hour: "numeric", minute: "2-digit" },
+165:                             ),
+166:                             formatMs(rec.durationMs),
+167:                           )}
+168:                         </li>
+169:                       ))}
+170:                     </ul>
+171:                   )}
+172:                 </div>
+173:                 {activeSessions.some((a) => a.logId === s.id) && (
+174:                   <Link
+175:                     href={`/session?tea=${s.teaId}`}
+176:                     className="shrink-0 rounded-full px-3 py-1.5 text-xs font-bold text-white"
+177:                     style={{ background: s.liquorColor }}
+178:                   >
+179:                     {t.resumeSession}
+180:                   </Link>
+181:                 )}
+182:                 <button
+183:                   onClick={() => toggleFavorite(s.id, s.favorite)}
+184:                   aria-pressed={!!s.favorite}
+185:                   aria-label={t.favoriteLabel}
+186:                   className={`shrink-0 text-lg leading-none ${s.favorite ? "" : "opacity-25 grayscale"}`}
+187:                 >
+188:                   ★
+189:                 </button>
+190:                 {s.rating ? (
+191:                   <span className="shrink-0 text-sm" aria-label={`${s.rating} stars`}>
+192:                     {"★".repeat(s.rating)}
+193:                     <span className="opacity-25">
+194:                       {"★".repeat(5 - s.rating)}
+195:                     </span>
+196:                   </span>
+197:                 ) : null}
+198:                 <button
+199:                   onClick={() =>
+200:                     editingId === s.id ? setEditingId(null) : startEdit(s.id)
+201:                   }
+202:                   className="shrink-0 rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-muted hover:text-ink"
+203:                 >
+204:                   {editingId === s.id ? t.close : s.note ? t.editNote : t.addNote}
+205:                 </button>
+206:               </div>
+207: 
+208:               {s.note && editingId !== s.id && (
+209:                 <p className="mt-2.5 border-l-2 pl-3 text-sm text-muted" style={{ borderColor: s.liquorColor }}>
+210:                   {s.note}
+211:                 </p>
+212:               )}
+213: 
+214:               {editingId === s.id && (
+215:                 <div className="mt-3 space-y-3">
+216:                   <div className="flex gap-1.5" role="radiogroup" aria-label="Rating">
+217:                     {[1, 2, 3, 4, 5].map((n) => (
+218:                       <button
+219:                         key={n}
+220:                         role="radio"
+221:                         aria-checked={rating === n}
+222:                         onClick={() => setRating(n)}
+223:                         className={`text-xl ${n <= rating ? "" : "opacity-25 grayscale"}`}
+224:                       >
+225:                         ★
+226:                       </button>
+227:                     ))}
+228:                   </div>
+229:                   <div className="grid grid-cols-2 gap-3">
+230:                     <label className="text-xs font-semibold text-muted">
+231:                       {t.gramsUsedLabel}
+232:                       <input
+233:                         type="number"
+234:                         min={0}
+235:                         step={0.1}
+236:                         value={gramsUsed}
+237:                         onChange={(e) => setGramsUsed(Number(e.target.value))}
+238:                         className="mt-1.5 w-full rounded-xl border border-line bg-bg px-3.5 py-2.5 text-sm text-ink focus:border-muted focus:outline-none"
+239:                       />
+240:                     </label>
+241:                     <label className="text-xs font-semibold text-muted">
+242:                       {t.steepsCompletedLabel}
+243:                       <input
+244:                         type="number"
+245:                         min={0}
+246:                         max={s.totalSteeps}
+247:                         value={steepsCompleted}
+248:                         onChange={(e) => setSteepsCompleted(Number(e.target.value))}
+249:                         className="mt-1.5 w-full rounded-xl border border-line bg-bg px-3.5 py-2.5 text-sm text-ink focus:border-muted focus:outline-none"
+250:                       />
+251:                     </label>
+252:                   </div>
+253:                   <label className="block text-xs font-semibold text-muted">
+254:                     {t.tagsLabel}
+255:                     <input
+256:                       type="text"
+257:                       value={tags}
+258:                       onChange={(e) => setTags(e.target.value)}
+259:                       placeholder={t.tagsPlaceholder}
+260:                       className="mt-1.5 w-full rounded-xl border border-line bg-bg px-3.5 py-2.5 text-sm text-ink placeholder:text-muted focus:border-muted focus:outline-none"
+261:                     />
+262:                   </label>
+263:                   <textarea
+264:                     value={note}
+265:                     onChange={(e) => setNote(e.target.value)}
+266:                     rows={2}
+267:                     placeholder={t.shortNotePlaceholder}
+268:                     className="w-full rounded-xl border border-line bg-bg p-3 text-sm placeholder:text-muted focus:border-muted focus:outline-none"
+269:                   />
+270:                   <div className="flex gap-2">
+271:                     <button
+272:                       onClick={saveEdit}
+273:                       className="rounded-full bg-ink px-4 py-2 text-xs font-bold text-bg"
+274:                     >
+275:                       {t.save}
+276:                     </button>
+277:                     <button
+278:                       onClick={() => {
+279:                         useLog.getState().remove(s.id);
+280:                         setEditingId(null);
+281:                       }}
+282:                       className="rounded-full border border-line px-4 py-2 text-xs font-semibold text-muted hover:text-red-700"
+283:                     >
+284:                       {t.deleteSession}
+285:                     </button>
+286:                   </div>
+287:                 </div>
+288:               )}
+289:                 </motion.div>
+290:               </motion.li>
+291:             );
+292:           })}
+293:         </AnimatePresence>
+294:       </ul>
+295:     </div>
+296:   );
+297: }
+</file>
+
+<file path="src/app/profiles/edit/page.tsx">
+ 1: "use client";
+ 2: 
+ 3: import { Suspense } from "react";
+ 4: import Link from "next/link";
+ 5: import { useSearchParams } from "next/navigation";
+ 6: import { useProfiles } from "@/store/profiles";
+ 7: import { ProfileEditor } from "@/components/ProfileEditor";
+ 8: import { useT } from "@/store/useT";
+ 9: 
+10: function EditProfilePageInner() {
+11:   const id = useSearchParams().get("id") ?? "";
+12:   const custom = useProfiles((s) => s.custom);
+13:   const hydrated = useProfiles((s) => s.hydrated);
+14:   const { t } = useT();
+15:   const tea = custom.find((x) => x.id === id);
+16: 
+17:   if (!hydrated) return null;
+18:   if (!tea) {
+19:     return (
+20:       <div className="pt-20 text-center">
+21:         <p className="text-muted">{t.notOnShelf}</p>
+22:         <Link
+23:           href="/profiles"
+24:           className="mt-3 inline-block font-semibold underline"
+25:         >
+26:           {t.backToShelf}
+27:         </Link>
+28:       </div>
+29:     );
+30:   }
+31: 
+32:   return (
+33:     <div>
+34:       <header className="mb-6">
+35:         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
+36:           {t.editTeaEyebrow}
+37:         </p>
+38:         <h1 className="font-display mt-1 text-3xl font-medium">{tea.name}</h1>
+39:       </header>
+40:       <ProfileEditor initial={tea} />
+41:     </div>
+42:   );
+43: }
+44: 
+45: export default function EditProfilePage() {
+46:   return (
+47:     <Suspense fallback={null}>
+48:       <EditProfilePageInner />
+49:     </Suspense>
+50:   );
+51: }
+</file>
+
+<file path="src/app/profiles/new/page.tsx">
+ 1: "use client";
+ 2: 
+ 3: import { Suspense } from "react";
+ 4: import { useSearchParams } from "next/navigation";
+ 5: import { findTea, useProfiles } from "@/store/profiles";
+ 6: import { ProfileEditor } from "@/components/ProfileEditor";
+ 7: import { useT } from "@/store/useT";
+ 8: 
+ 9: function NewProfilePageInner() {
+10:   const cloneId = useSearchParams().get("clone") ?? "";
+11:   const custom = useProfiles((s) => s.custom);
+12:   const { t } = useT();
+13:   const cloneFrom = cloneId ? findTea(cloneId, custom) : undefined;
+14: 
+15:   return (
+16:     <div>
+17:       <header className="mb-6">
+18:         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
+19:           {t.newTeaEyebrow}
+20:         </p>
+21:         <h1 className="font-display mt-1 text-3xl font-medium">
+22:           {t.newTeaTitle}
+23:         </h1>
+24:       </header>
+25:       <ProfileEditor cloneFrom={cloneFrom} />
+26:     </div>
+27:   );
+28: }
+29: 
+30: export default function NewProfilePage() {
+31:   return (
+32:     <Suspense fallback={null}>
+33:       <NewProfilePageInner />
+34:     </Suspense>
+35:   );
+36: }
+</file>
+
+<file path="src/app/profiles/page.tsx">
+  1: "use client";
+  2: 
+  3: import { useState } from "react";
+  4: import Link from "next/link";
+  5: import { useProfiles } from "@/store/profiles";
+  6: import { encodeProfile } from "@/lib/share";
+  7: import { TeaIcon } from "@/components/TeaIcon";
+  8: import { teaNames } from "@/lib/i18n";
+  9: import { useT } from "@/store/useT";
+ 10: 
+ 11: export default function ProfilesPage() {
+ 12:   const custom = useProfiles((s) => s.custom);
+ 13:   const hydrated = useProfiles((s) => s.hydrated);
+ 14:   const { t, lang } = useT();
+ 15:   const [copiedId, setCopiedId] = useState<string | null>(null);
+ 16:   const [confirmingId, setConfirmingId] = useState<string | null>(null);
+ 17: 
+ 18:   const share = async (id: string) => {
+ 19:     const tea = custom.find((t) => t.id === id);
+ 20:     if (!tea) return;
+ 21:     const url = `${window.location.origin}/import?p=${encodeProfile(tea)}`;
+ 22:     try {
+ 23:       if (navigator.share) {
+ 24:         await navigator.share({ title: `${tea.name} — gongfu profile`, url });
+ 25:         return;
+ 26:       }
+ 27:     } catch {
+ 28:       // fall through to clipboard
+ 29:     }
+ 30:     await navigator.clipboard.writeText(url);
+ 31:     setCopiedId(id);
+ 32:     setTimeout(() => setCopiedId(null), 2000);
+ 33:   };
+ 34: 
+ 35:   return (
+ 36:     <div>
+ 37:       <header className="mb-6 flex items-end justify-between">
+ 38:         <div>
+ 39:           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
+ 40:             {t.shelfEyebrow}
+ 41:           </p>
+ 42:           <h1 className="font-display mt-1 text-3xl font-medium">
+ 43:             {t.shelfTitle}
+ 44:           </h1>
+ 45:         </div>
+ 46:         <Link
+ 47:           href="/profiles/new"
+ 48:           className="rounded-full border border-line bg-surface px-4 py-2.5 text-sm font-semibold hover:border-muted"
+ 49:         >
+ 50:           ＋ {t.newTea}
+ 51:         </Link>
+ 52:       </header>
+ 53: 
+ 54:       {hydrated && custom.length === 0 && (
+ 55:         <div className="rounded-2xl border border-dashed border-line p-8 text-center">
+ 56:           <p className="text-sm text-muted">{t.shelfEmpty}</p>
+ 57:           <Link
+ 58:             href="/profiles/new"
+ 59:             className="mt-4 inline-block rounded-full bg-ink px-5 py-2.5 text-sm font-bold text-bg"
+ 60:           >
+ 61:             {t.createFirst}
+ 62:           </Link>
+ 63:         </div>
+ 64:       )}
+ 65: 
+ 66:       <ul className="space-y-2.5">
+ 67:         {custom.map((tea) => (
+ 68:           <li
+ 69:             key={tea.id}
+ 70:             className="flex items-center gap-3.5 rounded-2xl border border-line bg-surface p-3.5"
+ 71:           >
+ 72:             <span
+ 73:               className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full"
+ 74:               style={{
+ 75:                 color: tea.liquorColor,
+ 76:                 background: `color-mix(in srgb, ${tea.liquorColor} 16%, transparent)`,
+ 77:               }}
+ 78:             >
+ 79:               <TeaIcon icon={tea.icon} className="h-6 w-6" />
+ 80:             </span>
+ 81:             <div className="min-w-0 flex-1">
+ 82:               <p className="font-display truncate text-[15px] font-medium">
+ 83:                 {teaNames(tea, lang).primary}{" "}
+ 84:                 {teaNames(tea, lang).secondary && (
+ 85:                   <span className="text-xs font-normal text-muted">
+ 86:                     {teaNames(tea, lang).secondary}
+ 87:                   </span>
+ 88:                 )}
+ 89:               </p>
+ 90:               <p className="text-xs text-muted">
+ 91:                 {t.profileMeta(tea.steepsSec.length, tea.tempC)}
+ 92:               </p>
+ 93:             </div>
+ 94:             <div className="flex shrink-0 gap-1.5 text-xs font-semibold">
+ 95:               <Link
+ 96:                 href={`/session?tea=${tea.id}`}
+ 97:                 className="rounded-full px-3 py-2 text-white"
+ 98:                 style={{ background: tea.liquorColor }}
+ 99:               >
+100:                 {t.brew}
+101:               </Link>
+102:               <button
+103:                 onClick={() => share(tea.id)}
+104:                 className="rounded-full border border-line px-3 py-2 text-muted hover:text-ink"
+105:               >
+106:                 {copiedId === tea.id ? t.copied : t.share}
+107:               </button>
+108:               <Link
+109:                 href={`/profiles/edit?id=${tea.id}`}
+110:                 className="rounded-full border border-line px-3 py-2 text-muted hover:text-ink"
+111:               >
+112:                 {t.edit}
+113:               </Link>
+114:               {confirmingId === tea.id ? (
+115:                 <button
+116:                   onClick={() => useProfiles.getState().remove(tea.id)}
+117:                   className="rounded-full bg-red-700 px-3 py-2 text-white"
+118:                 >
+119:                   {t.sure}
+120:                 </button>
+121:               ) : (
+122:                 <button
+123:                   onClick={() => {
+124:                     setConfirmingId(tea.id);
+125:                     setTimeout(() => setConfirmingId(null), 2500);
+126:                   }}
+127:                   className="rounded-full border border-line px-3 py-2 text-muted hover:text-red-700"
+128:                 >
+129:                   {t.del}
+130:                 </button>
+131:               )}
+132:             </div>
+133:           </li>
+134:         ))}
+135:       </ul>
+136:     </div>
+137:   );
+138: }
+</file>
+
+<file path="src/app/session/page.tsx">
+  1: "use client";
+  2: 
+  3: import { Suspense, useCallback, useEffect, useRef, useState } from "react";
+  4: import Link from "next/link";
+  5: import { useRouter, useSearchParams } from "next/navigation";
+  6: import { AnimatePresence, motion } from "framer-motion";
+  7: import { findTea, useProfiles } from "@/store/profiles";
+  8: import { useSession } from "@/store/session";
+  9: import { useSettings } from "@/store/settings";
+ 10: import { useLog } from "@/store/log";
+ 11: import { formatMs, isExpired, remainingMs } from "@/lib/timer";
+ 12: import { leafGrams } from "@/lib/brew";
+ 13: import { playChime } from "@/lib/audio";
+ 14: import { notifySteepDone, vibrate } from "@/lib/alerts";
+ 15: import { TimerCup } from "@/components/TimerCup";
+ 16: import { SteepDots } from "@/components/SteepDots";
+ 17: import { STRINGS, teaNames } from "@/lib/i18n";
+ 18: import { useT } from "@/store/useT";
+ 19: 
+ 20: // Prefer a real back-navigation so the browser/Next restores wherever the
+ 21: // user scrolled to (a fresh push always lands at the top). Only push a new
+ 22: // entry when there's nothing to go back to, e.g. a direct deep link.
+ 23: function leaveSession(router: ReturnType<typeof useRouter>) {
+ 24:   if (typeof window !== "undefined" && window.history.length > 1) {
+ 25:     router.back();
+ 26:   } else {
+ 27:     router.push("/");
+ 28:   }
+ 29: }
+ 30: 
+ 31: function useWakeLock(active: boolean) {
+ 32:   useEffect(() => {
+ 33:     if (!active || !("wakeLock" in navigator)) return;
+ 34:     let lock: WakeLockSentinel | null = null;
+ 35:     let cancelled = false;
+ 36:     const acquire = async () => {
+ 37:       try {
+ 38:         lock = await navigator.wakeLock.request("screen");
+ 39:         if (cancelled) void lock.release();
+ 40:       } catch {
+ 41:         // low battery or unsupported — not critical
+ 42:       }
+ 43:     };
+ 44:     void acquire();
+ 45:     const onVisible = () => {
+ 46:       if (document.visibilityState === "visible") void acquire();
+ 47:     };
+ 48:     document.addEventListener("visibilitychange", onVisible);
+ 49:     return () => {
+ 50:       cancelled = true;
+ 51:       document.removeEventListener("visibilitychange", onVisible);
+ 52:       void lock?.release();
+ 53:     };
+ 54:   }, [active]);
+ 55: }
+ 56: 
+ 57: function SessionPageInner() {
+ 58:   const teaId = useSearchParams().get("tea") ?? "";
+ 59:   const router = useRouter();
+ 60: 
+ 61:   const custom = useProfiles((s) => s.custom);
+ 62:   const profilesHydrated = useProfiles((s) => s.hydrated);
+ 63:   const settings = useSettings();
+ 64:   const session = useSession();
+ 65:   const { t, lang } = useT();
+ 66:   const tea = findTea(teaId, custom);
+ 67: 
+ 68:   const [now, setNow] = useState(() => Date.now());
+ 69:   const firedRef = useRef(false);
+ 70:   // A direct override for leaf grams, independent of the vessel-derived
+ 71:   // default. Resets whenever the tea changes so a new session starts fresh.
+ 72:   const [gramsOverride, setGramsOverride] = useState<number | null>(null);
+ 73:   useEffect(() => {
+ 74:     setGramsOverride(null);
+ 75:   }, [tea?.id]);
+ 76: 
+ 77:   // Start (or resume) a session for this tea.
+ 78:   useEffect(() => {
+ 79:     if (!tea || !profilesHydrated) return;
+ 80:     if (useSession.getState().tea?.id !== tea.id) {
+ 81:       useSession.getState().begin(tea, useSettings.getState().strength);
+ 82:     }
+ 83:   }, [tea, profilesHydrated]);
+ 84: 
+ 85:   const { timer, steepIndex, steepDurations, steepsCompleted, finished } =
+ 86:     session;
+ 87:   const running = timer.status === "running";
+ 88: 
+ 89:   useWakeLock(running && settings.keepScreenOn);
+ 90: 
+ 91:   const fireAlarm = useCallback(() => {
+ 92:     if (firedRef.current) return;
+ 93:     firedRef.current = true;
+ 94:     const s = useSettings.getState();
+ 95:     if (s.sound) playChime();
+ 96:     if (s.notifications && session.tea) {
+ 97:       const strings = STRINGS[s.language];
+ 98:       const names = teaNames(session.tea, s.language);
+ 99:       notifySteepDone(
+100:         strings.steepDoneTitle(names.primary, steepIndex + 1),
+101:         strings.steepDoneBody,
+102:       );
+103:     }
+104:     if (s.vibration) vibrate();
+105:     useSession.getState().completeSteep();
+106:     // Allow the next steep's alarm.
+107:     setTimeout(() => {
+108:       firedRef.current = false;
+109:     }, 500);
+110:   }, [session.tea, steepIndex]);
+111: 
+112:   // Display tick + expiry check. A plain interval, not requestAnimationFrame —
+113:   // mobile Safari aggressively throttles rAF during idle foreground time (no
+114:   // touch/scroll), only "waking" it on interaction, which froze the countdown
+115:   // ring and liquid until something else forced a re-render. setInterval
+116:   // doesn't get throttled the same way. Timestamp math (not tick count) keeps
+117:   // the actual time accurate regardless of tick cadence.
+118:   useEffect(() => {
+119:     if (!running) return;
+120:     const tick = () => {
+121:       setNow(Date.now());
+122:       if (isExpired(useSession.getState().timer)) fireAlarm();
+123:     };
+124:     tick();
+125:     const interval = setInterval(tick, 200);
+126:     // Backup in case the interval itself gets throttled: fire right at the
+127:     // deadline regardless.
+128:     const left = remainingMs(timer);
+129:     const backup = setTimeout(() => {
+130:       if (isExpired(useSession.getState().timer)) fireAlarm();
+131:     }, left + 50);
+132:     return () => {
+133:       clearInterval(interval);
+134:       clearTimeout(backup);
+135:     };
+136:   }, [running, timer, fireAlarm]);
+137: 
+138:   if (!tea) {
+139:     if (!profilesHydrated) return null;
+140:     return (
+141:       <div className="pt-20 text-center">
+142:         <p className="text-muted">{t.teaNotFound}</p>
+143:         <Link href="/" className="mt-3 inline-block font-semibold underline">
+144:           {t.backToTeas}
+145:         </Link>
+146:       </div>
+147:     );
+148:   }
+149:   if (!session.tea || session.tea.id !== tea.id) return null;
+150: 
+151:   const durationMs = timer.durationMs || 1;
+152:   const leftMs = remainingMs(timer, now);
+153:   const elapsed = finished ? 1 : 1 - leftMs / durationMs;
+154:   const doneWaiting = timer.status === "done" && !finished;
+155:   const color = tea.liquorColor;
+156:   const totalSteeps = steepDurations.length;
+157:   const grams =
+158:     gramsOverride ?? leafGrams(tea.ratioGramsPer100ml, settings.vesselMl);
+159:   // Grams and vessel are fixed for the log the moment the first steep
+160:   // starts, so lock both steppers once brewing is underway to avoid a
+161:   // display/log mismatch.
+162:   const vesselLocked = steepIndex > 0 || timer.status !== "idle";
+163:   const adjustVessel = (deltaMl: number) =>
+164:     useSettings
+165:       .getState()
+166:       .update({ vesselMl: Math.min(500, Math.max(20, settings.vesselMl + deltaMl)) });
+167:   const adjustGrams = (delta: number) =>
+168:     setGramsOverride(Math.min(30, Math.max(0.5, Math.round((grams + delta) * 10) / 10)));
+169: 
+170:   return (
+171:     <div className="flex min-h-[calc(100dvh-6rem)] flex-col">
+172:       <header className="mb-2 flex items-start justify-between gap-3">
+173:         <button
+174:           onClick={() => leaveSession(router)}
+175:           className="rounded-full border border-line bg-surface px-3.5 py-1.5 text-xs font-semibold text-muted transition-colors hover:text-ink"
+176:         >
+177:           {t.back}
+178:         </button>
+179:         <div className="text-right">
+180:           <h1 className="font-display text-xl font-medium leading-tight">
+181:             {teaNames(tea, lang).primary}
+182:           </h1>
+183:           {teaNames(tea, lang).secondary && (
+184:             <p className="text-xs text-muted">{teaNames(tea, lang).secondary}</p>
+185:           )}
+186:         </div>
+187:       </header>
+188: 
+189:       <div className="mb-4 flex flex-wrap items-center justify-center gap-2 text-[11px] font-semibold text-muted">
+190:         <span className="rounded-full border border-line px-2.5 py-1">
+191:           {tea.tempC}°C
+192:         </span>
+193:         <span className="flex items-center gap-0.5 rounded-full border border-line py-1 pl-1 pr-1.5">
+194:           <button
+195:             type="button"
+196:             onClick={() => adjustGrams(-0.5)}
+197:             disabled={vesselLocked}
+198:             aria-label={t.decreaseGrams}
+199:             className="flex h-5 w-5 items-center justify-center rounded-full disabled:opacity-30"
+200:           >
+201:             −
+202:           </button>
+203:           <span className="min-w-[3ch] text-center">{grams} g</span>
+204:           <button
+205:             type="button"
+206:             onClick={() => adjustGrams(0.5)}
+207:             disabled={vesselLocked}
+208:             aria-label={t.increaseGrams}
+209:             className="flex h-5 w-5 items-center justify-center rounded-full disabled:opacity-30"
+210:           >
+211:             +
+212:           </button>
+213:         </span>
+214:         <span className="flex items-center gap-0.5 rounded-full border border-line py-1 pl-1 pr-1.5">
+215:           <button
+216:             type="button"
+217:             onClick={() => adjustVessel(-10)}
+218:             disabled={vesselLocked}
+219:             aria-label={t.decreaseVessel}
+220:             className="flex h-5 w-5 items-center justify-center rounded-full disabled:opacity-30"
+221:           >
+222:             −
+223:           </button>
+224:           <span className="min-w-[3.5ch] text-center">{settings.vesselMl} ml</span>
+225:           <button
+226:             type="button"
+227:             onClick={() => adjustVessel(10)}
+228:             disabled={vesselLocked}
+229:             aria-label={t.increaseVessel}
+230:             className="flex h-5 w-5 items-center justify-center rounded-full disabled:opacity-30"
+231:           >
+232:             +
+233:           </button>
+234:         </span>
+235:         {settings.strength !== 1 && (
+236:           <span className="rounded-full border border-line px-2.5 py-1">
+237:             {t.strengthChip(
+238:               settings.strength.toFixed(2).replace(/0+$/, "").replace(/\.$/, ""),
+239:             )}
+240:           </span>
+241:         )}
+242:       </div>
+243: 
+244:       <AnimatePresence mode="wait">
+245:         {finished ? (
+246:           <FinishedView key="done" color={color} />
+247:         ) : (
+248:           <motion.div
+249:             key="brewing"
+250:             initial={{ opacity: 0 }}
+251:             animate={{ opacity: 1 }}
+252:             exit={{ opacity: 0, scale: 0.97 }}
+253:             className="flex flex-1 flex-col"
+254:           >
+255:             <p className="mb-3 text-center text-xs font-semibold uppercase tracking-[0.2em] text-muted">
+256:               {t.steepOf(steepIndex + 1, totalSteeps)}
+257:             </p>
+258: 
+259:             <TimerCup
+260:               progress={doneWaiting ? 1 : elapsed}
+261:               color={color}
+262:               ripple={doneWaiting || session.justFinishedSteep !== null}
+263:               idle={timer.status === "idle"}
+264:             >
+265:               <span className="font-display tabular text-5xl font-medium">
+266:                 {doneWaiting ? "0:00" : formatMs(leftMs)}
+267:               </span>
+268:               <span className="mt-1 text-xs text-muted">
+269:                 {doneWaiting
+270:                   ? t.pouredReady
+271:                   : running
+272:                     ? t.steeping
+273:                     : timer.status === "paused"
+274:                       ? t.paused
+275:                       : session.justFinishedSteep
+276:                         ? t.pourThenStart
+277:                         : t.tapStart}
+278:               </span>
+279:             </TimerCup>
+280: 
+281:             <div className="mt-4 mb-2">
+282:               <SteepDots
+283:                 total={totalSteeps}
+284:                 current={steepIndex}
+285:                 completed={steepsCompleted}
+286:                 color={color}
+287:               />
+288:             </div>
+289: 
+290:             {steepsCompleted > 0 && (
+291:               <p className="mb-4 text-center text-[11px] text-muted">
+292:                 {t.sessionStats(
+293:                   steepsCompleted,
+294:                   steepsCompleted * settings.vesselMl,
+295:                   formatMs(session.totalBrewMs),
+296:                 )}
+297:               </p>
+298:             )}
+299: 
+300:             <div className="mt-auto space-y-3 pb-2">
+301:               <div className="flex items-center justify-center gap-3">
+302:                 <button
+303:                   onClick={() => session.nudge(-5)}
+304:                   disabled={doneWaiting}
+305:                   className="h-11 w-14 rounded-full border border-line bg-surface text-sm font-bold text-muted transition-colors hover:text-ink disabled:opacity-40"
+306:                 >
+307:                   −5s
+308:                 </button>
+309: 
+310:                 {doneWaiting ? (
+311:                   <button
+312:                     onClick={session.nextSteep}
+313:                     className="h-14 flex-1 max-w-56 rounded-full text-base font-bold text-white shadow-lg transition-transform active:scale-95"
+314:                     style={{ background: color, boxShadow: `0 8px 24px -8px ${color}` }}
+315:                   >
+316:                     {t.nextSteep}
+317:                   </button>
+318:                 ) : running ? (
+319:                   <button
+320:                     onClick={session.pause}
+321:                     className="h-14 flex-1 max-w-56 rounded-full border-2 text-base font-bold transition-transform active:scale-95"
+322:                     style={{ borderColor: color, color }}
+323:                   >
+324:                     {t.pause}
+325:                   </button>
+326:                 ) : (
+327:                   <button
+328:                     onClick={
+329:                       timer.status === "paused"
+330:                         ? session.resume
+331:                         : () => session.startSteep(grams)
+332:                     }
+333:                     className="h-14 flex-1 max-w-56 rounded-full text-base font-bold text-white shadow-lg transition-transform active:scale-95"
+334:                     style={{ background: color, boxShadow: `0 8px 24px -8px ${color}` }}
+335:                   >
+336:                     {timer.status === "paused" ? t.resume : t.startSteep}
+337:                   </button>
+338:                 )}
+339: 
+340:                 <button
+341:                   onClick={() => session.nudge(5)}
+342:                   disabled={doneWaiting}
+343:                   className="h-11 w-14 rounded-full border border-line bg-surface text-sm font-bold text-muted transition-colors hover:text-ink disabled:opacity-40"
+344:                 >
+345:                   +5s
+346:                 </button>
+347:               </div>
+348: 
+349:               <div className="text-center">
+350:                 <button
+351:                   onClick={session.skipSteep}
+352:                   className="text-xs font-semibold text-muted underline-offset-2 hover:underline"
+353:                 >
+354:                   {t.skipSteep}
+355:                 </button>
+356:               </div>
+357:             </div>
+358:           </motion.div>
+359:         )}
+360:       </AnimatePresence>
+361:     </div>
+362:   );
+363: }
+364: 
+365: function FinishedView({ color }: { color: string }) {
+366:   const session = useSession();
+367:   const router = useRouter();
+368:   const { t } = useT();
+369:   const [rating, setRating] = useState(0);
+370:   const [note, setNote] = useState("");
+371:   const [saved, setSaved] = useState(false);
+372: 
+373:   const save = () => {
+374:     if (session.logId) {
+375:       useLog.getState().update(session.logId, {
+376:         rating: rating || undefined,
+377:         note: note.trim() || undefined,
+378:       });
+379:     }
+380:     setSaved(true);
+381:   };
+382: 
+383:   return (
+384:     <motion.div
+385:       initial={{ opacity: 0, y: 12 }}
+386:       animate={{ opacity: 1, y: 0 }}
+387:       className="flex flex-1 flex-col items-center pt-8 text-center"
+388:     >
+389:       <span
+390:         className="flex h-20 w-20 items-center justify-center rounded-full text-3xl"
+391:         style={{ background: `color-mix(in srgb, ${color} 20%, transparent)` }}
+392:       >
+393:         🍵
+394:       </span>
+395:       <h2 className="font-display mt-5 text-2xl font-medium">
+396:         {t.lastSteepTitle}
+397:       </h2>
+398:       <p className="mt-1 text-sm text-muted">
+399:         {t.lastSteepBody(session.steepsCompleted, session.steepDurations.length)}
+400:       </p>
+401: 
+402:       <div className="mt-5 flex gap-1.5" role="radiogroup" aria-label="Rating">
+403:         {[1, 2, 3, 4, 5].map((n) => (
+404:           <button
+405:             key={n}
+406:             role="radio"
+407:             aria-checked={rating === n}
+408:             onClick={() => setRating(n)}
+409:             className={`text-2xl transition-transform hover:scale-110 ${
+410:               n <= rating ? "" : "opacity-25 grayscale"
+411:             }`}
+412:           >
+413:             ★
+414:           </button>
+415:         ))}
+416:       </div>
+417: 
+418:       <textarea
+419:         value={note}
+420:         onChange={(e) => setNote(e.target.value)}
+421:         placeholder={t.notePlaceholder}
+422:         rows={3}
+423:         className="mt-4 w-full max-w-sm rounded-2xl border border-line bg-surface p-3 text-sm placeholder:text-muted focus:border-muted focus:outline-none"
+424:       />
+425: 
+426:       <div className="mt-5 flex items-center gap-3">
+427:         <button
+428:           onClick={save}
+429:           disabled={saved}
+430:           className="rounded-full px-6 py-3 text-sm font-bold text-white transition-transform active:scale-95 disabled:opacity-60"
+431:           style={{ background: color }}
+432:         >
+433:           {saved ? t.saved : t.saveToLog}
+434:         </button>
+435:         <button
+436:           onClick={() => {
+437:             session.end();
+438:             leaveSession(router);
+439:           }}
+440:           className="rounded-full border border-line bg-surface px-6 py-3 text-sm font-semibold text-muted hover:text-ink"
+441:         >
+442:           {t.done}
+443:         </button>
+444:       </div>
+445:     </motion.div>
+446:   );
+447: }
+448: 
+449: export default function SessionPage() {
+450:   return (
+451:     <Suspense fallback={null}>
+452:       <SessionPageInner />
+453:     </Suspense>
+454:   );
+455: }
+</file>
+
+<file path="src/app/settings/page.tsx">
+  1: "use client";
+  2: 
+  3: import { useSettings } from "@/store/settings";
+  4: import { useProfiles } from "@/store/profiles";
+  5: import { requestNotificationPermission } from "@/lib/alerts";
+  6: import { unlockAudio, playChime } from "@/lib/audio";
+  7: import type { Settings } from "@/lib/types";
+  8: import type { TeaProfile } from "@/lib/types";
+  9: import { useT } from "@/store/useT";
+ 10: 
+ 11: function Toggle({
+ 12:   label,
+ 13:   hint,
+ 14:   checked,
+ 15:   onChange,
+ 16: }: {
+ 17:   label: string;
+ 18:   hint?: string;
+ 19:   checked: boolean;
+ 20:   onChange: (v: boolean) => void;
+ 21: }) {
+ 22:   return (
+ 23:     <label className="flex cursor-pointer items-center justify-between gap-4 rounded-2xl border border-line bg-surface p-4">
+ 24:       <span>
+ 25:         <span className="block text-sm font-semibold">{label}</span>
+ 26:         {hint && <span className="mt-0.5 block text-xs text-muted">{hint}</span>}
+ 27:       </span>
+ 28:       <span className="relative inline-flex shrink-0">
+ 29:         <input
+ 30:           type="checkbox"
+ 31:           checked={checked}
+ 32:           onChange={(e) => onChange(e.target.checked)}
+ 33:           className="peer sr-only"
+ 34:         />
+ 35:         <span className="h-7 w-12 rounded-full bg-line transition-colors peer-checked:bg-ink" />
+ 36:         <span className="absolute left-1 top-1 h-5 w-5 rounded-full bg-surface shadow transition-transform peer-checked:translate-x-5" />
+ 37:       </span>
+ 38:     </label>
+ 39:   );
+ 40: }
+ 41: 
+ 42: export default function SettingsPage() {
+ 43:   const settings = useSettings();
+ 44:   const custom = useProfiles((s) => s.custom);
+ 45:   const { t } = useT();
+ 46: 
+ 47:   const update = (patch: Partial<Settings>) =>
+ 48:     useSettings.getState().update(patch);
+ 49: 
+ 50:   const strengthLabel =
+ 51:     settings.strength < 0.95
+ 52:       ? t.lighter
+ 53:       : settings.strength > 1.05
+ 54:         ? t.stronger
+ 55:         : t.asWritten;
+ 56: 
+ 57:   const exportProfiles = () => {
+ 58:     const blob = new Blob([JSON.stringify(custom, null, 2)], {
+ 59:       type: "application/json",
+ 60:     });
+ 61:     const url = URL.createObjectURL(blob);
+ 62:     const a = document.createElement("a");
+ 63:     a.href = url;
+ 64:     a.download = "gongfu-teas.json";
+ 65:     a.click();
+ 66:     URL.revokeObjectURL(url);
+ 67:   };
+ 68: 
+ 69:   const importProfiles = (file: File) => {
+ 70:     void file.text().then((text) => {
+ 71:       try {
+ 72:         const parsed = JSON.parse(text) as TeaProfile[];
+ 73:         if (!Array.isArray(parsed)) return;
+ 74:         for (const p of parsed) {
+ 75:           if (p && typeof p.name === "string" && Array.isArray(p.steepsSec)) {
+ 76:             useProfiles.getState().save({ ...p, custom: true });
+ 77:           }
+ 78:         }
+ 79:       } catch {
+ 80:         // ignore malformed files
+ 81:       }
+ 82:     });
+ 83:   };
+ 84: 
+ 85:   return (
+ 86:     <div>
+ 87:       <header className="mb-6">
+ 88:         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
+ 89:           {t.settingsEyebrow}
+ 90:         </p>
+ 91:         <h1 className="font-display mt-1 text-3xl font-medium">
+ 92:           {t.settingsTitle}
+ 93:         </h1>
+ 94:       </header>
+ 95: 
+ 96:       <section className="space-y-2.5">
+ 97:         <h2 className="mt-2 text-xs font-semibold uppercase tracking-[0.15em] text-muted">
+ 98:           {t.strengthSection}
+ 99:         </h2>
+100:         <div className="rounded-2xl border border-line bg-surface p-4">
+101:           <div className="flex items-baseline justify-between">
+102:             <span className="text-sm font-semibold">
+103:               {t.strengthLabel(settings.strength.toFixed(2))}
+104:             </span>
+105:             <span className="text-xs text-muted">{strengthLabel}</span>
+106:           </div>
+107:           <input
+108:             type="range"
+109:             min={0.7}
+110:             max={1.4}
+111:             step={0.05}
+112:             value={settings.strength}
+113:             onChange={(e) => update({ strength: Number(e.target.value) })}
+114:             aria-label="Steep strength multiplier"
+115:             className="mt-3 w-full accent-current"
+116:           />
+117:           <div className="mt-1 flex justify-between text-[11px] text-muted">
+118:             <span>{t.lighterEnd}</span>
+119:             <button
+120:               onClick={() => update({ strength: 1 })}
+121:               className="font-semibold underline-offset-2 hover:underline"
+122:             >
+123:               {t.reset}
+124:             </button>
+125:             <span>{t.strongerEnd}</span>
+126:           </div>
+127:         </div>
+128: 
+129:         <h2 className="mt-6 text-xs font-semibold uppercase tracking-[0.15em] text-muted">
+130:           {t.alertsSection}
+131:         </h2>
+132:         <Toggle
+133:           label={t.chime}
+134:           hint={t.chimeHint}
+135:           checked={settings.sound}
+136:           onChange={(v) => {
+137:             update({ sound: v });
+138:             if (v) {
+139:               unlockAudio();
+140:               playChime();
+141:             }
+142:           }}
+143:         />
+144:         <Toggle
+145:           label={t.notification}
+146:           hint={t.notificationHint}
+147:           checked={settings.notifications}
+148:           onChange={(v) => {
+149:             if (v) {
+150:               void requestNotificationPermission().then((granted) =>
+151:                 update({ notifications: granted }),
+152:               );
+153:             } else {
+154:               update({ notifications: false });
+155:             }
+156:           }}
+157:         />
+158:         <Toggle
+159:           label={t.vibration}
+160:           hint={t.vibrationHint}
+161:           checked={settings.vibration}
+162:           onChange={(v) => update({ vibration: v })}
+163:         />
+164: 
+165:         <h2 className="mt-6 text-xs font-semibold uppercase tracking-[0.15em] text-muted">
+166:           {t.brewingSection}
+167:         </h2>
+168:         <Toggle
+169:           label={t.keepAwake}
+170:           hint={t.keepAwakeHint}
+171:           checked={settings.keepScreenOn}
+172:           onChange={(v) => update({ keepScreenOn: v })}
+173:         />
+174: 
+175:         <h2 className="mt-6 text-xs font-semibold uppercase tracking-[0.15em] text-muted">
+176:           {t.appearanceSection}
+177:         </h2>
+178:         <div className="flex gap-2">
+179:           {(
+180:             [
+181:               ["system", t.themeSystem],
+182:               ["light", t.themeLight],
+183:               ["dark", t.themeDark],
+184:             ] as const
+185:           ).map(([value, text]) => (
+186:             <button
+187:               key={value}
+188:               onClick={() => update({ theme: value })}
+189:               aria-pressed={settings.theme === value}
+190:               className={`flex-1 rounded-2xl border p-3 text-sm font-semibold transition-colors ${
+191:                 settings.theme === value
+192:                   ? "border-ink bg-surface"
+193:                   : "border-line text-muted hover:border-muted"
+194:               }`}
+195:             >
+196:               {text}
+197:             </button>
+198:           ))}
+199:         </div>
+200: 
+201:         <h2 className="mt-6 text-xs font-semibold uppercase tracking-[0.15em] text-muted">
+202:           {t.languageSection}
+203:         </h2>
+204:         <div className="flex gap-2">
+205:           {(
+206:             [
+207:               ["en", "English"],
+208:               ["zh", "中文"],
+209:             ] as const
+210:           ).map(([value, text]) => (
+211:             <button
+212:               key={value}
+213:               onClick={() => update({ language: value })}
+214:               aria-pressed={settings.language === value}
+215:               className={`flex-1 rounded-2xl border p-3 text-sm font-semibold transition-colors ${
+216:                 settings.language === value
+217:                   ? "border-ink bg-surface"
+218:                   : "border-line text-muted hover:border-muted"
+219:               }`}
+220:             >
+221:               {text}
+222:             </button>
+223:           ))}
+224:         </div>
+225: 
+226:         <h2 className="mt-6 text-xs font-semibold uppercase tracking-[0.15em] text-muted">
+227:           {t.profilesSection}
+228:         </h2>
+229:         <div className="flex gap-2">
+230:           <button
+231:             onClick={exportProfiles}
+232:             disabled={custom.length === 0}
+233:             className="flex-1 rounded-2xl border border-line bg-surface p-3 text-sm font-semibold disabled:opacity-40"
+234:           >
+235:             {t.exportJson}
+236:           </button>
+237:           <label className="flex-1 cursor-pointer rounded-2xl border border-line bg-surface p-3 text-center text-sm font-semibold">
+238:             {t.importJson}
+239:             <input
+240:               type="file"
+241:               accept="application/json"
+242:               className="sr-only"
+243:               onChange={(e) => {
+244:                 const f = e.target.files?.[0];
+245:                 if (f) importProfiles(f);
+246:                 e.target.value = "";
+247:               }}
+248:             />
+249:           </label>
+250:         </div>
+251:       </section>
+252:     </div>
+253:   );
+254: }
+</file>
+
+<file path="src/app/stash/page.tsx">
+  1: "use client";
+  2: 
+  3: import { useState } from "react";
+  4: import { useStash } from "@/store/stash";
+  5: import { useProfiles, findTea } from "@/store/profiles";
+  6: import { useSettings } from "@/store/settings";
+  7: import { PRESET_TEAS } from "@/lib/teas";
+  8: import { leafGrams } from "@/lib/brew";
+  9: import { displayTeaName, teaNames } from "@/lib/i18n";
+ 10: import { useT } from "@/store/useT";
+ 11: 
+ 12: export default function StashPage() {
+ 13:   const { t, lang } = useT();
+ 14:   const items = useStash((s) => s.items);
+ 15:   const hydrated = useStash((s) => s.hydrated);
+ 16:   const custom = useProfiles((s) => s.custom);
+ 17:   const vesselMl = useSettings((s) => s.vesselMl);
+ 18:   const [adding, setAdding] = useState(false);
+ 19:   const [teaId, setTeaId] = useState("");
+ 20:   const [grams, setGrams] = useState(50);
+ 21: 
+ 22:   const allTeas = [...custom, ...PRESET_TEAS];
+ 23:   const unstashed = allTeas.filter(
+ 24:     (t) => !items.some((i) => i.teaId === t.id),
+ 25:   );
+ 26: 
+ 27:   const add = () => {
+ 28:     const tea = allTeas.find((t) => t.id === teaId);
+ 29:     if (!tea) return;
+ 30:     useStash.getState().save({
+ 31:       teaId: tea.id,
+ 32:       teaName: tea.name,
+ 33:       liquorColor: tea.liquorColor,
+ 34:       gramsRemaining: grams,
+ 35:     });
+ 36:     setAdding(false);
+ 37:     setTeaId("");
+ 38:   };
+ 39: 
+ 40:   return (
+ 41:     <div>
+ 42:       <header className="mb-6 flex items-end justify-between">
+ 43:         <div>
+ 44:           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
+ 45:             {t.stashEyebrow}
+ 46:           </p>
+ 47:           <h1 className="font-display mt-1 text-3xl font-medium">
+ 48:             {t.stashTitle}
+ 49:           </h1>
+ 50:         </div>
+ 51:         <button
+ 52:           onClick={() => setAdding(!adding)}
+ 53:           className="rounded-full border border-line bg-surface px-4 py-2.5 text-sm font-semibold hover:border-muted"
+ 54:         >
+ 55:           {adding ? t.close : t.addTea}
+ 56:         </button>
+ 57:       </header>
+ 58: 
+ 59:       {adding && (
+ 60:         <div className="mb-6 space-y-3 rounded-2xl border border-line bg-surface p-4">
+ 61:           <select
+ 62:             value={teaId}
+ 63:             onChange={(e) => setTeaId(e.target.value)}
+ 64:             aria-label="Tea"
+ 65:             className="w-full rounded-xl border border-line bg-bg px-3.5 py-2.5 text-sm focus:border-muted focus:outline-none"
+ 66:           >
+ 67:             <option value="">{t.chooseTea}</option>
+ 68:             {unstashed.map((tea) => (
+ 69:               <option key={tea.id} value={tea.id}>
+ 70:                 {teaNames(tea, lang).primary}
+ 71:               </option>
+ 72:             ))}
+ 73:           </select>
+ 74:           <label className="block text-xs font-semibold text-muted">
+ 75:             {t.gramsOnHand}
+ 76:             <input
+ 77:               type="number"
+ 78:               min={1}
+ 79:               value={grams}
+ 80:               onChange={(e) => setGrams(Number(e.target.value))}
+ 81:               className="mt-1.5 w-full rounded-xl border border-line bg-bg px-3.5 py-2.5 text-sm text-ink focus:border-muted focus:outline-none"
+ 82:             />
+ 83:           </label>
+ 84:           <button
+ 85:             onClick={add}
+ 86:             disabled={!teaId}
+ 87:             className="rounded-full bg-ink px-5 py-2.5 text-sm font-bold text-bg disabled:opacity-40"
+ 88:           >
+ 89:             {t.addToStash}
+ 90:           </button>
+ 91:         </div>
+ 92:       )}
+ 93: 
+ 94:       {hydrated && items.length === 0 && !adding && (
+ 95:         <div className="rounded-2xl border border-dashed border-line p-8 text-center">
+ 96:           <p className="text-sm text-muted">{t.stashEmpty}</p>
+ 97:         </div>
+ 98:       )}
+ 99: 
+100:       <ul className="space-y-2.5">
+101:         {items.map((item) => {
+102:           const tea = findTea(item.teaId, custom);
+103:           const perSession = tea ? leafGrams(tea.ratioGramsPer100ml, vesselMl) : 0;
+104:           const sessionsLeft =
+105:             perSession > 0 ? Math.floor(item.gramsRemaining / perSession) : 0;
+106:           const low = sessionsLeft <= 3;
+107:           return (
+108:             <li
+109:               key={item.teaId}
+110:               className="flex items-center gap-3.5 rounded-2xl border border-line bg-surface p-4"
+111:             >
+112:               <span
+113:                 aria-hidden
+114:                 className="h-3 w-3 shrink-0 rounded-full"
+115:                 style={{ background: item.liquorColor }}
+116:               />
+117:               <div className="min-w-0 flex-1">
+118:                 <p className="font-display truncate text-[15px] font-medium">
+119:                   {displayTeaName(item.teaName, tea, lang)}
+120:                 </p>
+121:                 <p className={`text-xs ${low ? "font-semibold text-amber-700 dark:text-amber-500" : "text-muted"}`}>
+122:                   {t.stashMeta(item.gramsRemaining, sessionsLeft)}
+123:                   {low ? t.runningLow : ""}
+124:                 </p>
+125:               </div>
+126:               <div className="flex shrink-0 items-center gap-1.5">
+127:                 <button
+128:                   onClick={() =>
+129:                     useStash.getState().save({
+130:                       ...item,
+131:                       gramsRemaining: item.gramsRemaining + 25,
+132:                     })
+133:                   }
+134:                   className="rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-muted hover:text-ink"
+135:                 >
+136:                   +25 g
+137:                 </button>
+138:                 <button
+139:                   onClick={() => useStash.getState().remove(item.teaId)}
+140:                   className="rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-muted hover:text-red-700"
+141:                 >
+142:                   {t.remove}
+143:                 </button>
+144:               </div>
+145:             </li>
+146:           );
+147:         })}
+148:       </ul>
+149:     </div>
+150:   );
+151: }
+</file>
+
+<file path="src/app/tea/page.tsx">
+ 1: "use client";
+ 2: 
+ 3: import { Suspense } from "react";
+ 4: import Link from "next/link";
+ 5: import { useSearchParams } from "next/navigation";
+ 6: import { findTea, useProfiles } from "@/store/profiles";
+ 7: import { TeaIcon } from "@/components/TeaIcon";
+ 8: import { formatSeconds } from "@/lib/timer";
+ 9: import { categoryLabel, teaNames } from "@/lib/i18n";
+10: import { useT } from "@/store/useT";
+11: 
+12: function TeaDetailsInner() {
+13:   const id = useSearchParams().get("id") ?? "";
+14:   const custom = useProfiles((s) => s.custom);
+15:   const hydrated = useProfiles((s) => s.hydrated);
+16:   const { t, lang } = useT();
+17:   const tea = findTea(id, custom);
+18: 
+19:   if (!hydrated) return null;
+20:   if (!tea) {
+21:     return (
+22:       <div className="pt-20 text-center">
+23:         <p className="text-muted">{t.teaNotFound}</p>
+24:         <Link href="/" className="mt-3 inline-block font-semibold underline">
+25:           {t.backToTeas}
+26:         </Link>
+27:       </div>
+28:     );
+29:   }
+30: 
+31:   const names = teaNames(tea, lang);
+32: 
+33:   return (
+34:     <div className="mx-auto max-w-sm pt-10 text-center">
+35:       <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
+36:         {t.detailsEyebrow}
+37:       </p>
+38:       <span
+39:         className="mx-auto mt-6 flex h-20 w-20 items-center justify-center rounded-full"
+40:         style={{
+41:           color: tea.liquorColor,
+42:           background: `color-mix(in srgb, ${tea.liquorColor} 16%, transparent)`,
+43:         }}
+44:       >
+45:         <TeaIcon icon={tea.icon} className="h-10 w-10" />
+46:       </span>
+47:       <h1 className="font-display mt-4 text-3xl font-medium">
+48:         {names.primary}
+49:       </h1>
+50:       {names.secondary && <p className="mt-1 text-muted">{names.secondary}</p>}
+51:       <p className="mt-3 text-sm text-muted">
+52:         {categoryLabel(tea.category, lang)} · {tea.tempC}°C ·{" "}
+53:         {tea.ratioGramsPer100ml} g/100 ml
+54:       </p>
+55:       <p className="mt-1.5 text-sm text-muted">
+56:         {t.importMeta(tea.steepsSec.length)}
+57:         {tea.steepsSec.map((s) => formatSeconds(s)).join(" → ")}
+58:       </p>
+59:       <div className="mt-7 flex justify-center gap-3">
+60:         <Link
+61:           href={`/session?tea=${tea.id}`}
+62:           className="rounded-full px-6 py-3 text-sm font-bold text-white transition-transform active:scale-95"
+63:           style={{ background: tea.liquorColor }}
+64:         >
+65:           {t.brew}
+66:         </Link>
+67:         <Link
+68:           href={`/profiles/new?clone=${tea.id}`}
+69:           className="rounded-full border border-line bg-surface px-6 py-3 text-sm font-semibold text-muted hover:text-ink"
+70:         >
+71:           {t.cloneAndCustomize}
+72:         </Link>
+73:       </div>
+74:     </div>
+75:   );
+76: }
+77: 
+78: export default function TeaDetailsPage() {
+79:   return (
+80:     <Suspense fallback={null}>
+81:       <TeaDetailsInner />
+82:     </Suspense>
+83:   );
+84: }
+</file>
+
+<file path="src/app/globals.css">
+  1: @import "tailwindcss";
+  2: 
+  3: @custom-variant dark (&:where(.dark, .dark *));
+  4: 
+  5: :root {
+  6:   --bg: #f6f1e7;
+  7:   --surface: #fdfaf3;
+  8:   --ink: #2e2921;
+  9:   --muted: #8d7a63;
+ 10:   --line: #e2d9c8;
+ 11:   --lift: rgba(46, 41, 33, 0.06);
+ 12: }
+ 13: 
+ 14: .dark {
+ 15:   --bg: #1c1813;
+ 16:   --surface: #26211a;
+ 17:   --ink: #ece4d4;
+ 18:   --muted: #a08c72;
+ 19:   --line: #383126;
+ 20:   --lift: rgba(0, 0, 0, 0.35);
+ 21: }
+ 22: 
+ 23: @theme inline {
+ 24:   --color-bg: var(--bg);
+ 25:   --color-surface: var(--surface);
+ 26:   --color-ink: var(--ink);
+ 27:   --color-muted: var(--muted);
+ 28:   --color-line: var(--line);
+ 29:   --font-display: var(--font-fraunces), Georgia, serif;
+ 30:   --font-body: var(--font-nunito), system-ui, sans-serif;
+ 31: }
+ 32: 
+ 33: html {
+ 34:   background: var(--bg);
+ 35:   -webkit-tap-highlight-color: transparent;
+ 36: }
+ 37: 
+ 38: body {
+ 39:   background: var(--bg);
+ 40:   color: var(--ink);
+ 41:   font-family: var(--font-nunito), system-ui, sans-serif;
+ 42:   -webkit-font-smoothing: antialiased;
+ 43:   min-height: 100dvh;
+ 44:   overflow-x: hidden;
+ 45: }
+ 46: 
+ 47: .font-display {
+ 48:   font-family: var(--font-fraunces), Georgia, serif;
+ 49: }
+ 50: 
+ 51: .tabular {
+ 52:   font-variant-numeric: tabular-nums;
+ 53:   font-feature-settings: "tnum";
+ 54: }
+ 55: 
+ 56: /* Gentle floating of the liquid wave inside the timer cup. */
+ 57: @keyframes wave-drift {
+ 58:   from {
+ 59:     transform: translateX(0);
+ 60:   }
+ 61:   to {
+ 62:     transform: translateX(-220px);
+ 63:   }
+ 64: }
+ 65: 
+ 66: .wave-drift {
+ 67:   animation: wave-drift 4.5s linear infinite;
+ 68: }
+ 69: 
+ 70: .wave-drift-slow {
+ 71:   animation: wave-drift 7s linear infinite reverse;
+ 72: }
+ 73: 
+ 74: /* Ripple pulse when a steep completes. */
+ 75: @keyframes steep-ripple {
+ 76:   0% {
+ 77:     transform: scale(1);
+ 78:     opacity: 0.55;
+ 79:   }
+ 80:   100% {
+ 81:     transform: scale(1.45);
+ 82:     opacity: 0;
+ 83:   }
+ 84: }
+ 85: 
+ 86: .steep-ripple {
+ 87:   animation: steep-ripple 1.6s ease-out infinite;
+ 88: }
+ 89: 
+ 90: /* Soft glow behind the cup while a steep just finished. */
+ 91: @keyframes steep-glow {
+ 92:   0%, 100% {
+ 93:     opacity: 0.35;
+ 94:     transform: scale(1);
+ 95:   }
+ 96:   50% {
+ 97:     opacity: 0.8;
+ 98:     transform: scale(1.08);
+ 99:   }
+100: }
+101: 
+102: .steep-glow {
+103:   animation: steep-glow 1.8s ease-in-out infinite;
+104: }
+105: 
+106: /* Soft "come tap me" breathing on the countdown ring while idle. */
+107: @keyframes ring-idle-pulse {
+108:   0%, 100% {
+109:     opacity: 0.55;
+110:   }
+111:   50% {
+112:     opacity: 1;
+113:   }
+114: }
+115: 
+116: .ring-idle-pulse {
+117:   animation: ring-idle-pulse 2.4s ease-in-out infinite;
+118: }
+119: 
+120: @media (prefers-reduced-motion: reduce) {
+121:   .wave-drift,
+122:   .wave-drift-slow,
+123:   .steep-ripple,
+124:   .steep-glow,
+125:   .ring-idle-pulse {
+126:     animation: none;
+127:   }
+128: }
+129: 
+130: :focus-visible {
+131:   outline: 2px solid var(--muted);
+132:   outline-offset: 2px;
+133:   border-radius: 4px;
+134: }
+135: 
+136: /* Buttons don't get a pointer cursor by default — add the affordance back,
+137:    plus a light tactile press for every clickable control. */
+138: button:not(:disabled) {
+139:   cursor: pointer;
+140:   transition: transform 0.15s ease;
+141: }
+142: 
+143: button:not(:disabled):active {
+144:   transform: scale(0.96);
+145: }
+146: 
+147: label:has(> input[type="checkbox"]),
+148: label:has(> input[type="file"]) {
+149:   cursor: pointer;
+150: }
+151: 
+152: /* Most navigation happens by tapping a card/link, not a button — give those
+153:    the same tactile press so the app doesn't feel inert on a touch screen. */
+154: a {
+155:   transition: transform 0.15s ease;
+156: }
+157: 
+158: a:active {
+159:   transform: scale(0.98);
+160: }
+</file>
+
+<file path="src/app/layout.tsx">
+ 1: import type { Metadata, Viewport } from "next";
+ 2: import { Fraunces, Nunito_Sans } from "next/font/google";
+ 3: import "./globals.css";
+ 4: import { Boot } from "@/components/Boot";
+ 5: import { Nav } from "@/components/Nav";
+ 6: import { ScrollRestoration } from "@/components/ScrollRestoration";
+ 7: 
+ 8: const fraunces = Fraunces({
+ 9:   subsets: ["latin"],
+10:   variable: "--font-fraunces",
+11:   axes: ["SOFT", "WONK", "opsz"],
+12: });
+13: 
+14: const nunito = Nunito_Sans({
+15:   subsets: ["latin"],
+16:   variable: "--font-nunito",
+17: });
+18: 
+19: export const metadata: Metadata = {
+20:   title: "一盏茶 · A Cup's Time",
+21:   description:
+22:     "A cup's time — a quiet gongfu tea timer, steep by steep.",
+23:   manifest: "/manifest.json",
+24:   appleWebApp: {
+25:     capable: true,
+26:     title: "一盏茶",
+27:     statusBarStyle: "default",
+28:   },
+29: };
+30: 
+31: export const viewport: Viewport = {
+32:   themeColor: [
+33:     { media: "(prefers-color-scheme: light)", color: "#f6f1e7" },
+34:     { media: "(prefers-color-scheme: dark)", color: "#1c1813" },
+35:   ],
+36:   width: "device-width",
+37:   initialScale: 1,
+38:   viewportFit: "cover",
+39: };
+40: 
+41: const THEME_SCRIPT = `
+42: try {
+43:   var s = JSON.parse(localStorage.getItem("gongfu.settings") || "{}");
+44:   var t = s.theme || "system";
+45:   var dark = t === "dark" || (t === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
+46:   if (dark) document.documentElement.classList.add("dark");
+47: } catch (e) {}
+48: `;
+49: 
+50: export default function RootLayout({
+51:   children,
+52: }: Readonly<{ children: React.ReactNode }>) {
+53:   return (
+54:     <html lang="en" suppressHydrationWarning>
+55:       <head>
+56:         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+57:       </head>
+58:       <body className={`${fraunces.variable} ${nunito.variable}`}>
+59:         <Boot />
+60:         <ScrollRestoration />
+61:         <div className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col px-4 pb-24 pt-4 sm:px-6 sm:pt-8 md:pb-8 md:pt-10">
+62:           <main className="flex-1">{children}</main>
+63:         </div>
+64:         <Nav />
+65:       </body>
+66:     </html>
+67:   );
+68: }
+</file>
+
+<file path="src/app/page.tsx">
+  1: "use client";
+  2: 
+  3: import { useMemo, useState } from "react";
+  4: import Link from "next/link";
+  5: import { PRESET_TEAS } from "@/lib/teas";
+  6: import { CATEGORY_LABELS, type TeaCategory, type TeaProfile } from "@/lib/types";
+  7: import { useProfiles, findTea } from "@/store/profiles";
+  8: import { useSettings } from "@/store/settings";
+  9: import { useLog } from "@/store/log";
+ 10: import { useActiveSessions } from "@/store/activeSessions";
+ 11: import { TeaCard } from "@/components/TeaCard";
+ 12: import { categoryLabel, teaNames } from "@/lib/i18n";
+ 13: import { useT } from "@/store/useT";
+ 14: 
+ 15: const CATEGORY_ORDER: TeaCategory[] = [
+ 16:   "green",
+ 17:   "yellow",
+ 18:   "white",
+ 19:   "oolong-light",
+ 20:   "oolong-dark",
+ 21:   "black",
+ 22:   "puer-sheng",
+ 23:   "puer-shou",
+ 24:   "heicha",
+ 25:   "herbal",
+ 26: ];
+ 27: 
+ 28: export default function HomePage() {
+ 29:   const custom = useProfiles((s) => s.custom);
+ 30:   const favoriteIds = useSettings((s) => s.favorites);
+ 31:   const sessions = useLog((s) => s.sessions);
+ 32:   const activeSessions = useActiveSessions((s) => s.sessions);
+ 33:   const { t, lang } = useT();
+ 34:   const [query, setQuery] = useState("");
+ 35: 
+ 36:   const brewingNow = useMemo(
+ 37:     () =>
+ 38:       activeSessions
+ 39:         .map((a) => ({ session: a, tea: findTea(a.teaId, custom) }))
+ 40:         .filter(
+ 41:           (x): x is { session: (typeof activeSessions)[number]; tea: TeaProfile } =>
+ 42:             !!x.tea,
+ 43:         ),
+ 44:     [activeSessions, custom],
+ 45:   );
+ 46: 
+ 47:   const favoriteTeas = useMemo(
+ 48:     () =>
+ 49:       favoriteIds
+ 50:         .map((id) => findTea(id, custom))
+ 51:         .filter((tea): tea is TeaProfile => !!tea),
+ 52:     [favoriteIds, custom],
+ 53:   );
+ 54: 
+ 55:   const recentTeas = useMemo(() => {
+ 56:     const seen = new Set<string>();
+ 57:     const result: TeaProfile[] = [];
+ 58:     for (const s of sessions) {
+ 59:       if (seen.has(s.teaId) || favoriteIds.includes(s.teaId)) continue;
+ 60:       seen.add(s.teaId);
+ 61:       const tea = findTea(s.teaId, custom);
+ 62:       if (tea) result.push(tea);
+ 63:       if (result.length >= 6) break;
+ 64:     }
+ 65:     return result;
+ 66:   }, [sessions, custom, favoriteIds]);
+ 67: 
+ 68:   const groups = useMemo(() => {
+ 69:     const q = query.trim().toLowerCase();
+ 70:     const matches = (tea: TeaProfile) =>
+ 71:       !q ||
+ 72:       tea.name.toLowerCase().includes(q) ||
+ 73:       (tea.chineseName ?? "").includes(q) ||
+ 74:       CATEGORY_LABELS[tea.category].toLowerCase().includes(q) ||
+ 75:       categoryLabel(tea.category, lang).includes(q);
+ 76: 
+ 77:     const byCategory = CATEGORY_ORDER.map((cat) => ({
+ 78:       cat,
+ 79:       teas: PRESET_TEAS.filter((t) => t.category === cat && matches(t)),
+ 80:     })).filter((g) => g.teas.length > 0);
+ 81: 
+ 82:     return { byCategory, customTeas: custom.filter(matches) };
+ 83:   }, [query, custom, lang]);
+ 84: 
+ 85:   return (
+ 86:     <div>
+ 87:       <header className="mb-6">
+ 88:         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
+ 89:           {t.homeEyebrow}
+ 90:         </p>
+ 91:         <h1 className="font-display mt-1 text-3xl font-medium">
+ 92:           {t.homeTitle}
+ 93:         </h1>
+ 94:       </header>
+ 95: 
+ 96:       <div className="mb-6 flex gap-2">
+ 97:         <input
+ 98:           type="search"
+ 99:           value={query}
+100:           onChange={(e) => setQuery(e.target.value)}
+101:           placeholder={t.searchPlaceholder}
+102:           aria-label={t.searchPlaceholder}
+103:           className="w-full rounded-full border border-line bg-surface px-4 py-2.5 text-sm placeholder:text-muted focus:border-muted focus:outline-none"
+104:         />
+105:         <Link
+106:           href="/profiles/new"
+107:           className="flex shrink-0 items-center gap-1.5 rounded-full border border-line bg-surface px-4 py-2.5 text-sm font-semibold text-ink transition-colors hover:border-muted"
+108:         >
+109:           <span aria-hidden className="text-base leading-none">＋</span>
+110:           {t.newTea}
+111:         </Link>
+112:       </div>
+113: 
+114:       {!query.trim() && brewingNow.length > 0 && (
+115:         <section className="mb-7">
+116:           <h2 className="mb-2.5 text-xs font-semibold uppercase tracking-[0.15em] text-muted">
+117:             {t.continueBrewing}
+118:           </h2>
+119:           <ul className="space-y-2.5">
+120:             {brewingNow.map(({ session, tea }) => (
+121:               <li key={session.logId}>
+122:                 <Link
+123:                   href={`/session?tea=${tea.id}`}
+124:                   className="flex items-center gap-3.5 rounded-2xl border border-line bg-surface p-3.5 transition-all hover:-translate-y-0.5 hover:shadow-md hover:shadow-[var(--lift)] active:scale-[.98]"
+125:                   style={{ borderColor: tea.liquorColor }}
+126:                 >
+127:                   <span
+128:                     aria-hidden
+129:                     className="steep-glow h-3 w-3 shrink-0 rounded-full"
+130:                     style={{ background: tea.liquorColor }}
+131:                   />
+132:                   <span className="min-w-0 flex-1">
+133:                     <span className="font-display block truncate text-[15px] font-medium">
+134:                       {teaNames(tea, lang).primary} ·{" "}
+135:                       {t.steepOf(
+136:                         session.steepIndex + 1,
+137:                         session.steepDurations.length,
+138:                       )}
+139:                     </span>
+140:                   </span>
+141:                 </Link>
+142:               </li>
+143:             ))}
+144:           </ul>
+145:         </section>
+146:       )}
+147: 
+148:       {!query.trim() && favoriteTeas.length > 0 && (
+149:         <section className="mb-7">
+150:           <h2 className="mb-2.5 text-xs font-semibold uppercase tracking-[0.15em] text-muted">
+151:             {t.favoritesTitle}
+152:           </h2>
+153:           <ul className="grid gap-2.5 sm:grid-cols-2">
+154:             {favoriteTeas.map((tea, i) => (
+155:               <TeaCard key={tea.id} tea={tea} index={i} />
+156:             ))}
+157:           </ul>
+158:         </section>
+159:       )}
+160: 
+161:       {!query.trim() && recentTeas.length > 0 && (
+162:         <section className="mb-7">
+163:           <h2 className="mb-2.5 text-xs font-semibold uppercase tracking-[0.15em] text-muted">
+164:             {t.recentlyBrewed}
+165:           </h2>
+166:           <ul className="grid gap-2.5 sm:grid-cols-2">
+167:             {recentTeas.map((tea, i) => (
+168:               <TeaCard key={tea.id} tea={tea} index={i} />
+169:             ))}
+170:           </ul>
+171:         </section>
+172:       )}
+173: 
+174:       {groups.customTeas.length > 0 && (
+175:         <section className="mb-7">
+176:           <div className="mb-2.5 flex items-baseline justify-between">
+177:             <h2 className="text-xs font-semibold uppercase tracking-[0.15em] text-muted">
+178:               {t.yourTeas}
+179:             </h2>
+180:             <Link
+181:               href="/profiles"
+182:               className="text-xs font-semibold text-muted hover:text-ink"
+183:             >
+184:               {t.manage}
+185:             </Link>
+186:           </div>
+187:           <ul className="grid gap-2.5 sm:grid-cols-2">
+188:             {groups.customTeas.map((tea, i) => (
+189:               <TeaCard key={tea.id} tea={tea} index={i} />
+190:             ))}
+191:           </ul>
+192:         </section>
+193:       )}
+194: 
+195:       {groups.byCategory.map(({ cat, teas }) => (
+196:         <section key={cat} className="mb-7">
+197:           <h2 className="mb-2.5 text-xs font-semibold uppercase tracking-[0.15em] text-muted">
+198:             {categoryLabel(cat, lang)}
+199:           </h2>
+200:           <ul className="grid gap-2.5 sm:grid-cols-2">
+201:             {teas.map((tea, i) => (
+202:               <TeaCard key={tea.id} tea={tea} index={i} />
+203:             ))}
+204:           </ul>
+205:         </section>
+206:       ))}
+207: 
+208:       {groups.byCategory.length === 0 && groups.customTeas.length === 0 && (
+209:         <p className="mt-16 text-center text-sm text-muted">
+210:           {t.noMatch(query)}
+211:         </p>
+212:       )}
+213:     </div>
+214:   );
+215: }
+</file>
+
+<file path="src/components/Boot.tsx">
+ 1: "use client";
+ 2: 
+ 3: import { useEffect } from "react";
+ 4: import { useSettings } from "@/store/settings";
+ 5: import { useProfiles } from "@/store/profiles";
+ 6: import { useLog } from "@/store/log";
+ 7: import { useStash } from "@/store/stash";
+ 8: import { useActiveSessions } from "@/store/activeSessions";
+ 9: 
+10: /**
+11:  * Client bootstrap: hydrate stores from localStorage, keep the theme class
+12:  * in sync, register the service worker.
+13:  */
+14: export function Boot() {
+15:   const theme = useSettings((s) => s.theme);
+16:   const language = useSettings((s) => s.language);
+17:   const hydrated = useSettings((s) => s.hydrated);
+18: 
+19:   useEffect(() => {
+20:     if (hydrated) {
+21:       document.documentElement.lang = language === "zh" ? "zh-CN" : "en";
+22:     }
+23:   }, [language, hydrated]);
+24: 
+25:   useEffect(() => {
+26:     useSettings.getState().hydrate();
+27:     useProfiles.getState().hydrate();
+28:     useLog.getState().hydrate();
+29:     useStash.getState().hydrate();
+30:     useActiveSessions.getState().hydrate();
+31:   }, []);
+32: 
+33:   useEffect(() => {
+34:     if (!hydrated) return;
+35:     const root = document.documentElement;
+36:     const media = window.matchMedia("(prefers-color-scheme: dark)");
+37:     const apply = () => {
+38:       const dark =
+39:         theme === "dark" || (theme === "system" && media.matches);
+40:       root.classList.toggle("dark", dark);
+41:     };
+42:     apply();
+43:     media.addEventListener("change", apply);
+44:     return () => media.removeEventListener("change", apply);
+45:   }, [theme, hydrated]);
+46: 
+47:   useEffect(() => {
+48:     if ("serviceWorker" in navigator && process.env.NODE_ENV === "production") {
+49:       void navigator.serviceWorker.register("/sw.js");
+50:     }
+51:   }, []);
+52: 
+53:   return null;
+54: }
+</file>
+
+<file path="src/components/Nav.tsx">
+ 1: "use client";
+ 2: 
+ 3: import Link from "next/link";
+ 4: import { usePathname } from "next/navigation";
+ 5: import { useT } from "@/store/useT";
+ 6: 
+ 7: export function Nav() {
+ 8:   const pathname = usePathname();
+ 9:   const { t } = useT();
+10:   const TABS = [
+11:     { href: "/", label: t.navTeas, glyph: "茶" },
+12:     { href: "/log", label: t.navLog, glyph: "记" },
+13:     { href: "/stash", label: t.navStash, glyph: "藏" },
+14:     { href: "/settings", label: t.navSettings, glyph: "调" },
+15:   ];
+16:   // The session screen is a focused, full-attention view — hide the tabs.
+17:   if (pathname === "/session") return null;
+18: 
+19:   return (
+20:     <nav
+21:       aria-label="Main"
+22:       className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-surface/90 backdrop-blur-sm md:inset-x-auto md:left-1/2 md:top-auto md:bottom-4 md:w-auto md:-translate-x-1/2 md:rounded-full md:border md:px-2 md:shadow-lg md:shadow-[var(--lift)]"
+23:     >
+24:       <ul className="mx-auto flex max-w-md items-stretch justify-around md:gap-1 pb-[env(safe-area-inset-bottom)]">
+25:         {TABS.map((tab) => {
+26:           const active =
+27:             tab.href === "/"
+28:               ? pathname === "/" || pathname.startsWith("/profiles")
+29:               : pathname.startsWith(tab.href);
+30:           return (
+31:             <li key={tab.href}>
+32:               <Link
+33:                 href={tab.href}
+34:                 scroll={false}
+35:                 aria-current={active ? "page" : undefined}
+36:                 className={`flex flex-col items-center gap-0.5 px-5 py-2.5 text-[11px] font-semibold tracking-wide transition-colors md:flex-row md:gap-2 md:text-xs ${
+37:                   active ? "text-ink" : "text-muted hover:text-ink"
+38:                 }`}
+39:               >
+40:                 <span
+41:                   aria-hidden
+42:                   className={`font-display text-lg leading-none md:text-base ${
+43:                     active ? "" : "opacity-60"
+44:                   }`}
+45:                 >
+46:                   {tab.glyph}
+47:                 </span>
+48:                 {tab.label}
+49:               </Link>
+50:             </li>
+51:           );
+52:         })}
+53:       </ul>
+54:     </nav>
+55:   );
+56: }
+</file>
+
+<file path="src/components/ProfileEditor.tsx">
+  1: "use client";
+  2: 
+  3: import { useState } from "react";
+  4: import { useRouter } from "next/navigation";
+  5: import type { TeaCategory, TeaIconKey, TeaProfile } from "@/lib/types";
+  6: import { CATEGORY_LABELS } from "@/lib/types";
+  7: import { useProfiles } from "@/store/profiles";
+  8: import { categoryLabel } from "@/lib/i18n";
+  9: import { useT } from "@/store/useT";
+ 10: import { TeaIcon } from "./TeaIcon";
+ 11: 
+ 12: const ICONS: TeaIconKey[] = [
+ 13:   "leaf",
+ 14:   "bud",
+ 15:   "twist",
+ 16:   "pearl",
+ 17:   "strip",
+ 18:   "cake",
+ 19:   "brick",
+ 20:   "flower",
+ 21:   "needle",
+ 22: ];
+ 23: 
+ 24: const SUGGESTED_COLORS = [
+ 25:   "#c8d96b",
+ 26:   "#e3d370",
+ 27:   "#ecdc9a",
+ 28:   "#cfd66a",
+ 29:   "#c07a2e",
+ 30:   "#b85a1b",
+ 31:   "#d6b545",
+ 32:   "#6e3a1a",
+ 33:   "#7c4620",
+ 34:   "#e9d780",
+ 35: ];
+ 36: 
+ 37: function parseSteeps(text: string): number[] {
+ 38:   return text
+ 39:     .split(/[,\s]+/)
+ 40:     .map((s) => Number(s))
+ 41:     .filter((n) => Number.isFinite(n) && n >= 1 && n <= 3600)
+ 42:     .map((n) => Math.round(n));
+ 43: }
+ 44: 
+ 45: export function ProfileEditor({
+ 46:   initial,
+ 47:   cloneFrom,
+ 48: }: {
+ 49:   initial?: TeaProfile;
+ 50:   cloneFrom?: TeaProfile;
+ 51: }) {
+ 52:   const router = useRouter();
+ 53:   const { t, lang } = useT();
+ 54:   const seed = initial ?? cloneFrom;
+ 55:   const [name, setName] = useState(
+ 56:     initial ? initial.name : cloneFrom ? `${cloneFrom.name} (copy)` : "",
+ 57:   );
+ 58:   const [chineseName, setChineseName] = useState(seed?.chineseName ?? "");
+ 59:   const [category, setCategory] = useState<TeaCategory>(
+ 60:     seed?.category ?? "oolong-light",
+ 61:   );
+ 62:   const [color, setColor] = useState(seed?.liquorColor ?? "#c8a25e");
+ 63:   const [icon, setIcon] = useState<TeaIconKey>(seed?.icon ?? "leaf");
+ 64:   const [tempC, setTempC] = useState(seed?.tempC ?? 95);
+ 65:   const [ratio, setRatio] = useState(seed?.ratioGramsPer100ml ?? 5);
+ 66:   const [steepsText, setSteepsText] = useState(
+ 67:     seed?.steepsSec.join(", ") ?? "15, 20, 30, 45, 60, 90",
+ 68:   );
+ 69:   const [autoAdvance, setAutoAdvance] = useState(seed?.autoAdvance ?? true);
+ 70:   const [error, setError] = useState<string | null>(null);
+ 71: 
+ 72:   const steeps = parseSteeps(steepsText);
+ 73: 
+ 74:   const save = () => {
+ 75:     if (!name.trim()) {
+ 76:       setError(t.errName);
+ 77:       return;
+ 78:     }
+ 79:     if (steeps.length === 0) {
+ 80:       setError(t.errSteeps);
+ 81:       return;
+ 82:     }
+ 83:     const profile: TeaProfile = {
+ 84:       id: initial?.id ?? `custom-${Date.now().toString(36)}`,
+ 85:       name: name.trim(),
+ 86:       chineseName: chineseName.trim() || undefined,
+ 87:       category,
+ 88:       liquorColor: color,
+ 89:       icon,
+ 90:       tempC,
+ 91:       ratioGramsPer100ml: ratio,
+ 92:       steepsSec: steeps,
+ 93:       autoAdvance,
+ 94:       custom: true,
+ 95:     };
+ 96:     useProfiles.getState().save(profile);
+ 97:     router.push("/profiles");
+ 98:   };
+ 99: 
+100:   const field =
+101:     "w-full rounded-xl border border-line bg-surface px-3.5 py-2.5 text-sm placeholder:text-muted focus:border-muted focus:outline-none";
+102:   const label = "mb-1.5 block text-xs font-semibold text-muted";
+103: 
+104:   return (
+105:     <div className="space-y-5">
+106:       <div className="grid gap-4 sm:grid-cols-2">
+107:         <div>
+108:           <label htmlFor="tea-name" className={label}>
+109:             {t.fName}
+110:           </label>
+111:           <input
+112:             id="tea-name"
+113:             value={name}
+114:             onChange={(e) => setName(e.target.value)}
+115:             placeholder={t.fNamePlaceholder}
+116:             className={field}
+117:           />
+118:         </div>
+119:         <div>
+120:           <label htmlFor="tea-cn" className={label}>
+121:             {t.fChineseName} <span className="font-normal">{t.fOptional}</span>
+122:           </label>
+123:           <input
+124:             id="tea-cn"
+125:             value={chineseName}
+126:             onChange={(e) => setChineseName(e.target.value)}
+127:             placeholder="铁观音"
+128:             className={field}
+129:           />
+130:         </div>
+131:       </div>
+132: 
+133:       <div className="grid gap-4 sm:grid-cols-3">
+134:         <div>
+135:           <label htmlFor="tea-cat" className={label}>
+136:             {t.fType}
+137:           </label>
+138:           <select
+139:             id="tea-cat"
+140:             value={category}
+141:             onChange={(e) => setCategory(e.target.value as TeaCategory)}
+142:             className={field}
+143:           >
+144:             {(Object.keys(CATEGORY_LABELS) as TeaCategory[]).map((value) => (
+145:               <option key={value} value={value}>
+146:                 {categoryLabel(value, lang)}
+147:               </option>
+148:             ))}
+149:           </select>
+150:         </div>
+151:         <div>
+152:           <label htmlFor="tea-temp" className={label}>
+153:             {t.fTemp}
+154:           </label>
+155:           <input
+156:             id="tea-temp"
+157:             type="number"
+158:             min={40}
+159:             max={100}
+160:             value={tempC}
+161:             onChange={(e) => setTempC(Number(e.target.value))}
+162:             className={field}
+163:           />
+164:         </div>
+165:         <div>
+166:           <label htmlFor="tea-ratio" className={label}>
+167:             {t.fRatio}
+168:           </label>
+169:           <input
+170:             id="tea-ratio"
+171:             type="number"
+172:             min={0.5}
+173:             max={20}
+174:             step={0.5}
+175:             value={ratio}
+176:             onChange={(e) => setRatio(Number(e.target.value))}
+177:             className={field}
+178:           />
+179:         </div>
+180:       </div>
+181: 
+182:       <div>
+183:         <label htmlFor="tea-steeps" className={label}>
+184:           {t.fSteeps}
+185:         </label>
+186:         <input
+187:           id="tea-steeps"
+188:           value={steepsText}
+189:           onChange={(e) => setSteepsText(e.target.value)}
+190:           placeholder="15, 20, 30, 45, 60, 90"
+191:           inputMode="numeric"
+192:           className={field}
+193:         />
+194:         {steeps.length > 0 && (
+195:           <p className="mt-1.5 text-xs text-muted">
+196:             {t.steepsPreview(steeps.length)}
+197:             {steeps.map((s) => `${s}s`).join(" → ")}
+198:           </p>
+199:         )}
+200:       </div>
+201: 
+202:       <div>
+203:         <span className={label}>{t.fColor}</span>
+204:         <div className="flex flex-wrap items-center gap-2">
+205:           {SUGGESTED_COLORS.map((c) => (
+206:             <button
+207:               key={c}
+208:               type="button"
+209:               aria-label={`Use color ${c}`}
+210:               onClick={() => setColor(c)}
+211:               className={`h-8 w-8 rounded-full transition-transform hover:scale-110 ${
+212:                 color === c ? "ring-2 ring-ink ring-offset-2 ring-offset-bg" : ""
+213:               }`}
+214:               style={{ background: c }}
+215:             />
+216:           ))}
+217:           <input
+218:             type="color"
+219:             aria-label="Custom color"
+220:             value={color}
+221:             onChange={(e) => setColor(e.target.value)}
+222:             className="h-8 w-10 cursor-pointer rounded-lg border border-line bg-surface"
+223:           />
+224:         </div>
+225:       </div>
+226: 
+227:       <div>
+228:         <span className={label}>{t.fIcon}</span>
+229:         <div className="flex flex-wrap gap-2">
+230:           {ICONS.map((key) => (
+231:             <button
+232:               key={key}
+233:               type="button"
+234:               aria-label={`Icon: ${key}`}
+235:               aria-pressed={icon === key}
+236:               onClick={() => setIcon(key)}
+237:               className={`flex h-11 w-11 items-center justify-center rounded-xl border transition-colors ${
+238:                 icon === key
+239:                   ? "border-ink bg-surface"
+240:                   : "border-line text-muted hover:border-muted"
+241:               }`}
+242:               style={icon === key ? { color } : undefined}
+243:             >
+244:               <TeaIcon icon={key} className="h-6 w-6" />
+245:             </button>
+246:           ))}
+247:         </div>
+248:       </div>
+249: 
+250:       <label className="flex items-center gap-3 text-sm">
+251:         <input
+252:           type="checkbox"
+253:           checked={autoAdvance}
+254:           onChange={(e) => setAutoAdvance(e.target.checked)}
+255:           className="h-4 w-4 accent-current"
+256:         />
+257:         {t.fAutoAdvance}
+258:       </label>
+259: 
+260:       {error && <p className="text-sm font-semibold text-red-600">{error}</p>}
+261: 
+262:       <div className="flex gap-3 pt-1">
+263:         <button
+264:           onClick={save}
+265:           className="rounded-full px-6 py-3 text-sm font-bold text-white transition-transform active:scale-95"
+266:           style={{ background: color }}
+267:         >
+268:           {t.saveTea}
+269:         </button>
+270:         <button
+271:           onClick={() => router.back()}
+272:           className="rounded-full border border-line bg-surface px-6 py-3 text-sm font-semibold text-muted hover:text-ink"
+273:         >
+274:           {t.cancel}
+275:         </button>
+276:       </div>
+277:     </div>
+278:   );
+279: }
+</file>
+
+<file path="src/components/ScrollRestoration.tsx">
+ 1: "use client";
+ 2: 
+ 3: import { useEffect, useRef } from "react";
+ 4: import { usePathname } from "next/navigation";
+ 5: 
+ 6: /**
+ 7:  * Each bottom-nav tab keeps its own scroll position, like a native app's tab
+ 8:  * bar, instead of resetting to the top every time you switch back to it.
+ 9:  * Paired with `scroll={false}` on the Nav links, which otherwise fight this
+10:  * by asking Next to scroll to top on every tab switch.
+11:  */
+12: const positions = new Map<string, number>();
+13: 
+14: export function ScrollRestoration() {
+15:   const pathname = usePathname();
+16:   const current = useRef(pathname);
+17: 
+18:   useEffect(() => {
+19:     window.scrollTo(0, positions.get(pathname) ?? 0);
+20:     current.current = pathname;
+21:   }, [pathname]);
+22: 
+23:   useEffect(() => {
+24:     const onScroll = () => positions.set(current.current, window.scrollY);
+25:     window.addEventListener("scroll", onScroll, { passive: true });
+26:     return () => window.removeEventListener("scroll", onScroll);
+27:   }, []);
+28: 
+29:   return null;
+30: }
+</file>
+
+<file path="src/components/SteepDots.tsx">
+ 1: "use client";
+ 2: 
+ 3: /**
+ 4:  * A row of tiny tasting cups: filled = poured, ringed = current, faint =
+ 5:  * still to come.
+ 6:  */
+ 7: export function SteepDots({
+ 8:   total,
+ 9:   current,
+10:   completed,
+11:   color,
+12: }: {
+13:   total: number;
+14:   /** 0-based index of the steep on screen. */
+15:   current: number;
+16:   completed: number;
+17:   color: string;
+18: }) {
+19:   return (
+20:     <ol
+21:       aria-label={`Steep ${current + 1} of ${total}, ${completed} poured`}
+22:       className="flex flex-wrap items-center justify-center gap-2"
+23:     >
+24:       {Array.from({ length: total }, (_, i) => {
+25:         const poured = i < completed;
+26:         const isCurrent = i === current;
+27:         return (
+28:           <li
+29:             key={i}
+30:             className={`rounded-full transition-all duration-300 ${
+31:               isCurrent ? "h-3.5 w-3.5" : "h-2.5 w-2.5"
+32:             }`}
+33:             style={{
+34:               background: poured ? color : "transparent",
+35:               boxShadow: isCurrent
+36:                 ? `inset 0 0 0 2px ${color}`
+37:                 : poured
+38:                   ? "none"
+39:                   : "inset 0 0 0 1.5px var(--line)",
+40:             }}
+41:           />
+42:         );
+43:       })}
+44:     </ol>
+45:   );
+46: }
+</file>
+
+<file path="src/components/TeaCard.tsx">
+ 1: "use client";
+ 2: 
+ 3: import Link from "next/link";
+ 4: import { motion } from "framer-motion";
+ 5: import type { TeaProfile } from "@/lib/types";
+ 6: import { TeaIcon } from "./TeaIcon";
+ 7: import { formatSeconds } from "@/lib/timer";
+ 8: import { teaNames } from "@/lib/i18n";
+ 9: import { useT } from "@/store/useT";
+10: import { useSettings } from "@/store/settings";
+11: 
+12: export function TeaCard({ tea, index }: { tea: TeaProfile; index: number }) {
+13:   const { t, lang } = useT();
+14:   const names = teaNames(tea, lang);
+15:   const isFavorite = useSettings((s) => s.favorites.includes(tea.id));
+16: 
+17:   const toggleFavorite = (e: React.MouseEvent) => {
+18:     e.preventDefault();
+19:     const { favorites } = useSettings.getState();
+20:     useSettings.getState().update({
+21:       favorites: isFavorite
+22:         ? favorites.filter((id) => id !== tea.id)
+23:         : [...favorites, tea.id],
+24:     });
+25:   };
+26: 
+27:   return (
+28:     <motion.li
+29:       initial={{ opacity: 0, y: 10 }}
+30:       animate={{ opacity: 1, y: 0 }}
+31:       transition={{ delay: Math.min(index * 0.03, 0.4), duration: 0.35 }}
+32:       className="relative"
+33:     >
+34:       <span className="absolute right-2.5 top-2.5 z-10 flex items-center gap-2.5">
+35:         <Link
+36:           href={`/tea?id=${tea.id}`}
+37:           aria-label={t.viewDetails}
+38:           className="text-sm leading-none text-muted opacity-70 transition-transform hover:scale-125 hover:text-ink"
+39:         >
+40:           ⓘ
+41:         </Link>
+42:         <button
+43:           type="button"
+44:           onClick={toggleFavorite}
+45:           aria-pressed={isFavorite}
+46:           aria-label={isFavorite ? t.unfavorite : t.favorite}
+47:           className={`text-base leading-none transition-transform hover:scale-125 active:scale-95 ${
+48:             isFavorite ? "" : "opacity-30 grayscale"
+49:           }`}
+50:         >
+51:           ★
+52:         </button>
+53:       </span>
+54:       <Link
+55:         href={`/session?tea=${tea.id}`}
+56:         className="group flex items-center gap-3.5 rounded-2xl border border-line bg-surface p-3.5 transition-all hover:-translate-y-0.5 hover:shadow-md hover:shadow-[var(--lift)] active:scale-[.98]"
+57:       >
+58:         <span
+59:           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full"
+60:           style={{
+61:             color: tea.liquorColor,
+62:             background: `color-mix(in srgb, ${tea.liquorColor} 16%, transparent)`,
+63:           }}
+64:         >
+65:           <TeaIcon icon={tea.icon} className="h-6 w-6" />
+66:         </span>
+67:         <span className="min-w-0 flex-1">
+68:           <span className="flex items-baseline gap-2">
+69:             <span className="font-display truncate text-[15px] font-medium">
+70:               {names.primary}
+71:             </span>
+72:             {names.secondary && (
+73:               <span className="shrink-0 text-xs text-muted">
+74:                 {names.secondary}
+75:               </span>
+76:             )}
+77:           </span>
+78:           <span className="mt-0.5 block text-xs text-muted">
+79:             {t.cardMeta(
+80:               tea.steepsSec.length,
+81:               formatSeconds(tea.steepsSec[0]),
+82:               tea.tempC,
+83:             )}
+84:           </span>
+85:         </span>
+86:         {/* Tasting-cup dot: a sip of the liquor color. */}
+87:         <span
+88:           aria-hidden
+89:           className="h-3 w-3 shrink-0 rounded-full ring-2 ring-inset ring-black/5 transition-transform group-hover:scale-125 dark:ring-white/10"
+90:           style={{ background: tea.liquorColor }}
+91:         />
+92:       </Link>
+93:     </motion.li>
+94:   );
+95: }
+</file>
+
+<file path="src/components/TeaIcon.tsx">
+ 1: import type { TeaIconKey } from "@/lib/types";
+ 2: 
+ 3: /**
+ 4:  * Hand-drawn-feel stroke icons for leaf shapes. All 24×24, stroked with
+ 5:  * currentColor so they inherit the tea's liquor color.
+ 6:  */
+ 7: const PATHS: Record<TeaIconKey, React.ReactNode> = {
+ 8:   leaf: (
+ 9:     <>
+10:       <path d="M12 20C6 16 5 9 7 4c5 1 11 4 10 11-.5 3.5-2.5 5-5 5z" />
+11:       <path d="M9.5 16.5C10.5 12 12 9 14.5 6.5" />
+12:     </>
+13:   ),
+14:   bud: (
+15:     <>
+16:       <path d="M12 21c-3.5-2-5-5.5-5-9 0-4 2.5-7 5-9 2.5 2 5 5 5 9 0 3.5-1.5 7-5 9z" />
+17:       <path d="M12 21V8" />
+18:     </>
+19:   ),
+20:   twist: (
+21:     <>
+22:       <path d="M7 3c3 3 1 6-1 9s-1 7 2 9" />
+23:       <path d="M14 3c3 3 1 6-1 9s-1 7 2 9" />
+24:     </>
+25:   ),
+26:   pearl: (
+27:     <>
+28:       <circle cx="12" cy="13" r="7" />
+29:       <path d="M12 6c1-1.5 2.5-2.5 4-3" />
+30:       <path d="M9 11c.5 2 2 3.5 4 4" />
+31:     </>
+32:   ),
+33:   strip: (
+34:     <>
+35:       <path d="M6 21C8 15 7 8 9 3" />
+36:       <path d="M12 21c2-6 1-13 3-18" />
+37:       <path d="M18 19c1.5-4.5 1-10 2.5-14" />
+38:     </>
+39:   ),
+40:   cake: (
+41:     <>
+42:       <circle cx="12" cy="12" r="9" />
+43:       <path d="M12 3a9 9 0 0 0 0 18" strokeDasharray="2 3" />
+44:       <circle cx="12" cy="12" r="2.5" />
+45:     </>
+46:   ),
+47:   brick: (
+48:     <>
+49:       <rect x="4" y="7" width="16" height="10" rx="1" />
+50:       <path d="M4 12h16M12 7v5M8 12v5M16 12v5" />
+51:     </>
+52:   ),
+53:   flower: (
+54:     <>
+55:       <circle cx="12" cy="12" r="2.5" />
+56:       <path d="M12 9.5C10 7 10 4.5 12 3c2 1.5 2 4 0 6.5zM14.5 12c2.5-2 5-2 6.5 0-1.5 2-4 2-6.5 0zM12 14.5c2 2.5 2 5 0 6.5-2-1.5-2-4 0-6.5zM9.5 12C7 14 4.5 14 3 12c1.5-2 4-2 6.5 0z" />
+57:     </>
+58:   ),
+59:   needle: (
+60:     <>
+61:       <path d="M8 21C8 14 9 7 12 3c3 4 4 11 4 18" />
+62:       <path d="M12 21V8" />
+63:     </>
+64:   ),
+65: };
+66: 
+67: export function TeaIcon({
+68:   icon,
+69:   className,
+70: }: {
+71:   icon: TeaIconKey;
+72:   className?: string;
+73: }) {
+74:   return (
+75:     <svg
+76:       viewBox="0 0 24 24"
+77:       fill="none"
+78:       stroke="currentColor"
+79:       strokeWidth="1.5"
+80:       strokeLinecap="round"
+81:       strokeLinejoin="round"
+82:       aria-hidden
+83:       className={className}
+84:     >
+85:       {PATHS[icon]}
+86:     </svg>
+87:   );
+88: }
+</file>
+
+<file path="src/components/TimerCup.tsx">
+  1: "use client";
+  2: 
+  3: /**
+  4:  * The signature element: a porcelain cup seen from above. The liquor rises
+  5:  * with a drifting wave as the steep progresses, while a hairline ring
+  6:  * counts the time down. Everything else on the screen stays quiet.
+  7:  */
+  8: 
+  9: const RING_R = 104;
+ 10: const CUP_R = 88;
+ 11: const LIQUID_R = 84;
+ 12: const CIRC = 2 * Math.PI * RING_R;
+ 13: 
+ 14: // One wave segment is 220 wide; the path repeats it so a 220px translate
+ 15: // loops seamlessly.
+ 16: const WAVE_D =
+ 17:   "M0,12 Q27.5,2 55,12 T110,12 T165,12 T220,12 T275,12 T330,12 T385,12 T440,12 V240 H0 Z";
+ 18: 
+ 19: export function TimerCup({
+ 20:   progress,
+ 21:   color,
+ 22:   ripple,
+ 23:   idle,
+ 24:   children,
+ 25: }: {
+ 26:   /** 0 → empty cup, 1 → full (elapsed fraction of the steep). */
+ 27:   progress: number;
+ 28:   color: string;
+ 29:   /** Pulse rings outward (steep just finished). */
+ 30:   ripple?: boolean;
+ 31:   /** Waiting for the first tap — gives the ring a gentle "come start me" pulse. */
+ 32:   idle?: boolean;
+ 33:   children?: React.ReactNode;
+ 34: }) {
+ 35:   const p = Math.min(1, Math.max(0, progress));
+ 36:   // Liquid surface: from just above the cup bottom to fully at the rim. The
+ 37:   // wave path (see WAVE_D) dips as low as +12 from its own reference point,
+ 38:   // so the travel distance overshoots the rim by that much — otherwise the
+ 39:   // wave's troughs leave a visible gap at 100% even though its crests reach.
+ 40:   const surfaceY = 110 + LIQUID_R - 8 - p * (2 * LIQUID_R + 8);
+ 41:   const ringOffset = CIRC * p;
+ 42: 
+ 43:   return (
+ 44:     <div className="relative mx-auto aspect-square w-full max-w-[320px]">
+ 45:       <svg viewBox="0 0 220 220" className="h-full w-full">
+ 46:         <defs>
+ 47:           <clipPath id="cup-clip">
+ 48:             <circle cx="110" cy="110" r={LIQUID_R} />
+ 49:           </clipPath>
+ 50:         </defs>
+ 51: 
+ 52:         {/* countdown ring */}
+ 53:         <circle
+ 54:           cx="110"
+ 55:           cy="110"
+ 56:           r={RING_R}
+ 57:           fill="none"
+ 58:           stroke="var(--line)"
+ 59:           strokeWidth="2"
+ 60:         />
+ 61:         <circle
+ 62:           cx="110"
+ 63:           cy="110"
+ 64:           r={RING_R}
+ 65:           fill="none"
+ 66:           stroke={color}
+ 67:           strokeWidth="3"
+ 68:           strokeLinecap="round"
+ 69:           strokeDasharray={CIRC}
+ 70:           strokeDashoffset={ringOffset}
+ 71:           transform="rotate(-90 110 110)"
+ 72:           className={idle ? "ring-idle-pulse" : undefined}
+ 73:           style={{ transition: "stroke-dashoffset 0.3s linear" }}
+ 74:         />
+ 75: 
+ 76:         {/* porcelain */}
+ 77:         <circle
+ 78:           cx="110"
+ 79:           cy="110"
+ 80:           r={CUP_R}
+ 81:           fill="var(--surface)"
+ 82:           stroke="var(--line)"
+ 83:           strokeWidth="1.5"
+ 84:         />
+ 85: 
+ 86:         {/* liquor */}
+ 87:         <g clipPath="url(#cup-clip)">
+ 88:           <g style={{ transform: `translateY(${surfaceY}px)`, transition: "transform 0.4s ease" }}>
+ 89:             <g className="wave-drift-slow">
+ 90:               <path d={WAVE_D} fill={color} opacity="0.45" />
+ 91:             </g>
+ 92:             <g className="wave-drift">
+ 93:               <path d={WAVE_D} fill={color} opacity="0.85" transform="translate(0,4)" />
+ 94:             </g>
+ 95:           </g>
+ 96:         </g>
+ 97: 
+ 98:         {/* rim highlight */}
+ 99:         <circle
+100:           cx="110"
+101:           cy="110"
+102:           r={LIQUID_R}
+103:           fill="none"
+104:           stroke="var(--bg)"
+105:           strokeWidth="3"
+106:           opacity="0.6"
+107:         />
+108:       </svg>
+109: 
+110:       {ripple && (
+111:         <>
+112:           <span
+113:             aria-hidden
+114:             className="steep-glow pointer-events-none absolute inset-[-10%] rounded-full"
+115:             style={{ background: `radial-gradient(circle, ${color}4d, transparent 70%)` }}
+116:           />
+117:           <span
+118:             aria-hidden
+119:             className="steep-ripple absolute inset-[6%] rounded-full border-2"
+120:             style={{ borderColor: color }}
+121:           />
+122:           <span
+123:             aria-hidden
+124:             className="steep-ripple absolute inset-[6%] rounded-full border-2"
+125:             style={{ borderColor: color, animationDelay: "0.8s" }}
+126:           />
+127:         </>
+128:       )}
+129: 
+130:       <div className="absolute inset-0 flex flex-col items-center justify-center">
+131:         <div className="flex flex-col items-center rounded-2xl bg-surface/70 px-5 py-2.5 text-center backdrop-blur-sm">
+132:           {children}
+133:         </div>
+134:       </div>
+135:     </div>
+136:   );
+137: }
+</file>
+
+<file path="src/lib/alerts.ts">
+ 1: export async function requestNotificationPermission(): Promise<boolean> {
+ 2:   if (typeof window === "undefined" || !("Notification" in window)) {
+ 3:     return false;
+ 4:   }
+ 5:   if (Notification.permission === "granted") return true;
+ 6:   if (Notification.permission === "denied") return false;
+ 7:   const result = await Notification.requestPermission();
+ 8:   return result === "granted";
+ 9: }
+10: 
+11: export function notifySteepDone(title: string, body: string): void {
+12:   if (typeof window === "undefined" || !("Notification" in window)) return;
+13:   if (Notification.permission !== "granted") return;
+14:   const options = { body, icon: "/icon-192.png", tag: "gongfu-steep" };
+15:   try {
+16:     new Notification(title, options);
+17:   } catch {
+18:     // Some platforms (Android) only allow notifications via the SW registration.
+19:     void navigator.serviceWorker?.ready.then((reg) =>
+20:       reg.showNotification(title, options),
+21:     );
+22:   }
+23: }
+24: 
+25: export function vibrate(): void {
+26:   if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+27:     navigator.vibrate([200, 100, 200]);
+28:   }
+29: }
+</file>
+
+<file path="src/lib/audio.ts">
+ 1: /**
+ 2:  * Synthesized meditation-bell chime via Web Audio — no asset file needed.
+ 3:  * The AudioContext is created/resumed inside a user gesture (the Start
+ 4:  * button), which satisfies autoplay policies.
+ 5:  */
+ 6: 
+ 7: let ctx: AudioContext | null = null;
+ 8: 
+ 9: export function unlockAudio(): void {
+10:   if (typeof window === "undefined") return;
+11:   if (!ctx) {
+12:     const AC =
+13:       window.AudioContext ??
+14:       (window as unknown as { webkitAudioContext?: typeof AudioContext })
+15:         .webkitAudioContext;
+16:     if (!AC) return;
+17:     ctx = new AC();
+18:   }
+19:   if (ctx.state === "suspended") void ctx.resume();
+20: }
+21: 
+22: export function playChime(): void {
+23:   if (!ctx || ctx.state !== "running") return;
+24:   const now = ctx.currentTime;
+25:   const master = ctx.createGain();
+26:   master.gain.setValueAtTime(0.5, now);
+27:   master.connect(ctx.destination);
+28: 
+29:   // A bell is a fundamental plus slightly inharmonic partials that decay
+30:   // at different rates.
+31:   const partials: Array<[freq: number, gain: number, decay: number]> = [
+32:     [523.25, 0.6, 2.8], // C5 fundamental
+33:     [1046.5, 0.25, 2.0],
+34:     [1567.98, 0.12, 1.4],
+35:     [2093.0, 0.06, 1.0],
+36:   ];
+37: 
+38:   for (const [freq, gain, decay] of partials) {
+39:     const osc = ctx.createOscillator();
+40:     const g = ctx.createGain();
+41:     osc.type = "sine";
+42:     osc.frequency.setValueAtTime(freq, now);
+43:     g.gain.setValueAtTime(0, now);
+44:     g.gain.linearRampToValueAtTime(gain, now + 0.01);
+45:     g.gain.exponentialRampToValueAtTime(0.0001, now + decay);
+46:     osc.connect(g);
+47:     g.connect(master);
+48:     osc.start(now);
+49:     osc.stop(now + decay + 0.1);
+50:   }
+51: }
+</file>
+
+<file path="src/lib/brew.test.ts">
+ 1: import { describe, expect, it } from "vitest";
+ 2: import { leafGrams } from "./brew";
+ 3: 
+ 4: describe("leafGrams", () => {
+ 5:   it("scales a tea's 100 ml ratio to the vessel size", () => {
+ 6:     expect(leafGrams(3, 100)).toBe(3);
+ 7:     expect(leafGrams(3, 150)).toBe(4.5);
+ 8:   });
+ 9: 
+10:   it("rounds to one decimal place", () => {
+11:     expect(leafGrams(5, 110)).toBe(5.5);
+12:     expect(leafGrams(3.3, 133)).toBeCloseTo(4.4, 1);
+13:   });
+14: 
+15:   it("handles a zero vessel without throwing", () => {
+16:     expect(leafGrams(5, 0)).toBe(0);
+17:   });
+18: });
+</file>
+
+<file path="src/lib/brew.ts">
+1: /** Grams of leaf for a given tea ratio and vessel size, rounded to 0.1 g. */
+2: export function leafGrams(ratioGramsPer100ml: number, vesselMl: number): number {
+3:   return Math.round((ratioGramsPer100ml * vesselMl) / 10) / 10;
+4: }
+</file>
+
+<file path="src/lib/i18n.test.ts">
+ 1: import { describe, expect, it } from "vitest";
+ 2: import { displayTeaName, teaNames } from "./i18n";
+ 3: 
+ 4: const longjing = { name: "Longjing", chineseName: "龙井" };
+ 5: const noChineseName = { name: "Grandpa's Blend" };
+ 6: 
+ 7: describe("teaNames", () => {
+ 8:   it("puts English first in en mode", () => {
+ 9:     expect(teaNames(longjing, "en")).toEqual({
+10:       primary: "Longjing",
+11:       secondary: "龙井",
+12:     });
+13:   });
+14: 
+15:   it("puts Chinese first in zh mode when available", () => {
+16:     expect(teaNames(longjing, "zh")).toEqual({
+17:       primary: "龙井",
+18:       secondary: "Longjing",
+19:     });
+20:   });
+21: 
+22:   it("falls back to the English name in zh mode when there is no Chinese name", () => {
+23:     expect(teaNames(noChineseName, "zh")).toEqual({
+24:       primary: "Grandpa's Blend",
+25:       secondary: undefined,
+26:     });
+27:   });
+28: });
+29: 
+30: describe("displayTeaName", () => {
+31:   it("re-derives the name from the live tea, flipping with language", () => {
+32:     expect(displayTeaName("Longjing", longjing, "en")).toBe("Longjing");
+33:     expect(displayTeaName("Longjing", longjing, "zh")).toBe("龙井");
+34:   });
+35: 
+36:   it("falls back to the stored snapshot when the tea no longer exists", () => {
+37:     // e.g. a stash/log entry whose custom tea profile was later deleted.
+38:     expect(displayTeaName("Deleted Custom Tea", undefined, "zh")).toBe(
+39:       "Deleted Custom Tea",
+40:     );
+41:   });
+42: });
+</file>
+
+<file path="src/lib/i18n.ts">
+  1: import type { TeaCategory, TeaProfile } from "./types";
+  2: import { CATEGORY_LABELS } from "./types";
+  3: 
+  4: export type Lang = "en" | "zh";
+  5: 
+  6: const EN = {
+  7:   // nav
+  8:   navTeas: "Teas",
+  9:   navLog: "Log",
+ 10:   navStash: "Stash",
+ 11:   navSettings: "Settings",
+ 12: 
+ 13:   // home
+ 14:   homeEyebrow: "一盏茶 · a cup's time",
+ 15:   homeTitle: "What are we steeping?",
+ 16:   searchPlaceholder: "Search teas…",
+ 17:   newTea: "New tea",
+ 18:   yourTeas: "Your teas",
+ 19:   favoritesTitle: "Favorites",
+ 20:   recentlyBrewed: "Recently brewed",
+ 21:   favorite: "Add to favorites",
+ 22:   unfavorite: "Remove from favorites",
+ 23:   continueBrewing: "Continue brewing",
+ 24:   viewDetails: "View details",
+ 25:   manage: "Manage",
+ 26:   noMatch: (q: string) =>
+ 27:     `No tea matches “${q}”. Try another name, or create it as a new tea.`,
+ 28:   cardMeta: (steeps: number, first: string, temp: number) =>
+ 29:     `${steeps} steeps · first ${first} · ${temp}°C`,
+ 30: 
+ 31:   // session
+ 32:   back: "← Back",
+ 33:   steepOf: (n: number, total: number) => `Steep ${n} of ${total}`,
+ 34:   steeping: "steeping…",
+ 35:   paused: "paused",
+ 36:   tapStart: "tap start when the water’s in",
+ 37:   pourThenStart: "pour, then start when ready",
+ 38:   pouredReady: "poured — ready for the next?",
+ 39:   startSteep: "Start steep",
+ 40:   pause: "Pause",
+ 41:   resume: "Resume",
+ 42:   nextSteep: "Next steep →",
+ 43:   skipSteep: "Skip this steep",
+ 44:   strengthChip: (x: string) => `strength ×${x}`,
+ 45:   vesselLabel: "Vessel",
+ 46:   decreaseVessel: "Smaller vessel",
+ 47:   increaseVessel: "Larger vessel",
+ 48:   decreaseGrams: "Less leaf",
+ 49:   increaseGrams: "More leaf",
+ 50:   sessionStats: (steeps: number, totalMl: number, time: string) =>
+ 51:     `${steeps} poured · ${totalMl} ml water · ${time} brewed`,
+ 52:   lastSteepTitle: "That’s the last steep",
+ 53:   lastSteepBody: (done: number, total: number) =>
+ 54:     `${done} of ${total} steeps poured. How was it?`,
+ 55:   notePlaceholder: "Tasting note — aroma, body, how many steeps it held…",
+ 56:   saveToLog: "Save to log",
+ 57:   saved: "Saved ✓",
+ 58:   done: "Done",
+ 59:   teaNotFound: "This tea isn’t on the shelf.",
+ 60:   backToTeas: "Back to teas",
+ 61: 
+ 62:   // profiles
+ 63:   shelfEyebrow: "Your teas",
+ 64:   shelfTitle: "Tea shelf",
+ 65:   shelfEmpty:
+ 66:     "No custom teas yet. Create one to set your own steep times, color, and leaf shape — then share it as a link.",
+ 67:   createFirst: "Create your first tea",
+ 68:   brew: "Brew",
+ 69:   share: "Share",
+ 70:   copied: "Copied ✓",
+ 71:   edit: "Edit",
+ 72:   del: "Delete",
+ 73:   sure: "Sure?",
+ 74:   profileMeta: (steeps: number, temp: number) => `${steeps} steeps · ${temp}°C`,
+ 75:   newTeaEyebrow: "New tea",
+ 76:   newTeaTitle: "Add to your shelf",
+ 77:   editTeaEyebrow: "Edit tea",
+ 78:   notOnShelf: "This tea isn’t on your shelf.",
+ 79:   backToShelf: "Back to your teas",
+ 80:   detailsEyebrow: "Tea details",
+ 81:   cloneAndCustomize: "Clone & customize",
+ 82: 
+ 83:   // editor
+ 84:   fName: "Name",
+ 85:   fNamePlaceholder: "Grandpa’s Tieguanyin",
+ 86:   fChineseName: "Chinese name",
+ 87:   fOptional: "(optional)",
+ 88:   fType: "Type",
+ 89:   fTemp: "Water °C",
+ 90:   fRatio: "g / 100 ml",
+ 91:   fSteeps: "Steep times, seconds",
+ 92:   steepsPreview: (n: number) => `${n} steeps: `,
+ 93:   fColor: "Liquor color",
+ 94:   fIcon: "Leaf shape",
+ 95:   fAutoAdvance: "Move to the next steep automatically after each pour",
+ 96:   errName: "Give the tea a name.",
+ 97:   errSteeps: "Add at least one steep time, in seconds — e.g. 15, 20, 30.",
+ 98:   saveTea: "Save tea",
+ 99:   cancel: "Cancel",
+100: 
+101:   // log
+102:   logEyebrow: "记 · brew log",
+103:   logTitle: "Sessions past",
+104:   logEmpty:
+105:     "No brews yet. Your sessions land here automatically — with room for a rating and a tasting note.",
+106:   pickTea: "Pick a tea",
+107:   logMeta: (done: number, total: number) => `${done}/${total} steeps`,
+108:   grams: (g: number) => `${g} g`,
+109:   addNote: "Add note",
+110:   editNote: "Edit note",
+111:   close: "Close",
+112:   save: "Save",
+113:   deleteSession: "Delete session",
+114:   shortNotePlaceholder: "Tasting note…",
+115:   totalBrewed: (time: string) => `${time} brewed`,
+116:   gramsUsedLabel: "Grams used",
+117:   steepsCompletedLabel: "Steeps completed",
+118:   favoriteLabel: "Favorite",
+119:   tagsLabel: "Tags",
+120:   tagsPlaceholder: "morning, cold day…",
+121:   steepsToggle: "steeps",
+122:   steepRow: (n: number, time: string, duration: string) =>
+123:     `Steep ${n} — ${time} · ${duration}`,
+124:   resumeSession: "Resume",
+125: 
+126:   // stash
+127:   stashEyebrow: "藏 · tea stash",
+128:   stashTitle: "What’s in the jar",
+129:   addTea: "＋ Add tea",
+130:   chooseTea: "Choose a tea…",
+131:   gramsOnHand: "Grams on hand",
+132:   addToStash: "Add to stash",
+133:   stashEmpty:
+134:     "Track the teas you own. Each brew session subtracts its leaf automatically, so you’ll know when a jar runs low.",
+135:   stashMeta: (g: number, sessions: number) =>
+136:     `${g} g left · ~${sessions} session${sessions === 1 ? "" : "s"}`,
+137:   runningLow: " — running low",
+138:   remove: "Remove",
+139: 
+140:   // settings
+141:   settingsEyebrow: "调 · settings",
+142:   settingsTitle: "To your taste",
+143:   strengthSection: "Steep strength",
+144:   strengthLabel: (x: string) => `All steep times ×${x}`,
+145:   lighter: "lighter",
+146:   stronger: "stronger",
+147:   asWritten: "as written",
+148:   lighterEnd: "lighter · 0.7×",
+149:   strongerEnd: "stronger · 1.4×",
+150:   reset: "reset",
+151:   alertsSection: "When a steep finishes",
+152:   chime: "Chime",
+153:   chimeHint: "A soft bell, made right in the browser",
+154:   notification: "Notification",
+155:   notificationHint: "Reaches you even when the tab is in the background",
+156:   vibration: "Vibration",
+157:   vibrationHint: "On phones that support it",
+158:   brewingSection: "While brewing",
+159:   keepAwake: "Keep the screen awake",
+160:   keepAwakeHint: "So the timer stays visible mid-steep",
+161:   appearanceSection: "Appearance",
+162:   themeSystem: "System",
+163:   themeLight: "Light",
+164:   themeDark: "Dark",
+165:   languageSection: "Language · 语言",
+166:   profilesSection: "Your tea profiles",
+167:   exportJson: "Export as JSON",
+168:   importJson: "Import JSON",
+169: 
+170:   // import page
+171:   importEyebrow: "A tea, shared with you",
+172:   importMeta: (steeps: number) => `${steeps} steeps: `,
+173:   addToShelf: "Add to my shelf",
+174:   added: "Added ✓",
+175:   noThanks: "No thanks",
+176:   badLink: "This share link is missing or malformed — ask for a fresh one.",
+177: 
+178:   // alerts
+179:   steepDoneTitle: (tea: string, n: number) => `${tea} — steep ${n} done`,
+180:   steepDoneBody: "Time to pour 🫖",
+181: };
+182: 
+183: const ZH: typeof EN = {
+184:   navTeas: "茶",
+185:   navLog: "记录",
+186:   navStash: "茶仓",
+187:   navSettings: "设置",
+188: 
+189:   homeEyebrow: "一盏茶 · a cup's time",
+190:   homeTitle: "今天泡什么茶？",
+191:   searchPlaceholder: "搜索茶叶…",
+192:   newTea: "添加茶",
+193:   yourTeas: "我的茶",
+194:   favoritesTitle: "收藏",
+195:   recentlyBrewed: "最近冲泡",
+196:   favorite: "加入收藏",
+197:   unfavorite: "移出收藏",
+198:   continueBrewing: "继续冲泡",
+199:   viewDetails: "查看详情",
+200:   manage: "管理",
+201:   noMatch: (q) => `没有找到「${q}」。换个名字试试，或者自己创建一款。`,
+202:   cardMeta: (steeps, first, temp) => `${steeps} 泡 · 首泡 ${first} · ${temp}°C`,
+203: 
+204:   back: "← 返回",
+205:   steepOf: (n, total) => `第 ${n} 泡 · 共 ${total} 泡`,
+206:   steeping: "冲泡中…",
+207:   paused: "已暂停",
+208:   tapStart: "注水后点击开始",
+209:   pourThenStart: "出汤后，准备好再开始",
+210:   pouredReady: "已出汤——继续下一泡？",
+211:   startSteep: "开始冲泡",
+212:   pause: "暂停",
+213:   resume: "继续",
+214:   nextSteep: "下一泡 →",
+215:   skipSteep: "跳过这一泡",
+216:   strengthChip: (x) => `浓度 ×${x}`,
+217:   vesselLabel: "容量",
+218:   decreaseVessel: "减少容量",
+219:   increaseVessel: "增加容量",
+220:   decreaseGrams: "减少茶叶",
+221:   increaseGrams: "增加茶叶",
+222:   sessionStats: (steeps, totalMl, time) =>
+223:     `已出汤 ${steeps} 次 · 共 ${totalMl} 毫升水 · 冲泡 ${time}`,
+224:   lastSteepTitle: "最后一泡结束了",
+225:   lastSteepBody: (done, total) => `共泡了 ${done}/${total} 泡。味道如何？`,
+226:   notePlaceholder: "品茶笔记——香气、滋味、耐泡度…",
+227:   saveToLog: "保存到记录",
+228:   saved: "已保存 ✓",
+229:   done: "完成",
+230:   teaNotFound: "茶架上没有这款茶。",
+231:   backToTeas: "返回茶架",
+232: 
+233:   shelfEyebrow: "我的茶",
+234:   shelfTitle: "茶架",
+235:   shelfEmpty:
+236:     "还没有自定义的茶。创建一款，设置自己的冲泡时间、汤色和叶形——还能用链接分享给朋友。",
+237:   createFirst: "创建第一款茶",
+238:   brew: "冲泡",
+239:   share: "分享",
+240:   copied: "已复制 ✓",
+241:   edit: "编辑",
+242:   del: "删除",
+243:   sure: "确定？",
+244:   profileMeta: (steeps, temp) => `${steeps} 泡 · ${temp}°C`,
+245:   newTeaEyebrow: "添加茶",
+246:   newTeaTitle: "放上茶架",
+247:   editTeaEyebrow: "编辑茶",
+248:   notOnShelf: "你的茶架上没有这款茶。",
+249:   backToShelf: "返回我的茶",
+250:   detailsEyebrow: "茶叶详情",
+251:   cloneAndCustomize: "复制并自定义",
+252: 
+253:   fName: "名称",
+254:   fNamePlaceholder: "爷爷的铁观音",
+255:   fChineseName: "英文名",
+256:   fOptional: "（可选）",
+257:   fType: "类别",
+258:   fTemp: "水温 °C",
+259:   fRatio: "克 / 100 毫升",
+260:   fSteeps: "每泡时间（秒）",
+261:   steepsPreview: (n) => `${n} 泡：`,
+262:   fColor: "汤色",
+263:   fIcon: "叶形",
+264:   fAutoAdvance: "每泡结束后自动进入下一泡",
+265:   errName: "给茶起个名字。",
+266:   errSteeps: "至少填一个冲泡时间（秒），例如 15, 20, 30。",
+267:   saveTea: "保存",
+268:   cancel: "取消",
+269: 
+270:   logEyebrow: "记 · 泡茶记录",
+271:   logTitle: "过往茶席",
+272:   logEmpty: "还没有记录。每次泡茶会自动记在这里——可以打分、写品茶笔记。",
+273:   pickTea: "选一款茶",
+274:   logMeta: (done, total) => `${done}/${total} 泡`,
+275:   grams: (g) => `${g} 克`,
+276:   addNote: "写笔记",
+277:   editNote: "编辑笔记",
+278:   close: "收起",
+279:   save: "保存",
+280:   deleteSession: "删除记录",
+281:   shortNotePlaceholder: "品茶笔记…",
+282:   totalBrewed: (time) => `冲泡 ${time}`,
+283:   gramsUsedLabel: "用茶量（克）",
+284:   steepsCompletedLabel: "已泡次数",
+285:   favoriteLabel: "收藏",
+286:   tagsLabel: "标签",
+287:   tagsPlaceholder: "早晨，冷天…",
+288:   steepsToggle: "泡数",
+289:   steepRow: (n, time, duration) => `第 ${n} 泡 — ${time} · ${duration}`,
+290:   resumeSession: "继续",
+291: 
+292:   stashEyebrow: "藏 · 茶仓",
+293:   stashTitle: "罐子里还有什么",
+294:   addTea: "＋ 添加茶",
+295:   chooseTea: "选择茶叶…",
+296:   gramsOnHand: "现有克数",
+297:   addToStash: "放入茶仓",
+298:   stashEmpty: "记录你手上的茶。每泡一次自动扣掉用量，快喝完时提醒你。",
+299:   stashMeta: (g, sessions) => `剩 ${g} 克 · 约 ${sessions} 次`,
+300:   runningLow: "——快喝完了",
+301:   remove: "移除",
+302: 
+303:   settingsEyebrow: "调 · 设置",
+304:   settingsTitle: "随你口味",
+305:   strengthSection: "冲泡浓度",
+306:   strengthLabel: (x) => `所有时间 ×${x}`,
+307:   lighter: "更淡",
+308:   stronger: "更浓",
+309:   asWritten: "原方",
+310:   lighterEnd: "更淡 · 0.7×",
+311:   strongerEnd: "更浓 · 1.4×",
+312:   reset: "重置",
+313:   alertsSection: "每泡结束时",
+314:   chime: "铃声",
+315:   chimeHint: "浏览器合成的一声轻钟",
+316:   notification: "通知",
+317:   notificationHint: "标签页在后台也能提醒你",
+318:   vibration: "震动",
+319:   vibrationHint: "在支持的手机上",
+320:   brewingSection: "泡茶时",
+321:   keepAwake: "保持屏幕常亮",
+322:   keepAwakeHint: "冲泡中计时一直可见",
+323:   appearanceSection: "外观",
+324:   themeSystem: "跟随系统",
+325:   themeLight: "浅色",
+326:   themeDark: "深色",
+327:   languageSection: "Language · 语言",
+328:   profilesSection: "自定义茶",
+329:   exportJson: "导出 JSON",
+330:   importJson: "导入 JSON",
+331: 
+332:   importEyebrow: "朋友分享给你的茶",
+333:   importMeta: (steeps) => `${steeps} 泡：`,
+334:   addToShelf: "加入我的茶架",
+335:   added: "已添加 ✓",
+336:   noThanks: "先不用",
+337:   badLink: "分享链接缺失或已损坏——请再要一个新的。",
+338: 
+339:   steepDoneTitle: (tea, n) => `${tea}——第 ${n} 泡好了`,
+340:   steepDoneBody: "该出汤了 🫖",
+341: };
+342: 
+343: export const STRINGS: Record<Lang, typeof EN> = { en: EN, zh: ZH };
+344: 
+345: const CATEGORY_LABELS_ZH: Record<TeaCategory, string> = {
+346:   green: "绿茶",
+347:   white: "白茶",
+348:   yellow: "黄茶",
+349:   "oolong-light": "清香乌龙",
+350:   "oolong-dark": "浓香乌龙",
+351:   black: "红茶",
+352:   "puer-sheng": "生普洱",
+353:   "puer-shou": "熟普洱",
+354:   heicha: "黑茶",
+355:   herbal: "花草茶",
+356: };
+357: 
+358: export function categoryLabel(cat: TeaCategory, lang: Lang): string {
+359:   return lang === "zh" ? CATEGORY_LABELS_ZH[cat] : CATEGORY_LABELS[cat];
+360: }
+361: 
+362: /** Primary/secondary name flips in Chinese mode. */
+363: export function teaNames(
+364:   tea: Pick<TeaProfile, "name" | "chineseName">,
+365:   lang: Lang,
+366: ): { primary: string; secondary?: string } {
+367:   if (lang === "zh" && tea.chineseName) {
+368:     return { primary: tea.chineseName, secondary: tea.name };
+369:   }
+370:   return { primary: tea.name, secondary: tea.chineseName };
+371: }
+372: 
+373: export function dateLocale(lang: Lang): string | undefined {
+374:   return lang === "zh" ? "zh-CN" : undefined;
+375: }
+376: 
+377: /**
+378:  * Log/stash entries store an English name snapshot at creation time (so the
+379:  * entry still reads sensibly if the tea is later deleted). When the tea still
+380:  * exists, re-derive the name live so it flips with the language toggle;
+381:  * otherwise fall back to the snapshot.
+382:  */
+383: export function displayTeaName(
+384:   storedName: string,
+385:   tea: Pick<TeaProfile, "name" | "chineseName"> | undefined,
+386:   lang: Lang,
+387: ): string {
+388:   return tea ? teaNames(tea, lang).primary : storedName;
+389: }
+</file>
+
+<file path="src/lib/repo.ts">
+ 1: import type {
+ 2:   ActiveSession,
+ 3:   BrewSession,
+ 4:   Settings,
+ 5:   StashItem,
+ 6:   TeaProfile,
+ 7: } from "./types";
+ 8: 
+ 9: /**
+10:  * Persistence boundary. Everything below the stores goes through a Repo so a
+11:  * backend implementation can replace LocalStorageRepo without touching UI.
+12:  */
+13: export interface Repo<T> {
+14:   load(): T | null;
+15:   save(value: T): void;
+16: }
+17: 
+18: class LocalStorageRepo<T> implements Repo<T> {
+19:   constructor(private key: string) {}
+20: 
+21:   load(): T | null {
+22:     if (typeof window === "undefined") return null;
+23:     try {
+24:       const raw = window.localStorage.getItem(this.key);
+25:       return raw ? (JSON.parse(raw) as T) : null;
+26:     } catch {
+27:       return null;
+28:     }
+29:   }
+30: 
+31:   save(value: T): void {
+32:     if (typeof window === "undefined") return;
+33:     try {
+34:       window.localStorage.setItem(this.key, JSON.stringify(value));
+35:     } catch {
+36:       // storage full or blocked — fail quietly, app still works in-memory
+37:     }
+38:   }
+39: }
+40: 
+41: const PREFIX = "gongfu.";
+42: 
+43: export const profilesRepo: Repo<TeaProfile[]> = new LocalStorageRepo(
+44:   `${PREFIX}profiles`,
+45: );
+46: export const logRepo: Repo<BrewSession[]> = new LocalStorageRepo(
+47:   `${PREFIX}log`,
+48: );
+49: export const stashRepo: Repo<StashItem[]> = new LocalStorageRepo(
+50:   `${PREFIX}stash`,
+51: );
+52: export const settingsRepo: Repo<Settings> = new LocalStorageRepo(
+53:   `${PREFIX}settings`,
+54: );
+55: /** One entry per unfinished brew — lets several sessions stay resumable at once. */
+56: export const activeSessionsRepo: Repo<ActiveSession[]> = new LocalStorageRepo(
+57:   `${PREFIX}activeSessions`,
+58: );
+</file>
+
+<file path="src/lib/share.ts">
+ 1: import type { TeaCategory, TeaIconKey, TeaProfile } from "./types";
+ 2: import { CATEGORY_LABELS } from "./types";
+ 3: 
+ 4: /**
+ 5:  * Encode/decode a custom profile into a URL-safe string so profiles can be
+ 6:  * shared as links with no backend.
+ 7:  */
+ 8: 
+ 9: function toBase64Url(s: string): string {
+10:   const b64 =
+11:     typeof window !== "undefined"
+12:       ? window.btoa(unescape(encodeURIComponent(s)))
+13:       : Buffer.from(s, "utf8").toString("base64");
+14:   return b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+15: }
+16: 
+17: function fromBase64Url(s: string): string {
+18:   const b64 = s.replace(/-/g, "+").replace(/_/g, "/");
+19:   return typeof window !== "undefined"
+20:     ? decodeURIComponent(escape(window.atob(b64)))
+21:     : Buffer.from(b64, "base64").toString("utf8");
+22: }
+23: 
+24: export function encodeProfile(p: TeaProfile): string {
+25:   const compact = {
+26:     n: p.name,
+27:     cn: p.chineseName,
+28:     c: p.category,
+29:     lc: p.liquorColor,
+30:     i: p.icon,
+31:     t: p.tempC,
+32:     r: p.ratioGramsPer100ml,
+33:     s: p.steepsSec,
+34:     a: p.autoAdvance ? 1 : 0,
+35:     d: p.description,
+36:   };
+37:   return toBase64Url(JSON.stringify(compact));
+38: }
+39: 
+40: const ICON_KEYS: TeaIconKey[] = [
+41:   "leaf",
+42:   "bud",
+43:   "twist",
+44:   "pearl",
+45:   "strip",
+46:   "cake",
+47:   "brick",
+48:   "flower",
+49:   "needle",
+50: ];
+51: 
+52: export function decodeProfile(encoded: string): TeaProfile | null {
+53:   try {
+54:     const raw = JSON.parse(fromBase64Url(encoded)) as Record<string, unknown>;
+55:     const name = typeof raw.n === "string" ? raw.n.slice(0, 60) : null;
+56:     const category =
+57:       typeof raw.c === "string" && raw.c in CATEGORY_LABELS
+58:         ? (raw.c as TeaCategory)
+59:         : null;
+60:     const steeps = Array.isArray(raw.s)
+61:       ? raw.s
+62:           .filter((x): x is number => typeof x === "number" && isFinite(x))
+63:           .map((x) => Math.min(3600, Math.max(1, Math.round(x))))
+64:       : null;
+65:     if (!name || !category || !steeps || steeps.length === 0) return null;
+66: 
+67:     return {
+68:       id: `custom-${Date.now().toString(36)}`,
+69:       name,
+70:       chineseName:
+71:         typeof raw.cn === "string" ? raw.cn.slice(0, 30) : undefined,
+72:       category,
+73:       liquorColor:
+74:         typeof raw.lc === "string" && /^#[0-9a-fA-F]{6}$/.test(raw.lc)
+75:           ? raw.lc
+76:           : "#c8a25e",
+77:       icon: ICON_KEYS.includes(raw.i as TeaIconKey)
+78:         ? (raw.i as TeaIconKey)
+79:         : "leaf",
+80:       tempC:
+81:         typeof raw.t === "number" ? Math.min(100, Math.max(40, raw.t)) : 95,
+82:       ratioGramsPer100ml:
+83:         typeof raw.r === "number" ? Math.min(20, Math.max(0.5, raw.r)) : 5,
+84:       steepsSec: steeps.slice(0, 20),
+85:       autoAdvance: raw.a !== 0,
+86:       description:
+87:         typeof raw.d === "string" ? raw.d.slice(0, 200) : undefined,
+88:       custom: true,
+89:     };
+90:   } catch {
+91:     return null;
+92:   }
+93: }
+</file>
+
+<file path="src/lib/teas.ts">
+  1: import type { TeaProfile } from "./types";
+  2: 
+  3: export const PRESET_TEAS: TeaProfile[] = [
+  4:   // ─── Green ───
+  5:   {
+  6:     id: "longjing",
+  7:     name: "Longjing",
+  8:     chineseName: "龙井",
+  9:     category: "green",
+ 10:     liquorColor: "#c8d96b",
+ 11:     icon: "leaf",
+ 12:     tempC: 80,
+ 13:     ratioGramsPer100ml: 3,
+ 14:     steepsSec: [15, 20, 30, 45, 60, 90],
+ 15:     autoAdvance: true,
+ 16:     description: "Dragon Well — pan-fired, chestnutty, flat jade leaves.",
+ 17:   },
+ 18:   {
+ 19:     id: "biluochun",
+ 20:     name: "Bi Luo Chun",
+ 21:     chineseName: "碧螺春",
+ 22:     category: "green",
+ 23:     liquorColor: "#bcd25e",
+ 24:     icon: "twist",
+ 25:     tempC: 80,
+ 26:     ratioGramsPer100ml: 3,
+ 27:     steepsSec: [12, 18, 25, 40, 60, 85],
+ 28:     autoAdvance: true,
+ 29:     description: "Green Snail Spring — downy spirals, fruity and floral.",
+ 30:   },
+ 31:   {
+ 32:     id: "maofeng",
+ 33:     name: "Huangshan Maofeng",
+ 34:     chineseName: "黄山毛峰",
+ 35:     category: "green",
+ 36:     liquorColor: "#d3dc7e",
+ 37:     icon: "bud",
+ 38:     tempC: 80,
+ 39:     ratioGramsPer100ml: 3,
+ 40:     steepsSec: [15, 20, 30, 45, 70, 100],
+ 41:     autoAdvance: true,
+ 42:     description: "Yellow Mountain Fur Peak — orchid aroma, sweet finish.",
+ 43:   },
+ 44:   {
+ 45:     id: "anjibaicha",
+ 46:     name: "Anji Bai Cha",
+ 47:     chineseName: "安吉白茶",
+ 48:     category: "green",
+ 49:     liquorColor: "#dde4a4",
+ 50:     icon: "needle",
+ 51:     tempC: 80,
+ 52:     ratioGramsPer100ml: 3,
+ 53:     steepsSec: [15, 20, 30, 45, 65],
+ 54:     autoAdvance: true,
+ 55:     description: "A green tea despite the name — pale, umami, spring grass.",
+ 56:   },
+ 57: 
+ 58:   // ─── Yellow ───
+ 59:   {
+ 60:     id: "junshan",
+ 61:     name: "Junshan Yinzhen",
+ 62:     chineseName: "君山银针",
+ 63:     category: "yellow",
+ 64:     liquorColor: "#e3d370",
+ 65:     icon: "needle",
+ 66:     tempC: 80,
+ 67:     ratioGramsPer100ml: 3,
+ 68:     steepsSec: [20, 30, 45, 60, 90],
+ 69:     autoAdvance: true,
+ 70:     description: "Rare yellow tea — mellow, sweet corn, smooth.",
+ 71:   },
+ 72: 
+ 73:   // ─── White ───
+ 74:   {
+ 75:     id: "silverneedle",
+ 76:     name: "Silver Needle",
+ 77:     chineseName: "白毫银针",
+ 78:     category: "white",
+ 79:     liquorColor: "#ecdc9a",
+ 80:     icon: "needle",
+ 81:     tempC: 85,
+ 82:     ratioGramsPer100ml: 4.5,
+ 83:     steepsSec: [30, 40, 45, 60, 90, 120, 150],
+ 84:     autoAdvance: true,
+ 85:     description: "Downy buds only — delicate, melon, honeysuckle.",
+ 86:   },
+ 87:   {
+ 88:     id: "baimudan",
+ 89:     name: "White Peony",
+ 90:     chineseName: "白牡丹",
+ 91:     category: "white",
+ 92:     liquorColor: "#e8d284",
+ 93:     icon: "bud",
+ 94:     tempC: 85,
+ 95:     ratioGramsPer100ml: 3.5,
+ 96:     steepsSec: [15, 25, 40, 55, 80, 110, 140],
+ 97:     autoAdvance: true,
+ 98:     description: "Bai Mudan — buds and leaves, fuller and fruitier.",
+ 99:   },
+100:   {
+101:     id: "shoumei",
+102:     name: "Shou Mei",
+103:     chineseName: "寿眉",
+104:     category: "white",
+105:     liquorColor: "#dbb45f",
+106:     icon: "leaf",
+107:     tempC: 90,
+108:     ratioGramsPer100ml: 4,
+109:     steepsSec: [15, 25, 40, 60, 90, 120, 160],
+110:     autoAdvance: true,
+111:     description: "Rustic aged-friendly white — dates, hay, honey.",
+112:   },
+113: 
+114:   // ─── Light Oolong ───
+115:   {
+116:     id: "tieguanyin",
+117:     name: "Tieguanyin",
+118:     chineseName: "铁观音",
+119:     category: "oolong-light",
+120:     liquorColor: "#cfd66a",
+121:     icon: "pearl",
+122:     tempC: 95,
+123:     ratioGramsPer100ml: 5.5,
+124:     steepsSec: [15, 20, 25, 35, 45, 60, 90, 120],
+125:     autoAdvance: true,
+126:     description: "Iron Goddess — rolled jade pearls, lilac and cream.",
+127:   },
+128:   {
+129:     id: "gaoshan",
+130:     name: "High Mountain Oolong",
+131:     chineseName: "高山茶",
+132:     category: "oolong-light",
+133:     liquorColor: "#d8dd7d",
+134:     icon: "pearl",
+135:     tempC: 95,
+136:     ratioGramsPer100ml: 5.5,
+137:     steepsSec: [15, 20, 25, 35, 50, 70, 100, 130],
+138:     autoAdvance: true,
+139:     description: "Taiwan high mountain — alpine air, butter, gardenia.",
+140:   },
+141:   {
+142:     id: "baozhong",
+143:     name: "Baozhong",
+144:     chineseName: "包种",
+145:     category: "oolong-light",
+146:     liquorColor: "#d4d874",
+147:     icon: "twist",
+148:     tempC: 90,
+149:     ratioGramsPer100ml: 5,
+150:     steepsSec: [20, 25, 35, 45, 60, 90, 120],
+151:     autoAdvance: true,
+152:     description: "Barely-oxidized strips — lilac, fresh and green.",
+153:   },
+154: 
+155:   // ─── Dark Oolong ───
+156:   {
+157:     id: "dahongpao",
+158:     name: "Da Hong Pao",
+159:     chineseName: "大红袍",
+160:     category: "oolong-dark",
+161:     liquorColor: "#c07a2e",
+162:     icon: "strip",
+163:     tempC: 99,
+164:     ratioGramsPer100ml: 6,
+165:     steepsSec: [10, 15, 20, 30, 45, 60, 90, 120],
+166:     autoAdvance: true,
+167:     description: "Big Red Robe — Wuyi rock oolong, roast and minerals.",
+168:   },
+169:   {
+170:     id: "rougui",
+171:     name: "Rou Gui",
+172:     chineseName: "肉桂",
+173:     category: "oolong-dark",
+174:     liquorColor: "#b96f28",
+175:     icon: "strip",
+176:     tempC: 99,
+177:     ratioGramsPer100ml: 6,
+178:     steepsSec: [10, 15, 20, 30, 45, 60, 90, 120],
+179:     autoAdvance: true,
+180:     description: "Cassia rock oolong — cinnamon spice, stone fruit.",
+181:   },
+182:   {
+183:     id: "shuixian",
+184:     name: "Shui Xian",
+185:     chineseName: "水仙",
+186:     category: "oolong-dark",
+187:     liquorColor: "#c4832f",
+188:     icon: "strip",
+189:     tempC: 99,
+190:     ratioGramsPer100ml: 6,
+191:     steepsSec: [10, 15, 22, 32, 45, 65, 90, 120],
+192:     autoAdvance: true,
+193:     description: "Narcissus — old-bush depth, orchid and wet stone.",
+194:   },
+195:   {
+196:     id: "dancong",
+197:     name: "Fenghuang Dancong",
+198:     chineseName: "凤凰单丛",
+199:     category: "oolong-dark",
+200:     liquorColor: "#d1912f",
+201:     icon: "twist",
+202:     tempC: 99,
+203:     ratioGramsPer100ml: 6,
+204:     steepsSec: [8, 12, 18, 25, 35, 50, 70, 95, 120],
+205:     autoAdvance: true,
+206:     description: "Phoenix single-bush — honey orchid, famously aromatic.",
+207:   },
+208:   {
+209:     id: "dongding",
+210:     name: "Dong Ding",
+211:     chineseName: "冻顶",
+212:     category: "oolong-dark",
+213:     liquorColor: "#c98f3a",
+214:     icon: "pearl",
+215:     tempC: 95,
+216:     ratioGramsPer100ml: 5.5,
+217:     steepsSec: [15, 20, 28, 38, 55, 75, 105],
+218:     autoAdvance: true,
+219:     description: "Classic roasted Taiwan ball oolong — toasty, sweet.",
+220:   },
+221: 
+222:   // ─── Black / Red ───
+223:   {
+224:     id: "jinjunmei",
+225:     name: "Jin Jun Mei",
+226:     chineseName: "金骏眉",
+227:     category: "black",
+228:     liquorColor: "#c1651f",
+229:     icon: "bud",
+230:     tempC: 90,
+231:     ratioGramsPer100ml: 4.5,
+232:     steepsSec: [10, 15, 20, 30, 45, 60, 90],
+233:     autoAdvance: true,
+234:     description: "Golden Beautiful Eyebrow — bud-only, honey and cocoa.",
+235:   },
+236:   {
+237:     id: "keemun",
+238:     name: "Keemun",
+239:     chineseName: "祁门红茶",
+240:     category: "black",
+241:     liquorColor: "#a94e1c",
+242:     icon: "strip",
+243:     tempC: 95,
+244:     ratioGramsPer100ml: 4.5,
+245:     steepsSec: [10, 15, 22, 32, 45, 65, 90],
+246:     autoAdvance: true,
+247:     description: "Qimen hongcha — winey, orchid, gentle smoke.",
+248:   },
+249:   {
+250:     id: "dianhong",
+251:     name: "Dianhong",
+252:     chineseName: "滇红",
+253:     category: "black",
+254:     liquorColor: "#b85a1b",
+255:     icon: "bud",
+256:     tempC: 92,
+257:     ratioGramsPer100ml: 4.5,
+258:     steepsSec: [10, 15, 20, 30, 45, 65, 90],
+259:     autoAdvance: true,
+260:     description: "Yunnan red — golden tips, malt, sweet potato.",
+261:   },
+262:   {
+263:     id: "lapsang",
+264:     name: "Lapsang Souchong",
+265:     chineseName: "正山小种",
+266:     category: "black",
+267:     liquorColor: "#9e4a1e",
+268:     icon: "strip",
+269:     tempC: 95,
+270:     ratioGramsPer100ml: 4.5,
+271:     steepsSec: [10, 15, 22, 32, 48, 70, 95],
+272:     autoAdvance: true,
+273:     description: "Pinewood-dried original black tea — longan, campfire.",
+274:   },
+275: 
+276:   // ─── Pu-erh ───
+277:   {
+278:     id: "shengpuer-young",
+279:     name: "Young Sheng Pu-erh",
+280:     chineseName: "生普洱（新）",
+281:     category: "puer-sheng",
+282:     liquorColor: "#d6b545",
+283:     icon: "cake",
+284:     tempC: 95,
+285:     ratioGramsPer100ml: 6.5,
+286:     steepsSec: [10, 12, 15, 20, 30, 45, 60, 90, 120, 180],
+287:     autoAdvance: true,
+288:     description: "Raw and lively — bitter-sweet, apricot, huigan.",
+289:   },
+290:   {
+291:     id: "shengpuer-aged",
+292:     name: "Aged Sheng Pu-erh",
+293:     chineseName: "生普洱（老）",
+294:     category: "puer-sheng",
+295:     liquorColor: "#b97e2c",
+296:     icon: "cake",
+297:     tempC: 99,
+298:     ratioGramsPer100ml: 6.5,
+299:     steepsSec: [10, 15, 20, 30, 45, 60, 90, 120, 180, 240],
+300:     autoAdvance: true,
+301:     description: "Time-softened sheng — camphor, dried fruit, depth.",
+302:   },
+303:   {
+304:     id: "shoupuer",
+305:     name: "Shou Pu-erh",
+306:     chineseName: "熟普洱",
+307:     category: "puer-shou",
+308:     liquorColor: "#6e3a1a",
+309:     icon: "cake",
+310:     tempC: 100,
+311:     ratioGramsPer100ml: 6.5,
+312:     steepsSec: [10, 12, 18, 25, 40, 60, 90, 120, 180],
+313:     autoAdvance: true,
+314:     description: "Ripe pu-erh — earthy, smooth, dark chocolate.",
+315:   },
+316: 
+317:   // ─── Heicha ───
+318:   {
+319:     id: "liubao",
+320:     name: "Liu Bao",
+321:     chineseName: "六堡茶",
+322:     category: "heicha",
+323:     liquorColor: "#7c4620",
+324:     icon: "brick",
+325:     tempC: 100,
+326:     ratioGramsPer100ml: 6.5,
+327:     steepsSec: [10, 15, 20, 30, 45, 70, 100, 150],
+328:     autoAdvance: true,
+329:     description: "Guangxi dark tea — betel nut, cellar, mellow.",
+330:   },
+331: 
+332:   // ─── Herbal ───
+333:   {
+334:     id: "chrysanthemum",
+335:     name: "Chrysanthemum",
+336:     chineseName: "菊花茶",
+337:     category: "herbal",
+338:     liquorColor: "#e9d780",
+339:     icon: "flower",
+340:     tempC: 95,
+341:     ratioGramsPer100ml: 2,
+342:     steepsSec: [30, 45, 60, 120, 180],
+343:     autoAdvance: true,
+344:     description: "Whole dried blossoms — cooling, honeyed, caffeine-free.",
+345:   },
+346: ];
+347: 
+348: export function getPresetTea(id: string): TeaProfile | undefined {
+349:   return PRESET_TEAS.find((t) => t.id === id);
+350: }
+</file>
+
+<file path="src/lib/timer.test.ts">
+ 1: import { describe, expect, it } from "vitest";
+ 2: import {
+ 3:   idleTimer,
+ 4:   isExpired,
+ 5:   remainingMs,
+ 6:   scaledSteepMs,
+ 7:   startTimer,
+ 8: } from "./timer";
+ 9: 
+10: describe("scaledSteepMs", () => {
+11:   it("applies the strength multiplier and converts to ms", () => {
+12:     expect(scaledSteepMs(20, 1)).toBe(20_000);
+13:     expect(scaledSteepMs(20, 1.5)).toBe(30_000);
+14:   });
+15: 
+16:   it("never goes below 1 second, even at the lightest strength", () => {
+17:     expect(scaledSteepMs(1, 0.1)).toBe(1000);
+18:   });
+19: });
+20: 
+21: describe("remainingMs / isExpired", () => {
+22:   it("counts down from a running timer using timestamps, not ticks", () => {
+23:     const now = 1_000_000;
+24:     const t = startTimer(idleTimer(10_000), now);
+25:     expect(remainingMs(t, now + 4_000)).toBe(6_000);
+26:     expect(isExpired(t, now + 4_000)).toBe(false);
+27:     expect(isExpired(t, now + 10_000)).toBe(true);
+28:   });
+29: 
+30:   it("reports zero once past the deadline", () => {
+31:     const now = 0;
+32:     const t = startTimer(idleTimer(5_000), now);
+33:     expect(remainingMs(t, now + 9_999_999)).toBe(0);
+34:   });
+35: });
+</file>
+
+<file path="src/lib/timer.ts">
+ 1: export type TimerStatus = "idle" | "running" | "paused" | "done";
+ 2: 
+ 3: export interface TimerState {
+ 4:   status: TimerStatus;
+ 5:   /** Epoch ms when the running steep ends. Only meaningful while running. */
+ 6:   endsAt: number | null;
+ 7:   /** Ms left while idle/paused; snapshot taken on pause. */
+ 8:   remainingMs: number;
+ 9:   /** Full duration of the current steep in ms (after strength/nudges). */
+10:   durationMs: number;
+11: }
+12: 
+13: export function idleTimer(durationMs: number): TimerState {
+14:   return { status: "idle", endsAt: null, remainingMs: durationMs, durationMs };
+15: }
+16: 
+17: export function startTimer(t: TimerState, now = Date.now()): TimerState {
+18:   if (t.status === "running" || t.status === "done") return t;
+19:   return { ...t, status: "running", endsAt: now + t.remainingMs };
+20: }
+21: 
+22: export function pauseTimer(t: TimerState, now = Date.now()): TimerState {
+23:   if (t.status !== "running" || t.endsAt === null) return t;
+24:   return {
+25:     ...t,
+26:     status: "paused",
+27:     endsAt: null,
+28:     remainingMs: Math.max(0, t.endsAt - now),
+29:   };
+30: }
+31: 
+32: /** Ms remaining right now, whatever the status. */
+33: export function remainingMs(t: TimerState, now = Date.now()): number {
+34:   if (t.status === "running" && t.endsAt !== null) {
+35:     return Math.max(0, t.endsAt - now);
+36:   }
+37:   if (t.status === "done") return 0;
+38:   return t.remainingMs;
+39: }
+40: 
+41: export function isExpired(t: TimerState, now = Date.now()): boolean {
+42:   return t.status === "running" && t.endsAt !== null && now >= t.endsAt;
+43: }
+44: 
+45: /** ±deltaMs on the current steep. Works running or paused; clamps at 1s. */
+46: export function nudgeTimer(
+47:   t: TimerState,
+48:   deltaMs: number,
+49:   now = Date.now(),
+50: ): TimerState {
+51:   const MIN = 1000;
+52:   if (t.status === "running" && t.endsAt !== null) {
+53:     const left = Math.max(MIN, t.endsAt - now + deltaMs);
+54:     return {
+55:       ...t,
+56:       endsAt: now + left,
+57:       durationMs: Math.max(MIN, t.durationMs + deltaMs),
+58:     };
+59:   }
+60:   if (t.status === "idle" || t.status === "paused") {
+61:     const left = Math.max(MIN, t.remainingMs + deltaMs);
+62:     return {
+63:       ...t,
+64:       remainingMs: left,
+65:       durationMs: Math.max(MIN, t.durationMs + deltaMs),
+66:     };
+67:   }
+68:   return t;
+69: }
+70: 
+71: export function finishTimer(t: TimerState): TimerState {
+72:   return { ...t, status: "done", endsAt: null, remainingMs: 0 };
+73: }
+74: 
+75: /** Apply the global strength multiplier to a steep's base seconds. */
+76: export function scaledSteepMs(baseSec: number, strength: number): number {
+77:   return Math.max(1000, Math.round(baseSec * strength) * 1000);
+78: }
+79: 
+80: /** "1:05" / "0:42" style display. */
+81: export function formatSeconds(totalSec: number): string {
+82:   const s = Math.max(0, Math.ceil(totalSec));
+83:   const m = Math.floor(s / 60);
+84:   const r = s % 60;
+85:   return `${m}:${r.toString().padStart(2, "0")}`;
+86: }
+87: 
+88: export function formatMs(ms: number): string {
+89:   return formatSeconds(ms / 1000);
+90: }
+</file>
+
+<file path="src/lib/types.ts">
+  1: import type { TimerState } from "./timer";
+  2: 
+  3: export type TeaCategory =
+  4:   | "green"
+  5:   | "white"
+  6:   | "yellow"
+  7:   | "oolong-light"
+  8:   | "oolong-dark"
+  9:   | "black"
+ 10:   | "puer-sheng"
+ 11:   | "puer-shou"
+ 12:   | "heicha"
+ 13:   | "herbal";
+ 14: 
+ 15: export type TeaIconKey =
+ 16:   | "leaf"
+ 17:   | "bud"
+ 18:   | "twist"
+ 19:   | "pearl"
+ 20:   | "strip"
+ 21:   | "cake"
+ 22:   | "brick"
+ 23:   | "flower"
+ 24:   | "needle";
+ 25: 
+ 26: export interface TeaProfile {
+ 27:   id: string;
+ 28:   name: string;
+ 29:   chineseName?: string;
+ 30:   category: TeaCategory;
+ 31:   /** Hex color of the brewed liquor; drives ring + card accents. */
+ 32:   liquorColor: string;
+ 33:   icon: TeaIconKey;
+ 34:   tempC: number;
+ 35:   /** Grams of leaf per 100 ml of water. */
+ 36:   ratioGramsPer100ml: number;
+ 37:   /** Seconds per steep, in order. */
+ 38:   steepsSec: number[];
+ 39:   autoAdvance: boolean;
+ 40:   description?: string;
+ 41:   custom?: boolean;
+ 42: }
+ 43: 
+ 44: /** One pour: when it started and how long it actually ran. */
+ 45: export interface SteepRecord {
+ 46:   steepIndex: number;
+ 47:   startedAt: number;
+ 48:   durationMs: number;
+ 49: }
+ 50: 
+ 51: export interface BrewSession {
+ 52:   id: string;
+ 53:   teaId: string;
+ 54:   teaName: string;
+ 55:   liquorColor: string;
+ 56:   startedAt: number;
+ 57:   steepsCompleted: number;
+ 58:   totalSteeps: number;
+ 59:   rating?: number;
+ 60:   note?: string;
+ 61:   gramsUsed?: number;
+ 62:   tempC?: number;
+ 63:   /** Cumulative time actually spent steeping, in ms. */
+ 64:   totalBrewMs?: number;
+ 65:   favorite?: boolean;
+ 66:   tags?: string[];
+ 67:   steeps?: SteepRecord[];
+ 68: }
+ 69: 
+ 70: /**
+ 71:  * Snapshot of a live, unfinished brew session — persisted so quitting the
+ 72:  * app (reload, closed tab) doesn't lose your place. Keyed by `logId`, the
+ 73:  * same id as the `BrewSession` log row it's building up.
+ 74:  */
+ 75: export interface ActiveSession {
+ 76:   logId: string;
+ 77:   teaId: string;
+ 78:   steepIndex: number;
+ 79:   steepDurations: number[];
+ 80:   steepsCompleted: number;
+ 81:   totalBrewMs: number;
+ 82:   timer: TimerState;
+ 83:   justFinishedSteep: number | null;
+ 84:   steeps: SteepRecord[];
+ 85: }
+ 86: 
+ 87: export interface StashItem {
+ 88:   teaId: string;
+ 89:   teaName: string;
+ 90:   liquorColor: string;
+ 91:   gramsRemaining: number;
+ 92:   /** @deprecated grams/session is now derived from the tea's ratio + vessel size. */
+ 93:   gramsPerSession?: number;
+ 94: }
+ 95: 
+ 96: export interface Settings {
+ 97:   sound: boolean;
+ 98:   notifications: boolean;
+ 99:   vibration: boolean;
+100:   keepScreenOn: boolean;
+101:   /** Multiplier applied to every steep duration (0.7–1.4). */
+102:   strength: number;
+103:   theme: "system" | "light" | "dark";
+104:   language: "en" | "zh";
+105:   /** Water volume per brew, in ml — drives leaf grams via each tea's ratio. */
+106:   vesselMl: number;
+107:   favorites: string[];
+108: }
+109: 
+110: export const DEFAULT_SETTINGS: Settings = {
+111:   sound: true,
+112:   notifications: false,
+113:   vibration: true,
+114:   keepScreenOn: true,
+115:   strength: 1,
+116:   theme: "system",
+117:   language: "en",
+118:   vesselMl: 100,
+119:   favorites: [],
+120: };
+121: 
+122: export const CATEGORY_LABELS: Record<TeaCategory, string> = {
+123:   green: "Green",
+124:   white: "White",
+125:   yellow: "Yellow",
+126:   "oolong-light": "Light Oolong",
+127:   "oolong-dark": "Dark Oolong",
+128:   black: "Black / Red",
+129:   "puer-sheng": "Sheng Pu-erh",
+130:   "puer-shou": "Shou Pu-erh",
+131:   heicha: "Heicha",
+132:   herbal: "Herbal",
+133: };
+</file>
+
+<file path="src/store/activeSessions.ts">
+ 1: import { create } from "zustand";
+ 2: import type { ActiveSession } from "@/lib/types";
+ 3: import { activeSessionsRepo } from "@/lib/repo";
+ 4: 
+ 5: interface ActiveSessionsStore {
+ 6:   /** Every currently unfinished brew, one per logId — lets several stay resumable at once. */
+ 7:   sessions: ActiveSession[];
+ 8:   hydrated: boolean;
+ 9:   hydrate: () => void;
+10:   upsert: (session: ActiveSession) => void;
+11:   remove: (logId: string) => void;
+12: }
+13: 
+14: export const useActiveSessions = create<ActiveSessionsStore>((set, get) => ({
+15:   sessions: [],
+16:   hydrated: false,
+17: 
+18:   hydrate: () => {
+19:     set({ sessions: activeSessionsRepo.load() ?? [], hydrated: true });
+20:   },
+21: 
+22:   upsert: (session) => {
+23:     const sessions = [
+24:       ...get().sessions.filter((s) => s.logId !== session.logId),
+25:       session,
+26:     ];
+27:     set({ sessions });
+28:     activeSessionsRepo.save(sessions);
+29:   },
+30: 
+31:   remove: (logId) => {
+32:     const sessions = get().sessions.filter((s) => s.logId !== logId);
+33:     set({ sessions });
+34:     activeSessionsRepo.save(sessions);
+35:   },
+36: }));
+</file>
+
+<file path="src/store/log.ts">
+ 1: import { create } from "zustand";
+ 2: import type { BrewSession } from "@/lib/types";
+ 3: import { logRepo } from "@/lib/repo";
+ 4: 
+ 5: interface LogStore {
+ 6:   sessions: BrewSession[];
+ 7:   hydrated: boolean;
+ 8:   hydrate: () => void;
+ 9:   add: (session: BrewSession) => void;
+10:   update: (id: string, patch: Partial<BrewSession>) => void;
+11:   remove: (id: string) => void;
+12: }
+13: 
+14: export const useLog = create<LogStore>((set, get) => ({
+15:   sessions: [],
+16:   hydrated: false,
+17: 
+18:   hydrate: () => {
+19:     set({ sessions: logRepo.load() ?? [], hydrated: true });
+20:   },
+21: 
+22:   add: (session) => {
+23:     const sessions = [session, ...get().sessions].slice(0, 500);
+24:     set({ sessions });
+25:     logRepo.save(sessions);
+26:   },
+27: 
+28:   update: (id, patch) => {
+29:     const sessions = get().sessions.map((s) =>
+30:       s.id === id ? { ...s, ...patch } : s,
+31:     );
+32:     set({ sessions });
+33:     logRepo.save(sessions);
+34:   },
+35: 
+36:   remove: (id) => {
+37:     const sessions = get().sessions.filter((s) => s.id !== id);
+38:     set({ sessions });
+39:     logRepo.save(sessions);
+40:   },
+41: }));
+</file>
+
+<file path="src/store/profiles.ts">
+ 1: import { create } from "zustand";
+ 2: import type { TeaProfile } from "@/lib/types";
+ 3: import { profilesRepo } from "@/lib/repo";
+ 4: import { PRESET_TEAS } from "@/lib/teas";
+ 5: 
+ 6: interface ProfilesStore {
+ 7:   custom: TeaProfile[];
+ 8:   hydrated: boolean;
+ 9:   hydrate: () => void;
+10:   save: (profile: TeaProfile) => void;
+11:   remove: (id: string) => void;
+12: }
+13: 
+14: export const useProfiles = create<ProfilesStore>((set, get) => ({
+15:   custom: [],
+16:   hydrated: false,
+17: 
+18:   hydrate: () => {
+19:     set({ custom: profilesRepo.load() ?? [], hydrated: true });
+20:   },
+21: 
+22:   save: (profile) => {
+23:     const custom = get().custom.filter((p) => p.id !== profile.id);
+24:     custom.push({ ...profile, custom: true });
+25:     set({ custom });
+26:     profilesRepo.save(custom);
+27:   },
+28: 
+29:   remove: (id) => {
+30:     const custom = get().custom.filter((p) => p.id !== id);
+31:     set({ custom });
+32:     profilesRepo.save(custom);
+33:   },
+34: }));
+35: 
+36: /** Look up any tea — preset or custom — by id. */
+37: export function findTea(
+38:   id: string,
+39:   custom: TeaProfile[],
+40: ): TeaProfile | undefined {
+41:   return PRESET_TEAS.find((t) => t.id === id) ?? custom.find((t) => t.id === id);
+42: }
+</file>
+
+<file path="src/store/session.ts">
+  1: import { create } from "zustand";
+  2: import type { SteepRecord, TeaProfile } from "@/lib/types";
+  3: import {
+  4:   finishTimer,
+  5:   idleTimer,
+  6:   nudgeTimer,
+  7:   pauseTimer,
+  8:   scaledSteepMs,
+  9:   startTimer,
+ 10:   type TimerState,
+ 11: } from "@/lib/timer";
+ 12: import { leafGrams } from "@/lib/brew";
+ 13: import { unlockAudio } from "@/lib/audio";
+ 14: import { useActiveSessions } from "./activeSessions";
+ 15: import { useLog } from "./log";
+ 16: import { useStash } from "./stash";
+ 17: import { useSettings } from "./settings";
+ 18: 
+ 19: interface SessionStore {
+ 20:   tea: TeaProfile | null;
+ 21:   /** Per-steep durations in ms, strength already applied. */
+ 22:   steepDurations: number[];
+ 23:   steepIndex: number;
+ 24:   timer: TimerState;
+ 25:   steepsCompleted: number;
+ 26:   finished: boolean;
+ 27:   logId: string | null;
+ 28:   /** 1-based number of the steep that just chimed; consumed by the alarm UI. */
+ 29:   justFinishedSteep: number | null;
+ 30:   /** Cumulative ms actually spent steeping this session (nudges included). */
+ 31:   totalBrewMs: number;
+ 32:   /** When each pour started and how long it actually ran. */
+ 33:   steeps: SteepRecord[];
+ 34: 
+ 35:   begin: (tea: TeaProfile, strength: number) => void;
+ 36:   startSteep: (gramsOverride?: number) => void;
+ 37:   pause: () => void;
+ 38:   resume: () => void;
+ 39:   nudge: (deltaSec: number) => void;
+ 40:   /** Steep timer hit zero: record it and advance (or wait, per profile). */
+ 41:   completeSteep: () => void;
+ 42:   /** Move to the next steep without brewing the current one. */
+ 43:   skipSteep: () => void;
+ 44:   /** Manual advance used when autoAdvance is off. */
+ 45:   nextSteep: () => void;
+ 46:   clearAlarm: () => void;
+ 47:   end: () => void;
+ 48: }
+ 49: 
+ 50: const EMPTY = {
+ 51:   tea: null,
+ 52:   steepDurations: [] as number[],
+ 53:   steepIndex: 0,
+ 54:   timer: idleTimer(0),
+ 55:   steepsCompleted: 0,
+ 56:   finished: false,
+ 57:   logId: null,
+ 58:   justFinishedSteep: null,
+ 59:   totalBrewMs: 0,
+ 60:   steeps: [] as SteepRecord[],
+ 61: };
+ 62: 
+ 63: export const useSession = create<SessionStore>((set, get) => ({
+ 64:   ...EMPTY,
+ 65: 
+ 66:   begin: (tea, strength) => {
+ 67:     // Switching away from a different, unfinished tea loses nothing — the
+ 68:     // subscriber below keeps useActiveSessions current on every change.
+ 69:     //
+ 70:     // Resume this tea's own session if one's still unfinished, rather than
+ 71:     // starting over.
+ 72:     const existing = useActiveSessions
+ 73:       .getState()
+ 74:       .sessions.find((s) => s.teaId === tea.id);
+ 75:     if (existing) {
+ 76:       set({
+ 77:         tea,
+ 78:         steepDurations: existing.steepDurations,
+ 79:         steepIndex: existing.steepIndex,
+ 80:         timer: existing.timer,
+ 81:         steepsCompleted: existing.steepsCompleted,
+ 82:         finished: false,
+ 83:         logId: existing.logId,
+ 84:         justFinishedSteep: existing.justFinishedSteep,
+ 85:         totalBrewMs: existing.totalBrewMs,
+ 86:         steeps: existing.steeps,
+ 87:       });
+ 88:       return;
+ 89:     }
+ 90: 
+ 91:     const steepDurations = tea.steepsSec.map((s) => scaledSteepMs(s, strength));
+ 92:     const logId = `brew-${Date.now().toString(36)}`;
+ 93:     useLog.getState().add({
+ 94:       id: logId,
+ 95:       teaId: tea.id,
+ 96:       teaName: tea.name,
+ 97:       liquorColor: tea.liquorColor,
+ 98:       startedAt: Date.now(),
+ 99:       steepsCompleted: 0,
+100:       totalSteeps: tea.steepsSec.length,
+101:       tempC: tea.tempC,
+102:       totalBrewMs: 0,
+103:     });
+104:     set({
+105:       ...EMPTY,
+106:       tea,
+107:       steepDurations,
+108:       timer: idleTimer(steepDurations[0]),
+109:       logId,
+110:     });
+111:   },
+112: 
+113:   startSteep: (gramsOverride) => {
+114:     unlockAudio();
+115:     const { steepIndex, tea, logId, steeps } = get();
+116:     // First steep only: capture the leaf grams (from the page's grams
+117:     // stepper, or derived from ratio+vessel if not given), then deplete the
+118:     // stash once for the whole session.
+119:     if (steepIndex === 0 && tea) {
+120:       const vesselMl = useSettings.getState().vesselMl;
+121:       const grams =
+122:         gramsOverride ?? leafGrams(tea.ratioGramsPer100ml, vesselMl);
+123:       useStash.getState().consumeForSession(tea.id, grams);
+124:       if (logId) useLog.getState().update(logId, { gramsUsed: grams });
+125:     }
+126:     set({
+127:       timer: startTimer(get().timer),
+128:       justFinishedSteep: null,
+129:       steeps: [...steeps, { steepIndex, startedAt: Date.now(), durationMs: 0 }],
+130:     });
+131:   },
+132: 
+133:   pause: () => set({ timer: pauseTimer(get().timer) }),
+134:   resume: () => set({ timer: startTimer(get().timer) }),
+135:   nudge: (deltaSec) => set({ timer: nudgeTimer(get().timer, deltaSec * 1000) }),
+136: 
+137:   completeSteep: () => {
+138:     const {
+139:       tea,
+140:       steepIndex,
+141:       steepDurations,
+142:       steepsCompleted,
+143:       logId,
+144:       timer,
+145:       steeps,
+146:     } = get();
+147:     if (!tea) return;
+148:     const completed = steepsCompleted + 1;
+149:     const totalBrewMs = get().totalBrewMs + timer.durationMs;
+150:     const updatedSteeps = steeps.map((s, i) =>
+151:       i === steeps.length - 1 ? { ...s, durationMs: timer.durationMs } : s,
+152:     );
+153:     if (logId) {
+154:       useLog.getState().update(logId, {
+155:         steepsCompleted: completed,
+156:         totalBrewMs,
+157:         steeps: updatedSteeps,
+158:       });
+159:     }
+160:     set({ totalBrewMs, steeps: updatedSteeps });
+161:     const isLast = steepIndex >= steepDurations.length - 1;
+162:     if (isLast) {
+163:       set({
+164:         steepsCompleted: completed,
+165:         finished: true,
+166:         timer: finishTimer(get().timer),
+167:         justFinishedSteep: steepIndex + 1,
+168:       });
+169:     } else if (tea.autoAdvance) {
+170:       set({
+171:         steepsCompleted: completed,
+172:         steepIndex: steepIndex + 1,
+173:         timer: idleTimer(steepDurations[steepIndex + 1]),
+174:         justFinishedSteep: steepIndex + 1,
+175:       });
+176:     } else {
+177:       set({
+178:         steepsCompleted: completed,
+179:         timer: finishTimer(get().timer),
+180:         justFinishedSteep: steepIndex + 1,
+181:       });
+182:     }
+183:   },
+184: 
+185:   skipSteep: () => {
+186:     const { steepIndex, steepDurations } = get();
+187:     if (steepIndex >= steepDurations.length - 1) {
+188:       set({ finished: true, timer: finishTimer(get().timer) });
+189:     } else {
+190:       set({
+191:         steepIndex: steepIndex + 1,
+192:         timer: idleTimer(steepDurations[steepIndex + 1]),
+193:         justFinishedSteep: null,
+194:       });
+195:     }
+196:   },
+197: 
+198:   nextSteep: () => {
+199:     const { steepIndex, steepDurations } = get();
+200:     if (steepIndex >= steepDurations.length - 1) {
+201:       set({ finished: true });
+202:     } else {
+203:       set({
+204:         steepIndex: steepIndex + 1,
+205:         timer: idleTimer(steepDurations[steepIndex + 1]),
+206:         justFinishedSteep: null,
+207:       });
+208:     }
+209:   },
+210: 
+211:   clearAlarm: () => set({ justFinishedSteep: null }),
+212:   end: () => {
+213:     const { logId } = get();
+214:     if (logId) useActiveSessions.getState().remove(logId);
+215:     set({ ...EMPTY });
+216:   },
+217: }));
+218: 
+219: // Keep useActiveSessions in sync with whichever session is currently open,
+220: // so a reload or closed tab can resume it — and any other unfinished
+221: // session — later. A finished session has nothing left to resume, so it
+222: // drops out of the list instead.
+223: if (typeof window !== "undefined") {
+224:   useSession.subscribe((state) => {
+225:     if (!state.tea || !state.logId) return;
+226:     if (state.finished) {
+227:       useActiveSessions.getState().remove(state.logId);
+228:       return;
+229:     }
+230:     useActiveSessions.getState().upsert({
+231:       logId: state.logId,
+232:       teaId: state.tea.id,
+233:       steepIndex: state.steepIndex,
+234:       steepDurations: state.steepDurations,
+235:       steepsCompleted: state.steepsCompleted,
+236:       totalBrewMs: state.totalBrewMs,
+237:       timer: state.timer,
+238:       justFinishedSteep: state.justFinishedSteep,
+239:       steeps: state.steeps,
+240:     });
+241:   });
+242: }
+</file>
+
+<file path="src/store/settings.ts">
+ 1: import { create } from "zustand";
+ 2: import { DEFAULT_SETTINGS, type Settings } from "@/lib/types";
+ 3: import { settingsRepo } from "@/lib/repo";
+ 4: 
+ 5: interface SettingsStore extends Settings {
+ 6:   hydrated: boolean;
+ 7:   hydrate: () => void;
+ 8:   update: (patch: Partial<Settings>) => void;
+ 9: }
+10: 
+11: export const useSettings = create<SettingsStore>((set, get) => ({
+12:   ...DEFAULT_SETTINGS,
+13:   hydrated: false,
+14: 
+15:   hydrate: () => {
+16:     const saved = settingsRepo.load();
+17:     set({ ...DEFAULT_SETTINGS, ...saved, hydrated: true });
+18:   },
+19: 
+20:   update: (patch) => {
+21:     set(patch);
+22:     const { hydrated, hydrate, update, ...settings } = get();
+23:     void hydrated;
+24:     void hydrate;
+25:     void update;
+26:     settingsRepo.save(settings);
+27:   },
+28: }));
+</file>
+
+<file path="src/store/stash.ts">
+ 1: import { create } from "zustand";
+ 2: import type { StashItem } from "@/lib/types";
+ 3: import { stashRepo } from "@/lib/repo";
+ 4: 
+ 5: interface StashStore {
+ 6:   items: StashItem[];
+ 7:   hydrated: boolean;
+ 8:   hydrate: () => void;
+ 9:   save: (item: StashItem) => void;
+10:   remove: (teaId: string) => void;
+11:   /**
+12:    * Called when a brew session starts with the leaf grams the vessel needs
+13:    * (from the tea's ratio); returns grams actually used (0 if not stashed,
+14:    * clamped to what's left).
+15:    */
+16:   consumeForSession: (teaId: string, grams: number) => number;
+17: }
+18: 
+19: export const useStash = create<StashStore>((set, get) => ({
+20:   items: [],
+21:   hydrated: false,
+22: 
+23:   hydrate: () => {
+24:     set({ items: stashRepo.load() ?? [], hydrated: true });
+25:   },
+26: 
+27:   save: (item) => {
+28:     const items = get().items.filter((i) => i.teaId !== item.teaId);
+29:     items.push(item);
+30:     set({ items });
+31:     stashRepo.save(items);
+32:   },
+33: 
+34:   remove: (teaId) => {
+35:     const items = get().items.filter((i) => i.teaId !== teaId);
+36:     set({ items });
+37:     stashRepo.save(items);
+38:   },
+39: 
+40:   consumeForSession: (teaId, grams) => {
+41:     const item = get().items.find((i) => i.teaId === teaId);
+42:     if (!item) return 0;
+43:     const used = Math.min(item.gramsRemaining, grams);
+44:     const items = get().items.map((i) =>
+45:       i.teaId === teaId
+46:         ? { ...i, gramsRemaining: Math.max(0, i.gramsRemaining - used) }
+47:         : i,
+48:     );
+49:     set({ items });
+50:     stashRepo.save(items);
+51:     return used;
+52:   },
+53: }));
+</file>
+
+<file path="src/store/useT.ts">
+1: import { STRINGS, type Lang } from "@/lib/i18n";
+2: import { useSettings } from "./settings";
+3: 
+4: /** Current language + its string table, reactive to the settings store. */
+5: export function useT() {
+6:   const lang: Lang = useSettings((s) => s.language);
+7:   return { t: STRINGS[lang], lang };
+8: }
+</file>
+
+<file path=".gitignore">
+1: node_modules/
+2: .next/
+3: out/
+4: *.tsbuildinfo
+5: next-env.d.ts
+6: .DS_Store
+</file>
+
+<file path="next.config.ts">
+1: import type { NextConfig } from "next";
+2: 
+3: const nextConfig: NextConfig = {
+4:   // Fully static — hosted on GitHub Pages, no Node server available.
+5:   output: "export",
+6:   images: { unoptimized: true },
+7: };
+8: 
+9: export default nextConfig;
+</file>
+
+<file path="package.json">
+ 1: {
+ 2:   "name": "gongfu-tea-timer",
+ 3:   "version": "0.1.0",
+ 4:   "private": true,
+ 5:   "scripts": {
+ 6:     "dev": "next dev",
+ 7:     "build": "next build",
+ 8:     "start": "next start",
+ 9:     "lint": "next lint",
+10:     "test": "vitest run"
+11:   },
+12:   "dependencies": {
+13:     "framer-motion": "^12.42.2",
+14:     "next": "^16.2.10",
+15:     "react": "^19.2.7",
+16:     "react-dom": "^19.2.7",
+17:     "zustand": "^5.0.14"
+18:   },
+19:   "devDependencies": {
+20:     "@tailwindcss/postcss": "^4.3.2",
+21:     "@types/node": "^26.1.0",
+22:     "@types/react": "^19.2.17",
+23:     "@types/react-dom": "^19.2.3",
+24:     "tailwindcss": "^4.3.2",
+25:     "typescript": "^6.0.3",
+26:     "vitest": "^4.1.9"
+27:   }
+28: }
+</file>
+
+<file path="postcss.config.mjs">
+1: export default {
+2:   plugins: {
+3:     "@tailwindcss/postcss": {},
+4:   },
+5: };
+</file>
+
+<file path="tsconfig.json">
+ 1: {
+ 2:   "compilerOptions": {
+ 3:     "target": "ES2020",
+ 4:     "lib": [
+ 5:       "dom",
+ 6:       "dom.iterable",
+ 7:       "esnext",
+ 8:       "webworker"
+ 9:     ],
+10:     "allowJs": true,
+11:     "skipLibCheck": true,
+12:     "strict": true,
+13:     "noEmit": true,
+14:     "esModuleInterop": true,
+15:     "module": "esnext",
+16:     "moduleResolution": "bundler",
+17:     "resolveJsonModule": true,
+18:     "isolatedModules": true,
+19:     "jsx": "react-jsx",
+20:     "incremental": true,
+21:     "plugins": [
+22:       {
+23:         "name": "next"
+24:       }
+25:     ],
+26:     "paths": {
+27:       "@/*": [
+28:         "./src/*"
+29:       ]
+30:     }
+31:   },
+32:   "include": [
+33:     "next-env.d.ts",
+34:     "**/*.ts",
+35:     "**/*.tsx",
+36:     ".next/types/**/*.ts",
+37:     ".next/dev/types/**/*.ts"
+38:   ],
+39:   "exclude": [
+40:     "node_modules",
+41:     "public"
+42:   ]
+43: }
+</file>
+
+</files>
