@@ -194,6 +194,9 @@ const EN = {
   exportJson: "Export all data",
   importJson: "Import all data",
   backupHint: "Teas, brew log, stash, and settings — all in one file.",
+  resetAllData: "Reset all data",
+  resetAllDataConfirm:
+    "Erase every tea, brew log, stash, and setting on this device? This can't be undone.",
 
   // import page
   importEyebrow: "A tea, shared with you",
@@ -388,6 +391,8 @@ const ZH: typeof EN = {
   exportJson: "导出全部数据",
   importJson: "导入全部数据",
   backupHint: "茶叶、泡茶记录、茶仓和设置——都在一个文件里。",
+  resetAllData: "重置全部数据",
+  resetAllDataConfirm: "清除本设备上的所有茶叶、泡茶记录、茶仓和设置？此操作无法撤销。",
 
   importEyebrow: "朋友分享给你的茶",
   importMeta: (steeps) => `${steeps} 泡：`,
@@ -436,6 +441,20 @@ export function teaNames(
 
 export function dateLocale(lang: Lang): string | undefined {
   return lang === "zh" ? "zh-CN" : undefined;
+}
+
+/** The two built-in vessel profiles ship a fixed id; custom ones keep the name the user typed. */
+const DEFAULT_VESSEL_NAMES_ZH: Record<string, string> = {
+  gaiwan: "盖碗",
+  pot: "小壶",
+};
+
+export function vesselDisplayName(
+  id: string,
+  name: string,
+  lang: Lang,
+): string {
+  return lang === "zh" ? (DEFAULT_VESSEL_NAMES_ZH[id] ?? name) : name;
 }
 
 /**

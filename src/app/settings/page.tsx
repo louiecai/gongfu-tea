@@ -5,7 +5,14 @@ import { useSettings } from "@/store/settings";
 import { useProfiles } from "@/store/profiles";
 import { useLog } from "@/store/log";
 import { useStash } from "@/store/stash";
-import { profilesRepo, logRepo, stashRepo, settingsRepo } from "@/lib/repo";
+import {
+  profilesRepo,
+  logRepo,
+  stashRepo,
+  settingsRepo,
+  activeSessionsRepo,
+} from "@/lib/repo";
+import { useActiveSessions } from "@/store/activeSessions";
 import { requestNotificationPermission } from "@/lib/alerts";
 import { unlockAudio, playChime } from "@/lib/audio";
 import {
@@ -16,6 +23,7 @@ import {
   type TeaProfile,
 } from "@/lib/types";
 import { useT } from "@/store/useT";
+import { vesselDisplayName } from "@/lib/i18n";
 
 function Toggle({
   label,
@@ -51,7 +59,7 @@ function Toggle({
 export default function SettingsPage() {
   const settings = useSettings();
   const custom = useProfiles((s) => s.custom);
-  const { t } = useT();
+  const { t, lang } = useT();
   const [newVesselName, setNewVesselName] = useState("");
   const [newVesselMl, setNewVesselMl] = useState(100);
 
@@ -128,6 +136,20 @@ export default function SettingsPage() {
         // ignore malformed files
       }
     });
+  };
+
+  const resetAll = () => {
+    if (!window.confirm(t.resetAllDataConfirm)) return;
+    profilesRepo.save([]);
+    logRepo.save([]);
+    stashRepo.save([]);
+    activeSessionsRepo.save([]);
+    settingsRepo.save(DEFAULT_SETTINGS);
+    useProfiles.getState().hydrate();
+    useLog.getState().hydrate();
+    useStash.getState().hydrate();
+    useActiveSessions.getState().hydrate();
+    useSettings.getState().hydrate();
   };
 
   return (
@@ -258,7 +280,7 @@ export default function SettingsPage() {
               className="flex items-center justify-between rounded-2xl border border-line bg-surface p-3"
             >
               <span className="text-sm font-semibold">
-                {v.name} · {v.ml} ml
+                {vesselDisplayName(v.id, v.name, lang)} · {v.ml} ml
               </span>
               <button
                 onClick={() =>
@@ -377,6 +399,12 @@ export default function SettingsPage() {
             />
           </label>
         </div>
+        <button
+          onClick={resetAll}
+          className="w-full rounded-2xl border border-line p-3 text-sm font-semibold text-muted hover:text-red-700"
+        >
+          {t.resetAllData}
+        </button>
       </section>
     </div>
   );

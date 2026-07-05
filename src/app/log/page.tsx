@@ -8,7 +8,7 @@ import { useProfiles, findTea } from "@/store/profiles";
 import { useActiveSessions } from "@/store/activeSessions";
 import { dateLocale, displayTeaName, teaNames, type Lang } from "@/lib/i18n";
 import { formatMs } from "@/lib/timer";
-import type { BrewSession } from "@/lib/types";
+import type { ActiveSession, BrewSession } from "@/lib/types";
 import { TeaIcon } from "@/components/TeaIcon";
 import { useT } from "@/store/useT";
 
@@ -41,13 +41,17 @@ export default function LogPage() {
   const [favoritesOnly, setFavoritesOnly] = useState(false);
   const [removedToast, setRemovedToast] = useState<BrewSession | null>(null);
   const undoTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const removedActiveRef = useRef<ActiveSession | null>(null);
   useEffect(() => () => {
     if (undoTimeout.current) clearTimeout(undoTimeout.current);
   }, []);
 
   const deleteSession = (id: string) => {
     const held = sessions.find((x) => x.id === id) ?? null;
+    removedActiveRef.current =
+      activeSessions.find((a) => a.logId === id) ?? null;
     useLog.getState().remove(id);
+    useActiveSessions.getState().remove(id);
     if (editingId === id) setEditingId(null);
     if (undoTimeout.current) clearTimeout(undoTimeout.current);
     setRemovedToast(held);
@@ -57,6 +61,8 @@ export default function LogPage() {
   const undoDelete = () => {
     if (undoTimeout.current) clearTimeout(undoTimeout.current);
     if (removedToast) useLog.getState().add(removedToast);
+    if (removedActiveRef.current)
+      useActiveSessions.getState().upsert(removedActiveRef.current);
     setRemovedToast(null);
   };
 

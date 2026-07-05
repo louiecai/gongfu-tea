@@ -20,7 +20,7 @@ import {
 } from "@/lib/alerts";
 import { TimerCup } from "@/components/TimerCup";
 import { SteepDots } from "@/components/SteepDots";
-import { STRINGS, teaNames } from "@/lib/i18n";
+import { STRINGS, teaNames, vesselDisplayName } from "@/lib/i18n";
 import { useT } from "@/store/useT";
 
 // Prefer a real back-navigation so the browser/Next restores wherever the
@@ -454,7 +454,7 @@ function SessionPageInner() {
                   : "border-line text-muted hover:text-ink"
               }`}
             >
-              {v.name} · {v.ml} ml
+              {vesselDisplayName(v.id, v.name, lang)} · {v.ml} ml
             </button>
           ))}
         </div>
