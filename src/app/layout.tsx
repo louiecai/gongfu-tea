@@ -60,7 +60,10 @@ export default function RootLayout({
       <body className={`${fraunces.variable} ${nunito.variable}`}>
         <Boot />
         <ScrollRestoration />
-        <div className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col px-4 pb-24 pt-4 sm:px-6 sm:pt-8 md:pb-8 md:pt-10">
+        <div
+          id="app-shell"
+          className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col px-4 pb-24 pt-4 sm:px-6 sm:pt-8 md:pb-8 md:pt-10"
+        >
           <main className="flex-1">{children}</main>
         </div>
         <Nav />

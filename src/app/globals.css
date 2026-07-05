@@ -44,8 +44,8 @@ body {
   overflow-x: hidden;
 }
 
-/* The session timer is a focused, full-attention view (nav hidden to
-   match) — it shouldn't scroll like the list-based pages do. */
+/* Applied when a page's content fits the viewport with nothing left to
+   scroll to — see ScrollRestoration's fitsViewport() check. */
 html.no-scroll,
 html.no-scroll body {
   height: 100dvh;
