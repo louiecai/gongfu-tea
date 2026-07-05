@@ -363,7 +363,7 @@ function SessionPageInner() {
     setGramsOverride(Math.min(30, Math.max(0.5, Math.round((grams + delta) * 10) / 10)));
 
   return (
-    <div className="flex min-h-[calc(100dvh-6rem)] flex-col">
+    <div className="flex flex-1 flex-col">
       <span aria-live="polite" className="sr-only">
         {announcement}
       </span>
