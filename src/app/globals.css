@@ -50,6 +50,7 @@ html.no-scroll,
 html.no-scroll body {
   height: 100dvh;
   overflow: hidden;
+  overscroll-behavior: none;
 }
 
 .font-display {
