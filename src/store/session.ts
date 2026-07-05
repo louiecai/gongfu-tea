@@ -9,7 +9,7 @@ import {
   startTimer,
   type TimerState,
 } from "@/lib/timer";
-import { leafGrams } from "@/lib/brew";
+import { leafGrams, westernSchedule } from "@/lib/brew";
 import { unlockAudio } from "@/lib/audio";
 import { useActiveSessions } from "./activeSessions";
 import { useLog } from "./log";
@@ -34,7 +34,7 @@ interface SessionStore {
   /** A short flash steep before steep 1 — doesn't count toward stats. */
   rinsing: boolean;
 
-  begin: (tea: TeaProfile, strength: number) => void;
+  begin: (tea: TeaProfile, strength: number, brewStyle: "gongfu" | "western") => void;
   startSteep: (gramsOverride?: number) => void;
   pause: () => void;
   resume: () => void;
@@ -70,7 +70,7 @@ const RINSE_MS = 5000;
 export const useSession = create<SessionStore>((set, get) => ({
   ...EMPTY,
 
-  begin: (tea, strength) => {
+  begin: (tea, strength, brewStyle) => {
     // Switching away from a different, unfinished tea loses nothing — the
     // subscriber below keeps useActiveSessions current on every change.
     //
@@ -96,7 +96,8 @@ export const useSession = create<SessionStore>((set, get) => ({
       return;
     }
 
-    const steepDurations = tea.steepsSec.map((s) => scaledSteepMs(s, strength));
+    const steepsSec = brewStyle === "western" ? westernSchedule() : tea.steepsSec;
+    const steepDurations = steepsSec.map((s) => scaledSteepMs(s, strength));
     const rinsing = !!tea.hasRinse;
     // No log entry yet, and nothing resumable — just looking at the timer
     // shouldn't create history. That starts on the first real Start tap,
@@ -112,7 +113,7 @@ export const useSession = create<SessionStore>((set, get) => ({
 
   startSteep: (gramsOverride) => {
     unlockAudio();
-    const { steepIndex, tea, steeps, rinsing } = get();
+    const { steepIndex, tea, steeps, rinsing, steepDurations } = get();
     let { logId } = get();
     if (!logId && tea) {
       logId = `brew-${Date.now().toString(36)}`;
@@ -123,7 +124,7 @@ export const useSession = create<SessionStore>((set, get) => ({
         liquorColor: tea.liquorColor,
         startedAt: Date.now(),
         steepsCompleted: 0,
-        totalSteeps: tea.steepsSec.length,
+        totalSteeps: steepDurations.length,
         tempC: tea.tempC,
         totalBrewMs: 0,
       });

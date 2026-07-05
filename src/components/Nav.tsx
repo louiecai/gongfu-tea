@@ -3,14 +3,22 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useT } from "@/store/useT";
+import { useStash } from "@/store/stash";
+import { useProfiles } from "@/store/profiles";
+import { useSettings } from "@/store/settings";
+import { lowStashCount } from "@/lib/brew";
 
 export function Nav() {
   const pathname = usePathname();
   const { t } = useT();
-  const TABS = [
+  const stashItems = useStash((s) => s.items);
+  const custom = useProfiles((s) => s.custom);
+  const vesselMl = useSettings((s) => s.vesselMl);
+  const lowCount = lowStashCount(stashItems, custom, vesselMl);
+  const TABS: { href: string; label: string; glyph: string; badge?: number }[] = [
     { href: "/", label: t.navTeas, glyph: "茶" },
     { href: "/log", label: t.navLog, glyph: "记" },
-    { href: "/stash", label: t.navStash, glyph: "藏" },
+    { href: "/stash", label: t.navStash, glyph: "藏", badge: lowCount },
     { href: "/settings", label: t.navSettings, glyph: "调" },
   ];
   // The session screen is a focused, full-attention view — hide the tabs.
@@ -37,13 +45,23 @@ export function Nav() {
                   active ? "text-ink" : "text-muted hover:text-ink"
                 }`}
               >
-                <span
-                  aria-hidden
-                  className={`font-display text-lg leading-none md:text-base ${
-                    active ? "" : "opacity-60"
-                  }`}
-                >
-                  {tab.glyph}
+                <span className="relative">
+                  <span
+                    aria-hidden
+                    className={`font-display text-lg leading-none md:text-base ${
+                      active ? "" : "opacity-60"
+                    }`}
+                  >
+                    {tab.glyph}
+                  </span>
+                  {!!tab.badge && (
+                    <span
+                      aria-hidden
+                      className="absolute -right-1.5 -top-1 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-amber-700 px-0.5 text-[9px] font-bold leading-none text-white dark:bg-amber-500"
+                    >
+                      {tab.badge}
+                    </span>
+                  )}
                 </span>
                 {tab.label}
               </Link>

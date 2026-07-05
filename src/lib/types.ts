@@ -112,6 +112,8 @@ export interface Settings {
   /** Named pots/gaiwans for quick vessel-size switching. */
   vesselProfiles: { id: string; name: string; ml: number }[];
   chimeStyle: "bell" | "wood" | "bright";
+  /** Gongfu: many short steeps, per each tea's own schedule. Western: a few longer ones. */
+  brewStyle: "gongfu" | "western";
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -129,6 +131,7 @@ export const DEFAULT_SETTINGS: Settings = {
     { id: "pot", name: "Small pot", ml: 150 },
   ],
   chimeStyle: "bell",
+  brewStyle: "gongfu",
 };
 
 export const CATEGORY_LABELS: Record<TeaCategory, string> = {

@@ -163,6 +163,12 @@ function SessionPageInner() {
   const session = useSession();
   const { t, lang } = useT();
   const tea = findTea(teaId, custom);
+  // Most recent past brew of this tea with a recorded gram amount — a nicer
+  // starting point than the vessel-derived default once you've brewed it before.
+  const lastGramsUsed = useLog((s) =>
+    s.sessions.find((sess) => sess.teaId === tea?.id && sess.gramsUsed != null)
+      ?.gramsUsed,
+  );
 
   const [now, setNow] = useState(() => Date.now());
   const [announcement, setAnnouncement] = useState("");
@@ -189,7 +195,8 @@ function SessionPageInner() {
   useEffect(() => {
     if (!tea || !profilesHydrated) return;
     if (useSession.getState().tea?.id !== tea.id) {
-      useSession.getState().begin(tea, useSettings.getState().strength);
+      const s = useSettings.getState();
+      useSession.getState().begin(tea, s.strength, s.brewStyle);
     }
   }, [tea, profilesHydrated]);
 
@@ -349,7 +356,7 @@ function SessionPageInner() {
   const color = tea.liquorColor;
   const totalSteeps = steepDurations.length;
   const grams =
-    gramsOverride ?? leafGrams(tea.ratioGramsPer100ml, settings.vesselMl);
+    gramsOverride ?? lastGramsUsed ?? leafGrams(tea.ratioGramsPer100ml, settings.vesselMl);
   gramsRef.current = grams;
   // Grams and vessel are fixed for the log the moment the first steep
   // starts, so lock both steppers once brewing is underway to avoid a
@@ -437,6 +444,23 @@ function SessionPageInner() {
             )}
           </span>
         )}
+        <button
+          type="button"
+          disabled={vesselLocked}
+          onClick={() => {
+            const brewStyle = settings.brewStyle === "western" ? "gongfu" : "western";
+            useSettings.getState().update({ brewStyle });
+            useSession.getState().begin(tea, settings.strength, brewStyle);
+          }}
+          aria-pressed={settings.brewStyle === "western"}
+          className={`rounded-full border px-2.5 py-1 disabled:opacity-30 ${
+            settings.brewStyle === "western"
+              ? "border-ink text-ink"
+              : "border-line hover:text-ink"
+          }`}
+        >
+          {settings.brewStyle === "western" ? t.brewStyleWestern : t.brewStyleGongfu}
+        </button>
       </div>
 
       {settings.vesselProfiles.length > 0 && (
