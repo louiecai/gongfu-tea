@@ -27,13 +27,6 @@ export default function LogPage() {
   const custom = useProfiles((s) => s.custom);
   const activeSessions = useActiveSessions((s) => s.sessions);
   const { t, lang } = useT();
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [note, setNote] = useState("");
-  const [rating, setRating] = useState(0);
-  const [gramsUsed, setGramsUsed] = useState(0);
-  const [steepsCompleted, setSteepsCompleted] = useState(0);
-  const [tags, setTags] = useState("");
-  const [expandedId, setExpandedId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [sortBy, setSortBy] = useState<"newest" | "rating" | "longest">(
     "newest",
@@ -52,7 +45,6 @@ export default function LogPage() {
       activeSessions.find((a) => a.logId === id) ?? null;
     useLog.getState().remove(id);
     useActiveSessions.getState().remove(id);
-    if (editingId === id) setEditingId(null);
     if (undoTimeout.current) clearTimeout(undoTimeout.current);
     setRemovedToast(held);
     undoTimeout.current = setTimeout(() => setRemovedToast(null), 5000);
@@ -64,32 +56,6 @@ export default function LogPage() {
     if (removedActiveRef.current)
       useActiveSessions.getState().upsert(removedActiveRef.current);
     setRemovedToast(null);
-  };
-
-  const startEdit = (id: string) => {
-    const s = sessions.find((x) => x.id === id);
-    setEditingId(id);
-    setNote(s?.note ?? "");
-    setRating(s?.rating ?? 0);
-    setGramsUsed(s?.gramsUsed ?? 0);
-    setSteepsCompleted(s?.steepsCompleted ?? 0);
-    setTags((s?.tags ?? []).join(", "));
-  };
-
-  const saveEdit = () => {
-    if (editingId) {
-      useLog.getState().update(editingId, {
-        note: note.trim() || undefined,
-        rating: rating || undefined,
-        gramsUsed: gramsUsed || undefined,
-        steepsCompleted,
-        tags: tags
-          .split(",")
-          .map((tag) => tag.trim())
-          .filter(Boolean),
-      });
-    }
-    setEditingId(null);
   };
 
   const toggleFavorite = (id: string, current: boolean | undefined) =>
@@ -312,7 +278,7 @@ export default function LogPage() {
                 </div>
                 <motion.div
                   data-log-id={s.id}
-                  drag={editingId === s.id ? false : "x"}
+                  drag="x"
                   dragDirectionLock
                   dragConstraints={{ left: -96, right: 0 }}
                   dragElastic={{ left: 0.15, right: 0 }}
@@ -342,35 +308,6 @@ export default function LogPage() {
                     {s.gramsUsed ? ` · ${t.grams(s.gramsUsed)}` : ""}
                     {s.totalBrewMs ? ` · ${t.totalBrewed(formatMs(s.totalBrewMs))}` : ""}
                   </p>
-                  {s.steeps && s.steeps.length > 0 && (
-                    <button
-                      onClick={() =>
-                        setExpandedId(expandedId === s.id ? null : s.id)
-                      }
-                      className="mt-1 text-[11px] font-semibold text-muted hover:text-ink"
-                    >
-                      {expandedId === s.id ? "▴" : "▾"} {t.steepsToggle}
-                    </button>
-                  )}
-                  {expandedId === s.id && s.steeps && (
-                    <ul
-                      className="mt-1.5 space-y-0.5 border-l-2 pl-3 text-xs text-muted"
-                      style={{ borderColor: s.liquorColor }}
-                    >
-                      {s.steeps.map((rec) => (
-                        <li key={rec.steepIndex}>
-                          {t.steepRow(
-                            rec.steepIndex + 1,
-                            new Date(rec.startedAt).toLocaleTimeString(
-                              dateLocale(lang),
-                              { hour: "numeric", minute: "2-digit" },
-                            ),
-                            formatMs(rec.durationMs),
-                          )}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
                 </div>
                 {activeSessions.some((a) => a.logId === s.id) ? (
                   <Link
@@ -404,93 +341,18 @@ export default function LogPage() {
                     </span>
                   </span>
                 ) : null}
-                <button
-                  onClick={() =>
-                    editingId === s.id ? setEditingId(null) : startEdit(s.id)
-                  }
+                <Link
+                  href={`/log/entry?id=${s.id}`}
                   className="shrink-0 rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-muted hover:text-ink"
                 >
-                  {editingId === s.id ? t.close : s.note ? t.editNote : t.addNote}
-                </button>
+                  {t.viewDetails}
+                </Link>
               </div>
 
-              {s.note && editingId !== s.id && (
+              {s.note && (
                 <p className="mt-2.5 border-l-2 pl-3 text-sm text-muted" style={{ borderColor: s.liquorColor }}>
                   {s.note}
                 </p>
-              )}
-
-              {editingId === s.id && (
-                <div className="mt-3 space-y-3">
-                  <div className="flex gap-1.5" role="radiogroup" aria-label="Rating">
-                    {[1, 2, 3, 4, 5].map((n) => (
-                      <button
-                        key={n}
-                        role="radio"
-                        aria-checked={rating === n}
-                        onClick={() => setRating(n)}
-                        className={`text-xl ${n <= rating ? "" : "opacity-25 grayscale"}`}
-                      >
-                        ★
-                      </button>
-                    ))}
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <label className="text-xs font-semibold text-muted">
-                      {t.gramsUsedLabel}
-                      <input
-                        type="number"
-                        min={0}
-                        step={0.1}
-                        value={gramsUsed}
-                        onChange={(e) => setGramsUsed(Number(e.target.value))}
-                        className="mt-1.5 w-full rounded-xl border border-line bg-bg px-3.5 py-2.5 text-sm text-ink focus:border-muted focus:outline-none"
-                      />
-                    </label>
-                    <label className="text-xs font-semibold text-muted">
-                      {t.steepsCompletedLabel}
-                      <input
-                        type="number"
-                        min={0}
-                        max={s.totalSteeps}
-                        value={steepsCompleted}
-                        onChange={(e) => setSteepsCompleted(Number(e.target.value))}
-                        className="mt-1.5 w-full rounded-xl border border-line bg-bg px-3.5 py-2.5 text-sm text-ink focus:border-muted focus:outline-none"
-                      />
-                    </label>
-                  </div>
-                  <label className="block text-xs font-semibold text-muted">
-                    {t.tagsLabel}
-                    <input
-                      type="text"
-                      value={tags}
-                      onChange={(e) => setTags(e.target.value)}
-                      placeholder={t.tagsPlaceholder}
-                      className="mt-1.5 w-full rounded-xl border border-line bg-bg px-3.5 py-2.5 text-sm text-ink placeholder:text-muted focus:border-muted focus:outline-none"
-                    />
-                  </label>
-                  <textarea
-                    value={note}
-                    onChange={(e) => setNote(e.target.value)}
-                    rows={2}
-                    placeholder={t.shortNotePlaceholder}
-                    className="w-full rounded-xl border border-line bg-bg p-3 text-sm placeholder:text-muted focus:border-muted focus:outline-none"
-                  />
-                  <div className="flex gap-2">
-                    <button
-                      onClick={saveEdit}
-                      className="rounded-full bg-ink px-4 py-2 text-xs font-bold text-bg"
-                    >
-                      {t.save}
-                    </button>
-                    <button
-                      onClick={() => deleteSession(s.id)}
-                      className="rounded-full border border-line px-4 py-2 text-xs font-semibold text-muted hover:text-red-700"
-                    >
-                      {t.deleteSession}
-                    </button>
-                  </div>
-                </div>
               )}
                 </motion.div>
               </motion.li>

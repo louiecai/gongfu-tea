@@ -54,6 +54,19 @@ export const PRESET_TEAS: TeaProfile[] = [
     autoAdvance: true,
     description: "A green tea despite the name — pale, umami, spring grass.",
   },
+  {
+    id: "jasmine",
+    name: "Jasmine Green Tea",
+    chineseName: "茉莉花茶",
+    category: "green",
+    liquorColor: "#e0d873",
+    icon: "flower",
+    tempC: 85,
+    ratioGramsPer100ml: 3,
+    steepsSec: [10, 15, 25, 40, 60, 90],
+    autoAdvance: true,
+    description: "Green tea scented with jasmine blossoms — sweet and heady.",
+  },
 
   // ─── Yellow ───
   {
