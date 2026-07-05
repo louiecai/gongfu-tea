@@ -44,6 +44,14 @@ body {
   overflow-x: hidden;
 }
 
+/* The session timer is a focused, full-attention view (nav hidden to
+   match) — it shouldn't scroll like the list-based pages do. */
+html.no-scroll,
+html.no-scroll body {
+  height: 100dvh;
+  overflow: hidden;
+}
+
 .font-display {
   font-family: var(--font-fraunces), Georgia, serif;
 }

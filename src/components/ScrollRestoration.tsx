@@ -11,12 +11,18 @@ import { usePathname } from "next/navigation";
  */
 const positions = new Map<string, number>();
 
+// The session timer is a focused, full-attention view (nav hidden to
+// match) — lock the page instead of letting it scroll like the rest.
+const NO_SCROLL_ROUTES = ["/session"];
+
 export function ScrollRestoration() {
   const pathname = usePathname();
   const current = useRef(pathname);
 
   useEffect(() => {
-    window.scrollTo(0, positions.get(pathname) ?? 0);
+    const locked = NO_SCROLL_ROUTES.includes(pathname);
+    document.documentElement.classList.toggle("no-scroll", locked);
+    if (!locked) window.scrollTo(0, positions.get(pathname) ?? 0);
     current.current = pathname;
   }, [pathname]);
 
