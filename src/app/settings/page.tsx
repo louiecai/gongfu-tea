@@ -1,11 +1,20 @@
 "use client";
 
+import { useState } from "react";
 import { useSettings } from "@/store/settings";
 import { useProfiles } from "@/store/profiles";
+import { useLog } from "@/store/log";
+import { useStash } from "@/store/stash";
+import { profilesRepo, logRepo, stashRepo, settingsRepo } from "@/lib/repo";
 import { requestNotificationPermission } from "@/lib/alerts";
 import { unlockAudio, playChime } from "@/lib/audio";
-import type { Settings } from "@/lib/types";
-import type { TeaProfile } from "@/lib/types";
+import {
+  DEFAULT_SETTINGS,
+  type BrewSession,
+  type Settings,
+  type StashItem,
+  type TeaProfile,
+} from "@/lib/types";
 import { useT } from "@/store/useT";
 
 function Toggle({
@@ -43,9 +52,27 @@ export default function SettingsPage() {
   const settings = useSettings();
   const custom = useProfiles((s) => s.custom);
   const { t } = useT();
+  const [newVesselName, setNewVesselName] = useState("");
+  const [newVesselMl, setNewVesselMl] = useState(100);
 
   const update = (patch: Partial<Settings>) =>
     useSettings.getState().update(patch);
+
+  const addVessel = () => {
+    if (!newVesselName.trim()) return;
+    update({
+      vesselProfiles: [
+        ...settings.vesselProfiles,
+        {
+          id: `vessel-${Date.now().toString(36)}`,
+          name: newVesselName.trim(),
+          ml: newVesselMl,
+        },
+      ],
+    });
+    setNewVesselName("");
+    setNewVesselMl(100);
+  };
 
   const strengthLabel =
     settings.strength < 0.95
@@ -54,27 +81,48 @@ export default function SettingsPage() {
         ? t.stronger
         : t.asWritten;
 
-  const exportProfiles = () => {
-    const blob = new Blob([JSON.stringify(custom, null, 2)], {
+  const exportAll = () => {
+    const bundle = {
+      schemaVersion: 1,
+      profiles: custom,
+      log: useLog.getState().sessions,
+      stash: useStash.getState().items,
+      settings,
+    };
+    const blob = new Blob([JSON.stringify(bundle, null, 2)], {
       type: "application/json",
     });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "gongfu-teas.json";
+    a.download = "gongfu-backup.json";
     a.click();
     URL.revokeObjectURL(url);
   };
 
-  const importProfiles = (file: File) => {
+  const importAll = (file: File) => {
     void file.text().then((text) => {
       try {
-        const parsed = JSON.parse(text) as TeaProfile[];
-        if (!Array.isArray(parsed)) return;
-        for (const p of parsed) {
-          if (p && typeof p.name === "string" && Array.isArray(p.steepsSec)) {
-            useProfiles.getState().save({ ...p, custom: true });
-          }
+        const parsed = JSON.parse(text) as Record<string, unknown>;
+        if (!parsed || typeof parsed !== "object") return;
+        if (Array.isArray(parsed.profiles)) {
+          profilesRepo.save(parsed.profiles as TeaProfile[]);
+          useProfiles.getState().hydrate();
+        }
+        if (Array.isArray(parsed.log)) {
+          logRepo.save(parsed.log as BrewSession[]);
+          useLog.getState().hydrate();
+        }
+        if (Array.isArray(parsed.stash)) {
+          stashRepo.save(parsed.stash as StashItem[]);
+          useStash.getState().hydrate();
+        }
+        if (parsed.settings && typeof parsed.settings === "object") {
+          settingsRepo.save({
+            ...DEFAULT_SETTINGS,
+            ...(parsed.settings as Partial<Settings>),
+          });
+          useSettings.getState().hydrate();
         }
       } catch {
         // ignore malformed files
@@ -137,10 +185,38 @@ export default function SettingsPage() {
             update({ sound: v });
             if (v) {
               unlockAudio();
-              playChime();
+              playChime(settings.chimeStyle);
             }
           }}
         />
+        {settings.sound && (
+          <div className="flex gap-2 pl-1">
+            {(
+              [
+                ["bell", t.chimeStyleBell],
+                ["wood", t.chimeStyleWood],
+                ["bright", t.chimeStyleBright],
+              ] as const
+            ).map(([value, text]) => (
+              <button
+                key={value}
+                onClick={() => {
+                  update({ chimeStyle: value });
+                  unlockAudio();
+                  playChime(value);
+                }}
+                aria-pressed={settings.chimeStyle === value}
+                className={`flex-1 rounded-xl border px-3 py-2 text-xs font-semibold transition-colors ${
+                  settings.chimeStyle === value
+                    ? "border-ink text-ink"
+                    : "border-line text-muted hover:text-ink"
+                }`}
+              >
+                {text}
+              </button>
+            ))}
+          </div>
+        )}
         <Toggle
           label={t.notification}
           hint={t.notificationHint}
@@ -171,6 +247,59 @@ export default function SettingsPage() {
           checked={settings.keepScreenOn}
           onChange={(v) => update({ keepScreenOn: v })}
         />
+
+        <h2 className="mt-6 text-xs font-semibold uppercase tracking-[0.15em] text-muted">
+          {t.vesselProfilesSection}
+        </h2>
+        <div className="space-y-2">
+          {settings.vesselProfiles.map((v) => (
+            <div
+              key={v.id}
+              className="flex items-center justify-between rounded-2xl border border-line bg-surface p-3"
+            >
+              <span className="text-sm font-semibold">
+                {v.name} · {v.ml} ml
+              </span>
+              <button
+                onClick={() =>
+                  update({
+                    vesselProfiles: settings.vesselProfiles.filter(
+                      (x) => x.id !== v.id,
+                    ),
+                  })
+                }
+                className="rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-muted hover:text-red-700"
+              >
+                {t.remove}
+              </button>
+            </div>
+          ))}
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={newVesselName}
+              onChange={(e) => setNewVesselName(e.target.value)}
+              placeholder={t.vesselNamePlaceholder}
+              className="min-w-0 flex-1 rounded-xl border border-line bg-surface px-3 py-2.5 text-sm placeholder:text-muted focus:border-muted focus:outline-none"
+            />
+            <input
+              type="number"
+              min={20}
+              max={500}
+              value={newVesselMl}
+              onChange={(e) => setNewVesselMl(Number(e.target.value))}
+              aria-label="ml"
+              className="w-20 rounded-xl border border-line bg-surface px-3 py-2.5 text-sm focus:border-muted focus:outline-none"
+            />
+            <button
+              onClick={addVessel}
+              disabled={!newVesselName.trim()}
+              className="rounded-xl bg-ink px-4 py-2.5 text-sm font-bold text-bg disabled:opacity-40"
+            >
+              {t.addVessel}
+            </button>
+          </div>
+        </div>
 
         <h2 className="mt-6 text-xs font-semibold uppercase tracking-[0.15em] text-muted">
           {t.appearanceSection}
@@ -226,11 +355,11 @@ export default function SettingsPage() {
         <h2 className="mt-6 text-xs font-semibold uppercase tracking-[0.15em] text-muted">
           {t.profilesSection}
         </h2>
+        <p className="text-xs text-muted">{t.backupHint}</p>
         <div className="flex gap-2">
           <button
-            onClick={exportProfiles}
-            disabled={custom.length === 0}
-            className="flex-1 rounded-2xl border border-line bg-surface p-3 text-sm font-semibold disabled:opacity-40"
+            onClick={exportAll}
+            className="flex-1 rounded-2xl border border-line bg-surface p-3 text-sm font-semibold"
           >
             {t.exportJson}
           </button>
@@ -242,7 +371,7 @@ export default function SettingsPage() {
               className="sr-only"
               onChange={(e) => {
                 const f = e.target.files?.[0];
-                if (f) importProfiles(f);
+                if (f) importAll(f);
                 e.target.value = "";
               }}
             />

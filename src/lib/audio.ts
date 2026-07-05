@@ -19,23 +19,37 @@ export function unlockAudio(): void {
   if (ctx.state === "suspended") void ctx.resume();
 }
 
-export function playChime(): void {
+export type ChimeStyle = "bell" | "wood" | "bright";
+
+// Each style is a fundamental plus partials that decay at different rates.
+const CHIME_PARTIALS: Record<ChimeStyle, Array<[freq: number, gain: number, decay: number]>> = {
+  bell: [
+    [523.25, 0.6, 2.8], // C5 fundamental
+    [1046.5, 0.25, 2.0],
+    [1567.98, 0.12, 1.4],
+    [2093.0, 0.06, 1.0],
+  ],
+  // Short, percussive — a woodblock-like knock rather than a ringing bell.
+  wood: [
+    [220, 0.7, 0.16],
+    [330, 0.3, 0.1],
+  ],
+  // Brighter and shorter — higher partials, faster decay.
+  bright: [
+    [1046.5, 0.55, 1.1],
+    [2093.0, 0.3, 0.8],
+    [3135.96, 0.15, 0.5],
+  ],
+};
+
+export function playChime(style: ChimeStyle = "bell"): void {
   if (!ctx || ctx.state !== "running") return;
   const now = ctx.currentTime;
   const master = ctx.createGain();
   master.gain.setValueAtTime(0.5, now);
   master.connect(ctx.destination);
 
-  // A bell is a fundamental plus slightly inharmonic partials that decay
-  // at different rates.
-  const partials: Array<[freq: number, gain: number, decay: number]> = [
-    [523.25, 0.6, 2.8], // C5 fundamental
-    [1046.5, 0.25, 2.0],
-    [1567.98, 0.12, 1.4],
-    [2093.0, 0.06, 1.0],
-  ];
-
-  for (const [freq, gain, decay] of partials) {
+  for (const [freq, gain, decay] of CHIME_PARTIALS[style]) {
     const osc = ctx.createOscillator();
     const g = ctx.createGain();
     osc.type = "sine";

@@ -7,6 +7,7 @@ import { useSettings } from "@/store/settings";
 import { PRESET_TEAS } from "@/lib/teas";
 import { leafGrams } from "@/lib/brew";
 import { displayTeaName, teaNames } from "@/lib/i18n";
+import { TeaIcon } from "@/components/TeaIcon";
 import { useT } from "@/store/useT";
 
 export default function StashPage() {
@@ -93,6 +94,7 @@ export default function StashPage() {
 
       {hydrated && items.length === 0 && !adding && (
         <div className="rounded-2xl border border-dashed border-line p-8 text-center">
+          <TeaIcon icon="leaf" className="mx-auto mb-3 h-12 w-12 text-line" />
           <p className="text-sm text-muted">{t.stashEmpty}</p>
         </div>
       )}

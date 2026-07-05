@@ -285,6 +285,7 @@ export const PRESET_TEAS: TeaProfile[] = [
     ratioGramsPer100ml: 6.5,
     steepsSec: [10, 12, 15, 20, 30, 45, 60, 90, 120, 180],
     autoAdvance: true,
+    hasRinse: true,
     description: "Raw and lively — bitter-sweet, apricot, huigan.",
   },
   {
@@ -298,6 +299,7 @@ export const PRESET_TEAS: TeaProfile[] = [
     ratioGramsPer100ml: 6.5,
     steepsSec: [10, 15, 20, 30, 45, 60, 90, 120, 180, 240],
     autoAdvance: true,
+    hasRinse: true,
     description: "Time-softened sheng — camphor, dried fruit, depth.",
   },
   {
@@ -311,6 +313,7 @@ export const PRESET_TEAS: TeaProfile[] = [
     ratioGramsPer100ml: 6.5,
     steepsSec: [10, 12, 18, 25, 40, 60, 90, 120, 180],
     autoAdvance: true,
+    hasRinse: true,
     description: "Ripe pu-erh — earthy, smooth, dark chocolate.",
   },
 
@@ -326,6 +329,7 @@ export const PRESET_TEAS: TeaProfile[] = [
     ratioGramsPer100ml: 6.5,
     steepsSec: [10, 15, 20, 30, 45, 70, 100, 150],
     autoAdvance: true,
+    hasRinse: true,
     description: "Guangxi dark tea — betel nut, cellar, mellow.",
   },
 

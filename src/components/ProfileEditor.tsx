@@ -67,6 +67,7 @@ export function ProfileEditor({
     seed?.steepsSec.join(", ") ?? "15, 20, 30, 45, 60, 90",
   );
   const [autoAdvance, setAutoAdvance] = useState(seed?.autoAdvance ?? true);
+  const [hasRinse, setHasRinse] = useState(seed?.hasRinse ?? false);
   const [error, setError] = useState<string | null>(null);
 
   const steeps = parseSteeps(steepsText);
@@ -91,6 +92,7 @@ export function ProfileEditor({
       ratioGramsPer100ml: ratio,
       steepsSec: steeps,
       autoAdvance,
+      hasRinse,
       custom: true,
     };
     useProfiles.getState().save(profile);
@@ -255,6 +257,16 @@ export function ProfileEditor({
           className="h-4 w-4 accent-current"
         />
         {t.fAutoAdvance}
+      </label>
+
+      <label className="flex items-center gap-3 text-sm">
+        <input
+          type="checkbox"
+          checked={hasRinse}
+          onChange={(e) => setHasRinse(e.target.checked)}
+          className="h-4 w-4 accent-current"
+        />
+        {t.fHasRinse}
       </label>
 
       {error && <p className="text-sm font-semibold text-red-600">{error}</p>}

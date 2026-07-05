@@ -15,6 +15,7 @@ export function Boot() {
   const theme = useSettings((s) => s.theme);
   const language = useSettings((s) => s.language);
   const hydrated = useSettings((s) => s.hydrated);
+  const activeCount = useActiveSessions((s) => s.sessions.length);
 
   useEffect(() => {
     if (hydrated) {
@@ -49,6 +50,20 @@ export function Boot() {
       void navigator.serviceWorker.register("/sw.js");
     }
   }, []);
+
+  // Reflect how many brews are currently unfinished on the app icon, where
+  // the browser supports it (Chrome/Edge, some Android). No-ops elsewhere.
+  useEffect(() => {
+    const nav = navigator as Navigator & {
+      setAppBadge?: (count?: number) => Promise<void>;
+      clearAppBadge?: () => Promise<void>;
+    };
+    if (activeCount > 0) {
+      void nav.setAppBadge?.(activeCount);
+    } else {
+      void nav.clearAppBadge?.();
+    }
+  }, [activeCount]);
 
   return null;
 }

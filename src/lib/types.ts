@@ -37,6 +37,9 @@ export interface TeaProfile {
   /** Seconds per steep, in order. */
   steepsSec: number[];
   autoAdvance: boolean;
+  /** A short flash steep before steep 1, to wake the leaves — doesn't count
+   * toward steeps/log stats. On by default for pu-erh and heicha presets. */
+  hasRinse?: boolean;
   description?: string;
   custom?: boolean;
 }
@@ -82,6 +85,7 @@ export interface ActiveSession {
   timer: TimerState;
   justFinishedSteep: number | null;
   steeps: SteepRecord[];
+  rinsing: boolean;
 }
 
 export interface StashItem {
@@ -105,6 +109,9 @@ export interface Settings {
   /** Water volume per brew, in ml — drives leaf grams via each tea's ratio. */
   vesselMl: number;
   favorites: string[];
+  /** Named pots/gaiwans for quick vessel-size switching. */
+  vesselProfiles: { id: string; name: string; ml: number }[];
+  chimeStyle: "bell" | "wood" | "bright";
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -117,6 +124,11 @@ export const DEFAULT_SETTINGS: Settings = {
   language: "en",
   vesselMl: 100,
   favorites: [],
+  vesselProfiles: [
+    { id: "gaiwan", name: "Gaiwan", ml: 100 },
+    { id: "pot", name: "Small pot", ml: 150 },
+  ],
+  chimeStyle: "bell",
 };
 
 export const CATEGORY_LABELS: Record<TeaCategory, string> = {

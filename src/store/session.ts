@@ -31,12 +31,16 @@ interface SessionStore {
   totalBrewMs: number;
   /** When each pour started and how long it actually ran. */
   steeps: SteepRecord[];
+  /** A short flash steep before steep 1 — doesn't count toward stats. */
+  rinsing: boolean;
 
   begin: (tea: TeaProfile, strength: number) => void;
   startSteep: (gramsOverride?: number) => void;
   pause: () => void;
   resume: () => void;
   nudge: (deltaSec: number) => void;
+  /** The rinse timer hit zero: move straight into steep 1, no stats recorded. */
+  completeRinse: () => void;
   /** Steep timer hit zero: record it and advance (or wait, per profile). */
   completeSteep: () => void;
   /** Move to the next steep without brewing the current one. */
@@ -58,7 +62,10 @@ const EMPTY = {
   justFinishedSteep: null,
   totalBrewMs: 0,
   steeps: [] as SteepRecord[],
+  rinsing: false,
 };
+
+const RINSE_MS = 5000;
 
 export const useSession = create<SessionStore>((set, get) => ({
   ...EMPTY,
@@ -84,11 +91,13 @@ export const useSession = create<SessionStore>((set, get) => ({
         justFinishedSteep: existing.justFinishedSteep,
         totalBrewMs: existing.totalBrewMs,
         steeps: existing.steeps,
+        rinsing: existing.rinsing,
       });
       return;
     }
 
     const steepDurations = tea.steepsSec.map((s) => scaledSteepMs(s, strength));
+    const rinsing = !!tea.hasRinse;
     const logId = `brew-${Date.now().toString(36)}`;
     useLog.getState().add({
       id: logId,
@@ -105,18 +114,19 @@ export const useSession = create<SessionStore>((set, get) => ({
       ...EMPTY,
       tea,
       steepDurations,
-      timer: idleTimer(steepDurations[0]),
+      timer: idleTimer(rinsing ? RINSE_MS : steepDurations[0]),
       logId,
+      rinsing,
     });
   },
 
   startSteep: (gramsOverride) => {
     unlockAudio();
-    const { steepIndex, tea, logId, steeps } = get();
-    // First steep only: capture the leaf grams (from the page's grams
-    // stepper, or derived from ratio+vessel if not given), then deplete the
-    // stash once for the whole session.
-    if (steepIndex === 0 && tea) {
+    const { steepIndex, tea, logId, steeps, rinsing } = get();
+    // First real steep only (not the rinse): capture the leaf grams (from
+    // the page's grams stepper, or derived from ratio+vessel if not given),
+    // then deplete the stash once for the whole session.
+    if (!rinsing && steepIndex === 0 && tea) {
       const vesselMl = useSettings.getState().vesselMl;
       const grams =
         gramsOverride ?? leafGrams(tea.ratioGramsPer100ml, vesselMl);
@@ -126,7 +136,19 @@ export const useSession = create<SessionStore>((set, get) => ({
     set({
       timer: startTimer(get().timer),
       justFinishedSteep: null,
-      steeps: [...steeps, { steepIndex, startedAt: Date.now(), durationMs: 0 }],
+      // The rinse isn't a real steep — no history entry for it.
+      steeps: rinsing
+        ? steeps
+        : [...steeps, { steepIndex, startedAt: Date.now(), durationMs: 0 }],
+    });
+  },
+
+  completeRinse: () => {
+    const { steepDurations } = get();
+    set({
+      rinsing: false,
+      timer: idleTimer(steepDurations[0]),
+      justFinishedSteep: null,
     });
   },
 
@@ -237,6 +259,7 @@ if (typeof window !== "undefined") {
       timer: state.timer,
       justFinishedSteep: state.justFinishedSteep,
       steeps: state.steeps,
+      rinsing: state.rinsing,
     });
   });
 }
