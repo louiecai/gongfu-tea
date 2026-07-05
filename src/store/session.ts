@@ -98,31 +98,36 @@ export const useSession = create<SessionStore>((set, get) => ({
 
     const steepDurations = tea.steepsSec.map((s) => scaledSteepMs(s, strength));
     const rinsing = !!tea.hasRinse;
-    const logId = `brew-${Date.now().toString(36)}`;
-    useLog.getState().add({
-      id: logId,
-      teaId: tea.id,
-      teaName: tea.name,
-      liquorColor: tea.liquorColor,
-      startedAt: Date.now(),
-      steepsCompleted: 0,
-      totalSteeps: tea.steepsSec.length,
-      tempC: tea.tempC,
-      totalBrewMs: 0,
-    });
+    // No log entry yet, and nothing resumable — just looking at the timer
+    // shouldn't create history. That starts on the first real Start tap,
+    // in startSteep().
     set({
       ...EMPTY,
       tea,
       steepDurations,
       timer: idleTimer(rinsing ? RINSE_MS : steepDurations[0]),
-      logId,
       rinsing,
     });
   },
 
   startSteep: (gramsOverride) => {
     unlockAudio();
-    const { steepIndex, tea, logId, steeps, rinsing } = get();
+    const { steepIndex, tea, steeps, rinsing } = get();
+    let { logId } = get();
+    if (!logId && tea) {
+      logId = `brew-${Date.now().toString(36)}`;
+      useLog.getState().add({
+        id: logId,
+        teaId: tea.id,
+        teaName: tea.name,
+        liquorColor: tea.liquorColor,
+        startedAt: Date.now(),
+        steepsCompleted: 0,
+        totalSteeps: tea.steepsSec.length,
+        tempC: tea.tempC,
+        totalBrewMs: 0,
+      });
+    }
     // First real steep only (not the rinse): capture the leaf grams (from
     // the page's grams stepper, or derived from ratio+vessel if not given),
     // then deplete the stash once for the whole session.
@@ -134,6 +139,7 @@ export const useSession = create<SessionStore>((set, get) => ({
       if (logId) useLog.getState().update(logId, { gramsUsed: grams });
     }
     set({
+      logId,
       timer: startTimer(get().timer),
       justFinishedSteep: null,
       // The rinse isn't a real steep — no history entry for it.
